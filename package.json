@@ -21,8 +21,7 @@
   "keywords": [
     "solid",
     "decentralized",
-    "widgets",
-    "ui",
+    "widgets", "ui",
     "web",
     "rdf",
     "ldp",
@@ -36,10 +35,9 @@
   },
   "homepage": "https://github.com/linkeddata/mashlib",
   "dependencies": {
-    "http-browserify": "^1.7.0",
-    "rdflib": "git://github.com/linkeddata/rdflib.js.git",
-    "solid-app-set": "git@github.com:solid-live/solid-app-set.git",
-    "solid-ui": "git://github.com/linkeddata/solid-ui.git"
+    "rdflib": "git://github.com/linkeddata/rdflib.git",
+    "solid-ui": "git://github.com/linkeddata/solid-ui.git",
+    "solid-app-set": "https://github.com/linkeddata/solid-app-set.git"
   },
   "devDependencies": {
     "browserify": "^13.0.0",

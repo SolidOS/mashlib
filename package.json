@@ -45,6 +45,7 @@
   },
   "homepage": "https://github.com/linkeddata/mashlib",
   "dependencies": {
+    "http-browserify": "^1.7.0",
     "rdflib": "git://github.com/linkeddata/rdflib.js.git",
     "solid-ui": "git://github.com/linkeddata/solid-ui.git",
     "solid-app-set": "https://github.com/linkeddata/solid-app-set.git"

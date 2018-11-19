@@ -14,7 +14,9 @@ global.dump = dump
 
 const panes = require('solid-panes') // applets
 // const UI = require('solid-ui') // widgets etc
-const $rdf = require('rdflib')
+
+// const $rdf = require('rdflib') // duplication problems with NPM
+const $rdf = panes.UI.rdf
 global.$rdf = $rdf
 
 // $rdf.log = UI.log

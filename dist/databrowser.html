@@ -13,7 +13,8 @@ document.addEventListener('DOMContentLoaded', function() {
     window.document.title = uri;
     var kb = UI.store;
     var subject = kb.sym(uri);
-    var outliner = panes.getOutliner()
+    var dom = document;
+    var outliner = panes.getOutliner(dom)
     outliner.GotoSubject(subject, true, undefined, true, undefined);
 });
 </script>

@@ -4,6 +4,7 @@ const panes = require('solid-panes')
 const UI = panes.UI
 
 window.$rdf = $rdf
+window.panes = panes
 
 document.addEventListener('DOMContentLoaded', function () {
   // Set up cross-site proxy

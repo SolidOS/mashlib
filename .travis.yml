@@ -14,6 +14,7 @@ script:
 
 before_deploy:
   - echo node_modules > .gitignore
+  - cp gh-pages/* dist
 deploy:
   provider: pages
   skip_cleanup: true

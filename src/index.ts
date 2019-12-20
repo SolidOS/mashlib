@@ -20,15 +20,15 @@ global.panes.runDataBrowser = function () {
   fetcher.crossSiteProxyTemplate = window.origin + '/xss/?uri={uri}'
 
   // Authenticate the user
-  authn.checkUser().then(function (_profile: $rdf.NamedNode | null) {
+  authn.checkUser().then(() => {
     // Set up the view for the current subject
     const uri = window.location.href
     const subject = store.sym(uri)
     const outliner = panes.getOutliner(document)
     outliner.GotoSubject(subject, true, undefined, true, undefined)
-    const header = initHeader(store)
+    // const header = initHeader(store)
     const footer = initFooter(store, (store as any).fetcher)
-    return Promise.all([header, footer])
+    return Promise.all([footer])
   })
 }
 

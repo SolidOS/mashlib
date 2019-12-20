@@ -16,7 +16,7 @@ export async function initFooter (store: IndexedFormula, fetcher: Fetcher) {
 
 function rebuildFooter (footer: HTMLElement, store: IndexedFormula, pod: NamedNode | null, podOwner: NamedNode | null) {
   return async (session: SolidSession | null) => {
-    const user = session ? sym(session.webId) : null
+    const user = session ? sym(session.webId) as NamedNode : null
     footer.innerHTML = ''
     footer.appendChild(await createControllerInfoBlock(store, user, pod, podOwner))
   }

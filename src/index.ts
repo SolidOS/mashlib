@@ -14,7 +14,22 @@ global.mashlib = {
   versionInfo
 }
 
-global.panes.runDataBrowser = function () {
+global.panes.runDataBrowser = async function () {
+  try {
+    var session = await authn.currentSession()
+    if (session && session.webId) {
+      // Check, that session has access to user data and it wasn't expired
+      var url = new URL(session.webId)
+      url.pathname = '/settings/privateTypeIndex.ttl'
+      const { status } = await authn.fetch(url.href, { method: 'HEAD' })
+      if (status === 401) {
+        await authn.logout()
+      }
+    }
+  } catch (e) {
+    console.log(e)
+  }
+
   // Set up cross-site proxy
   const fetcher: any = $rdf.Fetcher
   fetcher.crossSiteProxyTemplate = window.origin + '/xss/?uri={uri}'

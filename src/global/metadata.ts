@@ -1,7 +1,7 @@
-import $rdf, { Fetcher, IndexedFormula, NamedNode, sym } from 'rdflib'
+import { Fetcher, IndexedFormula, namedNode, NamedNode, sym } from 'rdflib'
 import namespace from 'solid-namespace'
 
-const ns = namespace($rdf)
+const ns = namespace({ namedNode })
 
 export function getName (store: IndexedFormula, user: NamedNode): string {
   return store.anyValue(user, ns.vcard('fn'), null, user.doc()) ||

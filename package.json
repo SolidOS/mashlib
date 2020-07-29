@@ -10,7 +10,7 @@
   "scripts": {
     "build": "npm run clean && npm run build-version && npm run build-dev && npm run build-dist",
     "build-dev": "webpack --progress",
-    "build-dist": "webpack --progress --mode=production; echo 'Copying databrowser.html to index.html for backwards compatibility; can be removed when Node Solid Server is updated.'; cp dist/databrowser.html dist/index.html",
+    "build-dist": "webpack --progress --mode=production",
     "build-version": "./timestamp.sh > src/versionInfo.ts  && eslint 'src/versionInfo.ts' --fix",
     "watch": "npm run build-version && webpack --watch",
     "clean": "rm -rf dist",

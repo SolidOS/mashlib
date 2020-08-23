@@ -17,8 +17,9 @@
     "lint": "eslint 'src/**/*.ts'",
     "lint-fix": "eslint 'src/**/*.ts' --fix",
     "test": "npm run lint",
-    "prepublishOnly": "npm test && npm run build",
-    "postpublish": "git push origin master --follow-tags"
+    "prepublishOnly": "npm test && npm run build && npm run bundlesize",
+    "postpublish": "git push origin master --follow-tags",
+    "bundlesize": "bundlesize"
   },
   "repository": {
     "type": "git",
@@ -60,6 +61,7 @@
     "@typescript-eslint/parser": "^3.7.1",
     "babel-core": "^6.26.3",
     "babel-loader": "^8.1.0",
+    "bundlesize": "^0.18.0",
     "copy-webpack-plugin": "^6.0.3",
     "css-loader": "^4.1.1",
     "eslint": "^7.5.0",
@@ -88,5 +90,15 @@
     "src/**/*.ts": [
       "eslint"
     ]
-  }
+  },
+  "bundlesize": [
+    {
+      "path": "./dist/*.min.js",
+      "maxSize": "1 MB"
+    },
+    {
+      "path": "./dist/*[^.min].js",
+      "maxSize": "2 MB"
+    }
+  ]
 }

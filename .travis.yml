@@ -9,6 +9,7 @@ install:
   - npm ci
 script:
   - npm run build
+  - npm run bundlesize
 
 before_deploy:
   - echo node_modules > .gitignore

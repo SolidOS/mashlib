@@ -5,6 +5,9 @@ node_js:
   - "lts/*"
   - "node"
 
+env:
+  - BUNDLESIZE_GITHUB_TOKEN=$GH_TOKEN
+
 install:
   - npm ci
 script:

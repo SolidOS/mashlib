@@ -25,8 +25,10 @@ global.panes.runDataBrowser = function () {
     const subject = store.sym(uri)
     const outliner = panes.getOutliner(document)
     outliner.GotoSubject(subject, true, undefined, true, undefined)
+    return outliner.getDashboardItems()
+  }).then((menuList: any) => {
     const header = initHeader(store, {
-      menuList: outliner.getDashboardItems()
+      menuList
     })
     const footer = initFooter(store, store.fetcher)
     return Promise.all([header, footer])

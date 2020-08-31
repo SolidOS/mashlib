@@ -1,9 +1,8 @@
 import * as $rdf from 'rdflib'
 import * as panes from 'solid-panes'
 import './styles/index.scss'
-import { initHeader } from './global/header'
 import { initFooter } from './global/footer'
-import { authn, store } from 'solid-ui'
+import { authn, store, initHeader } from 'solid-ui'
 import versionInfo from './versionInfo'
 
 const global: any = window
@@ -26,7 +25,9 @@ global.panes.runDataBrowser = function () {
     const subject = store.sym(uri)
     const outliner = panes.getOutliner(document)
     outliner.GotoSubject(subject, true, undefined, true, undefined)
-    const header = initHeader(store)
+    const header = initHeader(store, {
+      menuList: outliner.getDashboardItems()
+    })
     const footer = initFooter(store, store.fetcher)
     return Promise.all([header, footer])
   })

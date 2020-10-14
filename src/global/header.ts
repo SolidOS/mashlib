@@ -1,7 +1,6 @@
 import { IndexedFormula, NamedNode, sym } from 'rdflib'
 import { authn, widgets } from 'solid-ui'
 import { icon } from './icon'
-import { SolidSession } from '../../typings/solid-auth-client'
 import { emptyProfile } from './empty-profile'
 import { throttle } from '../helpers/throttle'
 import { getPod } from './metadata'
@@ -14,12 +13,15 @@ export async function initHeader (store: IndexedFormula) {
   }
 
   const pod = getPod()
-  authn.solidAuthClient.trackSession(rebuildHeader(header, store, pod))
+  rebuildHeader(header, store, pod)()
+  authn.authSession.onLogin(rebuildHeader(header, store, pod))
+  authn.authSession.onLogout(rebuildHeader(header, store, pod))
 }
 
 function rebuildHeader (header: HTMLElement, store: IndexedFormula, pod: NamedNode) {
-  return async (session: SolidSession | null) => {
-    const user = session ? sym(session.webId) : null
+  return async () => {
+    const sessionInfo = authn.authSession.info
+    const user = sessionInfo.webId ? sym(sessionInfo.webId) : null
     header.innerHTML = ''
     header.appendChild(await createBanner(store, pod, user))
   }

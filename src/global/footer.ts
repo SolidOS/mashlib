@@ -10,6 +10,7 @@ export async function initFooter (store: IndexedFormula, fetcher: Fetcher) {
 
   const pod = getPod()
   const podOwner = await getPodOwner(pod, store, fetcher)
+  rebuildFooter(footer, store, pod, podOwner)()
   authn.authSession.onLogin(rebuildFooter(footer, store, pod, podOwner))
   authn.authSession.onLogout(rebuildFooter(footer, store, pod, podOwner))
 }

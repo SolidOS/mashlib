@@ -23,7 +23,7 @@ deploy:
     github_token: $GH_TOKEN
     on:
       branch: master
-      condition: $TRAVIS_NODE_VERSION = 10.0
+      condition: $TRAVIS_NODE_VERSION = "node"
   - provider: npm
     # Do not throw away the updated package.json we generated in `before_deploy`:
     skip_cleanup: true

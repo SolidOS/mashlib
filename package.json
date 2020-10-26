@@ -94,11 +94,11 @@
   "bundlesize": [
     {
       "path": "./dist/*.min.js",
-      "maxSize": "1 MB"
+      "maxSize": "2 MB"
     },
     {
       "path": "./dist/*[^.min].js",
-      "maxSize": "2 MB"
+      "maxSize": "3 MB"
     }
   ]
 }

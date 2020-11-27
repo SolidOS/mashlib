@@ -92,9 +92,11 @@ module.exports = (env, args) => {
       new MiniCssExtractPlugin({
         filename: 'mash.css'
       }),
-      new CopyPlugin([
-        { from: 'static', to: '.' }
-      ])
+      new CopyPlugin({
+        patterns: [
+          { from: 'static', to: '.' }
+        ]
+      })
     ],
     externals: {
       'fs': 'null',

@@ -1,18 +1,18 @@
 language: node_js
 node_js:
-  - "8.12"
-  - "8"
-  - "10.3"
   - "10"
-  - "12.0"
   - "12"
   - "lts/*"
   - "node"
+
+env:
+  - BUNDLESIZE_GITHUB_TOKEN=$GH_TOKEN
 
 install:
   - npm ci
 script:
   - npm run build
+  - npm run bundlesize
 
 before_deploy:
   - echo node_modules > .gitignore
@@ -23,7 +23,7 @@ deploy:
     github_token: $GH_TOKEN
     on:
       branch: master
-      condition: $TRAVIS_NODE_VERSION = 10.0
+      condition: $TRAVIS_NODE_VERSION = "node"
   - provider: npm
     # Do not throw away the updated package.json we generated in `before_deploy`:
     skip_cleanup: true

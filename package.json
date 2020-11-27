@@ -1,6 +1,6 @@
 {
   "name": "mashlib",
-  "version": "1.2.0",
+  "version": "1.6.6",
   "description": "Data mashup library",
   "main": "./index.js",
   "files": [
@@ -10,15 +10,16 @@
   "scripts": {
     "build": "npm run clean && npm run build-version && npm run build-dev && npm run build-dist",
     "build-dev": "webpack --progress",
-    "build-dist": "webpack --progress --mode=production; echo 'Copying databrowser.html to index.html for backwards compatibility; can be removed when Node Solid Server is updated.'; cp dist/databrowser.html dist/index.html",
+    "build-dist": "webpack --progress --mode=production",
     "build-version": "./timestamp.sh > src/versionInfo.ts  && eslint 'src/versionInfo.ts' --fix",
     "watch": "npm run build-version && webpack --watch",
     "clean": "rm -rf dist",
     "lint": "eslint 'src/**/*.ts'",
     "lint-fix": "eslint 'src/**/*.ts' --fix",
     "test": "npm run lint",
-    "prepublishOnly": "npm test && npm run build",
-    "postpublish": "git push origin master --follow-tags"
+    "prepublishOnly": "npm test && npm run build && npm run bundlesize",
+    "postpublish": "git push origin master --follow-tags",
+    "bundlesize": "bundlesize"
   },
   "repository": {
     "type": "git",
@@ -45,38 +46,39 @@
   "homepage": "https://github.com/solid/mashlib",
   "dependencies": {
     "normalize.css": "^8.0.1",
-    "rdflib": "^1.0.4",
-    "solid-panes": "^3.0.0",
-    "solid-ui": "^2.0.0"
+    "rdflib": "^2.1.1",
+    "solid-panes": "^3.4.6",
+    "solid-ui": "^2.3.6"
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0",
-    "@babel/core": "^7.0.1",
-    "@babel/plugin-transform-runtime": "^7.5.5",
-    "@babel/preset-env": "^7.0.0",
-    "@babel/preset-typescript": "^7.3.3",
-    "@types/rdflib": "^0.20.1",
-    "@typescript-eslint/eslint-plugin": "^2.8.0",
-    "@typescript-eslint/parser": "^2.8.0",
-    "babel-core": "^6.24.0",
-    "babel-loader": "^8.0.2",
-    "copy-webpack-plugin": "^5.0.4",
-    "css-loader": "^2.1.1",
-    "eslint": "^6.6.0",
-    "file-loader": "^4.2.0",
+    "@babel/cli": "^7.12.1",
+    "@babel/core": "^7.12.3",
+    "@babel/plugin-transform-runtime": "^7.12.1",
+    "@babel/preset-env": "^7.12.1",
+    "@babel/preset-typescript": "^7.12.1",
+    "@typescript-eslint/eslint-plugin": "^3.10.1",
+    "@typescript-eslint/parser": "^3.10.1",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.2.1",
+    "bundlesize": "^0.18.0",
+    "copy-webpack-plugin": "^6.3.0",
+    "css-loader": "^5.0.1",
+    "eslint": "^7.13.0",
+    "file-loader": "^6.2.0",
     "font-awesome": "^4.7.0",
-    "html-webpack-plugin": "^3.2.0",
-    "husky": "^3.0.5",
-    "lint-staged": "^9.2.5",
-    "mini-css-extract-plugin": "^0.7.0",
-    "node-sass": "^4.12.0",
-    "sass-loader": "^7.3.1",
-    "standard": "^14.3.1",
-    "typescript": "^3.6.2",
-    "url-loader": "^2.0.0",
-    "webpack": "^4.39.3",
-    "webpack-cli": "^3.3.7",
-    "webpack-sources": "^1.4.3"
+    "html-webpack-plugin": "^4.5.0",
+    "husky": "^4.3.0",
+    "lint-staged": "^10.5.1",
+    "mini-css-extract-plugin": "^1.2.1",
+    "node-sass": "^5.0.0",
+    "sass-loader": "^10.1.0",
+    "solid-auth-cli": "^1.0.15",
+    "standard": "^16.0.2",
+    "typescript": "^4.0.5",
+    "url-loader": "^4.1.1",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12",
+    "webpack-sources": "^2.2.0"
   },
   "husky": {
     "hooks": {
@@ -87,5 +89,15 @@
     "src/**/*.ts": [
       "eslint"
     ]
-  }
+  },
+  "bundlesize": [
+    {
+      "path": "./dist/*.min.js",
+      "maxSize": "2 MB"
+    },
+    {
+      "path": "./dist/*[^.min].js",
+      "maxSize": "3 MB"
+    }
+  ]
 }

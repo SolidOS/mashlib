@@ -2,8 +2,8 @@ import { Fetcher, IndexedFormula, NamedNode, sym } from 'rdflib'
 import { ns } from 'solid-ui'
 
 export function getName (store: IndexedFormula, user: NamedNode): string {
-  return (store.anyValue as any)(user, ns.vcard('fn'), null, user.doc()) ||
-    (store.anyValue as any)(user, ns.foaf('name'), null, user.doc()) ||
+  return store.anyValue(user, ns.vcard('fn'), null, user.doc()) ||
+    store.anyValue(user, ns.foaf('name'), null, user.doc()) ||
     user.uri
 }
 

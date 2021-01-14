@@ -19,6 +19,16 @@ global.panes.runDataBrowser = function () {
   const fetcher: any = $rdf.Fetcher
   fetcher.crossSiteProxyTemplate = window.origin + '/xss/?uri={uri}'
 
+  // Add web monetization tag to page header
+  try {
+    const webMonetizationTag: HTMLElement = document.createElement('meta')
+    webMonetizationTag.setAttribute('name', 'monetization')
+    webMonetizationTag.setAttribute('content', `$${window.location.host}`)
+    document.head.appendChild(webMonetizationTag)
+  } catch (e) {
+    console.error('Failed to add web monetization tag to page header')
+  }
+
   // Authenticate the user
   authn.checkUser().then(function (_profile: $rdf.NamedNode | null) {
     // Set up the view for the current subject

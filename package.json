@@ -18,7 +18,7 @@
     "lint-fix": "eslint 'src/**/*.ts' --fix",
     "test": "npm run lint",
     "prepublishOnly": "npm test && npm run build && npm run bundlesize",
-    "postpublish": "git push origin master --follow-tags",
+    "postpublish": "git push origin main --follow-tags",
     "bundlesize": "bundlesize"
   },
   "repository": {

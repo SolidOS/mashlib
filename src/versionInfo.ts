@@ -1,10 +1,10 @@
 export default {
-  buildTime: '2021-02-04T10:46:05Z',
-  commit: 'f28b440ed6aa4a185fb238821a63b6ac1f84b4b7',
+  buildTime: '2021-03-03T11:46:48Z',
+  commit: '3de1e272c1b9280e850f85349255ac68bb2f3ea1',
   npmInfo:
 {
   mashlib: '1.6.9',
-  npm: '6.14.10',
+  npm: '6.14.11',
   ares: '1.16.1',
   brotli: '1.0.9',
   cldr: '37.0',
@@ -13,12 +13,12 @@ export default {
   modules: '83',
   napi: '7',
   nghttp2: '1.41.0',
-  node: '14.15.4',
+  node: '14.15.5',
   openssl: '1.1.1i',
   tz: '2020a',
   unicode: '13.0',
   uv: '1.40.0',
-  v8: '8.4.371.19-node.17',
+  v8: '8.4.371.19-node.18',
   zlib: '1.2.11'
 }
 }

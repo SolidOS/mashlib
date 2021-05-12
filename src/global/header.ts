@@ -19,7 +19,7 @@ export async function initHeader (store: IndexedFormula) {
 
 function rebuildHeader (header: HTMLElement, store: IndexedFormula, pod: NamedNode) {
   return async (session: SolidSession | null) => {
-    const user = session ? sym(session.webId) : null
+    const user = session ? sym(session.webId) : authn.offlineTestID()
     header.innerHTML = ''
     header.appendChild(await createBanner(store, pod, user))
   }

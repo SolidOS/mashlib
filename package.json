@@ -45,6 +45,7 @@
   },
   "homepage": "https://github.com/solid/mashlib",
   "dependencies": {
+    "contacts-pane": "^2.4.7",
     "normalize.css": "^8.0.1",
     "raw-loader": "^4.0.2",
     "rdflib": "^2.1.7",

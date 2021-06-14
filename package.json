@@ -47,8 +47,8 @@
   "dependencies": {
     "normalize.css": "^8.0.1",
     "rdflib": "^2.2.5",
-    "solid-panes": "^3.5.2",
-    "solid-ui": "^2.4.5"
+    "solid-panes": "^3.5.3",
+    "solid-ui": "^2.4.7"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.5",

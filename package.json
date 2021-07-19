@@ -1,6 +1,6 @@
 {
   "name": "mashlib",
-  "version": "1.7.3",
+  "version": "1.7.4",
   "description": "Data mashup library",
   "main": "./index.js",
   "files": [
@@ -46,8 +46,8 @@
   "homepage": "https://github.com/solid/mashlib",
   "dependencies": {
     "normalize.css": "^8.0.1",
-    "rdflib": "^2.2.6",
-    "solid-panes": "^3.5.4",
+    "rdflib": "^2.2.7",
+    "solid-panes": "^3.5.5",
     "solid-ui": "^2.4.8"
   },
   "devDependencies": {

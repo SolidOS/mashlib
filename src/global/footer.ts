@@ -1,6 +1,5 @@
 import { Fetcher, IndexedFormula, NamedNode, sym } from 'rdflib'
 import { authn } from 'solid-ui'
-import { SolidSession } from '../../typings/solid-auth-client'
 import { getName, getPod, getPodOwner } from './metadata'
 
 export async function initFooter (store: IndexedFormula, fetcher: Fetcher) {
@@ -11,12 +10,15 @@ export async function initFooter (store: IndexedFormula, fetcher: Fetcher) {
 
   const pod = getPod()
   const podOwner = await getPodOwner(pod, store, fetcher)
-  authn.solidAuthClient.trackSession(rebuildFooter(footer, store, pod, podOwner))
+  rebuildFooter(footer, store, pod, podOwner)()
+  authn.authSession.onLogin(rebuildFooter(footer, store, pod, podOwner))
+  authn.authSession.onLogout(rebuildFooter(footer, store, pod, podOwner))
 }
 
 function rebuildFooter (footer: HTMLElement, store: IndexedFormula, pod: NamedNode | null, podOwner: NamedNode | null) {
-  return async (session: SolidSession | null) => {
-    const user = session ? sym(session.webId) : null
+  return async () => {
+    const sessionInfo = authn.authSession.info
+    const user = sessionInfo.webId ? sym(sessionInfo.webId) : null
     footer.innerHTML = ''
     footer.appendChild(await createControllerInfoBlock(store, user, pod, podOwner))
   }

@@ -48,6 +48,21 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('ready for user input')
     }
 
+    // Add the Login Buttons
+    const loginButtonArea = document.getElementById("loginButtonArea");
+    if (!UI.authn.authSession.info.webId) {
+      // HACK This is a really ugly way to add a login box.
+      // TODO make it prettier
+      loginButtonArea.appendChild(UI.authn.loginStatusBox(document, null, {}))
+    }
+    UI.authn.authSession.onLogin(() => {
+      loginButtonArea.innerHTML = '';
+      // HACK doing this doesn't automatically refresh pages. But, it doesn't work
+      // in the previous version of the data browser, so for now I'm moving on
+      // To test this, navigate to a folder view, then log in. It will not automatically
+      // redirect
+      go()
+    })
 });
 </script>
 </head>

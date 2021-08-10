@@ -58,6 +58,9 @@ async function openDashboardPane (outliner: any, pane: string): Promise<void> {
   })
 }
 
+// EventListenerOrEventListenerObject triggers an undefined error in the linter, but it is defined
+// via lib.dom.d.ts
+// eslint-disable-next-line no-undef
 function createUserMenuButton (label: string, onClick: EventListenerOrEventListenerObject): HTMLElement {
   const button = document.createElement('button')
   button.classList.add('header-user-menu__button')

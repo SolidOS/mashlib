@@ -4,7 +4,7 @@ type ThrottleOptions = {
   trailing?: boolean;
 }
 
-export function throttle (func: Function, wait: number, options: ThrottleOptions = {}): (...args: any[]) => any {
+export function throttle (func: Function, wait: number, options: ThrottleOptions = {}): () => any {
   let context: any,
     args: any,
     result: any

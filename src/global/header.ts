@@ -15,6 +15,10 @@ export async function initHeader (store: IndexedFormula) {
   const pod = getPod()
   rebuildHeader(header, store, pod)()
   authn.authSession.onLogin(rebuildHeader(header, store, pod))
+  authn.authSession.onSessionRestore(() => {
+    console.log('Rebuilding header after session restore')
+    rebuildHeader(header, store, pod)
+  })
   authn.authSession.onLogout(rebuildHeader(header, store, pod))
 }
 
@@ -92,7 +96,7 @@ async function createUserMenu (store: IndexedFormula, user: NamedNode): Promise<
   menuItems.forEach(item => {
     loggedInMenuList.appendChild(createUserMenuItem(createUserMenuButton(item.label, () => openDashboardPane(outliner, item.tabName || item.paneName))))
   })
-  loggedInMenuList.appendChild(createUserMenuItem(createUserMenuButton('Log out', () => authn.solidAuthClient.logout())))
+  loggedInMenuList.appendChild(createUserMenuItem(createUserMenuButton('Log out', () => authn.authSession.logout())))
 
   const loggedInMenu = document.createElement('nav')
   loggedInMenu.classList.add('header-user-menu__navigation-menu')

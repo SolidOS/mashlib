@@ -15,17 +15,14 @@ export async function initHeader (store: IndexedFormula) {
   const pod = getPod()
   rebuildHeader(header, store, pod)()
   authn.authSession.onLogin(rebuildHeader(header, store, pod))
-  authn.authSession.onSessionRestore(() => {
-    console.log('Rebuilding header after session restore')
-    rebuildHeader(header, store, pod)
-  })
+  authn.authSession.onSessionRestore(rebuildHeader(header, store, pod))
   authn.authSession.onLogout(rebuildHeader(header, store, pod))
 }
 
 function rebuildHeader (header: HTMLElement, store: IndexedFormula, pod: NamedNode) {
   return async () => {
     const sessionInfo = authn.authSession.info
-    const user = sessionInfo.webId ? sym(sessionInfo.webId) : null
+    const user = sessionInfo.webId && sessionInfo.isLoggedIn ? sym(sessionInfo.webId) : null
     header.innerHTML = ''
     header.appendChild(await createBanner(store, pod, user))
   }

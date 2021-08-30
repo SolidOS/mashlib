@@ -1,4 +1,4 @@
-import { IndexedFormula, NamedNode, sym } from 'rdflib'
+import { IndexedFormula, NamedNode } from 'rdflib'
 import { authn, widgets } from 'solid-ui'
 import { icon } from './icon'
 import { emptyProfile } from './empty-profile'
@@ -21,8 +21,7 @@ export async function initHeader (store: IndexedFormula) {
 
 function rebuildHeader (header: HTMLElement, store: IndexedFormula, pod: NamedNode) {
   return async () => {
-    const sessionInfo = authn.authSession.info
-    const user = sessionInfo.webId && sessionInfo.isLoggedIn ? sym(sessionInfo.webId) : null
+    const user = authn.currentUser()
     header.innerHTML = ''
     header.appendChild(await createBanner(store, pod, user))
   }

@@ -1,4 +1,4 @@
-import { Fetcher, IndexedFormula, NamedNode, sym } from 'rdflib'
+import { Fetcher, IndexedFormula, NamedNode } from 'rdflib'
 import { authn } from 'solid-ui'
 import { getName, getPod, getPodOwner } from './metadata'
 
@@ -17,8 +17,7 @@ export async function initFooter (store: IndexedFormula, fetcher: Fetcher) {
 
 function rebuildFooter (footer: HTMLElement, store: IndexedFormula, pod: NamedNode | null, podOwner: NamedNode | null) {
   return async () => {
-    const sessionInfo = authn.authSession.info
-    const user = sessionInfo.webId ? sym(sessionInfo.webId) : null
+    const user = authn.currentUser()
     footer.innerHTML = ''
     footer.appendChild(await createControllerInfoBlock(store, user, pod, podOwner))
   }

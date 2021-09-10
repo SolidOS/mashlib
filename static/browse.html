@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!UI.authn.currentUser()) {
       // HACK This is a really ugly way to add a login box.
       // TODO make it prettier
+      UI.authn.checkUser()
       loginButtonArea.appendChild(UI.authn.loginStatusBox(document, null, {}))
     }
     UI.authn.authSession.onLogin(() => {

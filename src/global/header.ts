@@ -43,12 +43,12 @@ async function createBanner (store: IndexedFormula, pod: NamedNode, user: NamedN
   banner.classList.add('header-banner')
   banner.appendChild(podLink)
 
-  const leftSideIfHeader = document.createElement('div')
-  leftSideIfHeader.classList.add('header-banner__right-menu')
-  leftSideIfHeader.appendChild(userMenu)
-  leftSideIfHeader.appendChild(helpMenu)
+  const leftSideOfHeader = document.createElement('div')
+  leftSideOfHeader.classList.add('header-banner__right-menu')
+  leftSideOfHeader.appendChild(userMenu)
+  leftSideOfHeader.appendChild(helpMenu)
 
-  banner.appendChild(leftSideIfHeader)
+  banner.appendChild(leftSideOfHeader)
 
   return banner
 }

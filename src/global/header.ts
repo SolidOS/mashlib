@@ -1,6 +1,6 @@
 import { IndexedFormula, NamedNode } from 'rdflib'
 import { authn, widgets } from 'solid-ui'
-import { icon } from './icon'
+import { helpIcon, solidIcon } from './icon'
 import { emptyProfile } from './empty-profile'
 import { throttle } from '../helpers/throttle'
 import { getPod } from './metadata'
@@ -31,18 +31,63 @@ async function createBanner (store: IndexedFormula, pod: NamedNode, user: NamedN
   const podLink = document.createElement('a')
   podLink.href = pod.uri
   podLink.classList.add('header-banner__link')
-  podLink.innerHTML = icon
+  podLink.innerHTML = solidIcon
 
-  const menu = user
+  const userMenu = user
     ? await createUserMenu(store, user)
     : createLoginSignUpButtons()
+
+  const helpMenu = createHelpMenu()
 
   const banner = document.createElement('div')
   banner.classList.add('header-banner')
   banner.appendChild(podLink)
-  banner.appendChild(menu)
+
+  const leftSideIfHeader = document.createElement('div')
+  leftSideIfHeader.classList.add('header-banner__right-menu')
+  leftSideIfHeader.appendChild(userMenu)
+  leftSideIfHeader.appendChild(helpMenu)
+
+  banner.appendChild(leftSideIfHeader)
 
   return banner
+}
+
+function createHelpMenu () {
+  const helpMenuList = document.createElement('ul')
+  helpMenuList.classList.add('header-user-menu__list')
+  helpMenuList.appendChild(createUserMenuItem(createUserMenuLink('User guide', 'https://github.com/solid/userguide')))
+  helpMenuList.appendChild(createUserMenuItem(createUserMenuLink('Report a problem', 'https://github.com/solid/solidos/issues')))
+
+  const helpMenu = document.createElement('nav')
+
+  helpMenu.classList.add('header-user-menu__navigation-menu')
+  helpMenu.setAttribute('aria-hidden', 'true')
+  helpMenu.appendChild(helpMenuList)
+
+  const helpMenuContainer = document.createElement('div')
+  helpMenuContainer.classList.add('header-banner__user-menu')
+  helpMenuContainer.classList.add('header-user-menu')
+  helpMenuContainer.appendChild(helpMenu)
+
+  const helpMenuTrigger = document.createElement('button')
+  helpMenuTrigger.classList.add('header-user-menu__trigger')
+  helpMenuTrigger.type = 'button'
+  helpMenuTrigger.innerHTML = helpIcon
+  helpMenuContainer.appendChild(helpMenuTrigger)
+
+  const throttledMenuToggle = throttle((event: Event) => toggleMenu(event, helpMenuTrigger, helpMenu), 50)
+  helpMenuTrigger.addEventListener('click', throttledMenuToggle)
+  let timer = setTimeout(() => null, 0)
+  helpMenuContainer.addEventListener('mouseover', event => {
+    clearTimeout(timer)
+    throttledMenuToggle(event)
+  })
+  helpMenuContainer.addEventListener('mouseout', event => {
+    timer = setTimeout(() => throttledMenuToggle(event), 200)
+  })
+
+  return helpMenuContainer
 }
 
 function createLoginSignUpButtons () {

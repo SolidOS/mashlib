@@ -54,8 +54,8 @@ async function createBanner (store: IndexedFormula, pod: NamedNode, user: NamedN
 function createHelpMenu () {
   const helpMenuList = document.createElement('ul')
   helpMenuList.classList.add('header-user-menu__list')
-  helpMenuList.appendChild(createUserMenuItem(createUserMenuLink('User guide', 'https://github.com/solid/userguide')))
-  helpMenuList.appendChild(createUserMenuItem(createUserMenuLink('Report a problem', 'https://github.com/solid/solidos/issues')))
+  helpMenuList.appendChild(createUserMenuItem(createUserMenuLink('User guide', 'https://github.com/solid/userguide', 'blank')))
+  helpMenuList.appendChild(createUserMenuItem(createUserMenuLink('Report a problem', 'https://github.com/solid/solidos/issues', 'blank')))
 
   const helpMenu = document.createElement('nav')
 
@@ -112,11 +112,12 @@ function createUserMenuButton (label: string, onClick: EventListenerOrEventListe
   return button
 }
 
-function createUserMenuLink (label: string, href: string): HTMLElement {
+function createUserMenuLink (label: string, href: string, target?: string): HTMLElement {
   const link = document.createElement('a')
   link.classList.add('header-user-menu__link')
   link.href = href
   link.innerText = label
+  if (target) link.target = target
   return link
 }
 

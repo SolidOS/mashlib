@@ -1,4 +1,4 @@
-export const icon = `
+export const solidIcon = `
 <svg width="352px" height="322px" viewBox="0 0 352 322" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="fadeIn header-banner__icon">
     <!-- Generator: Sketch 55.2 (78181) - https://sketchapp.com -->
     <title>To root of Pod</title>
@@ -24,6 +24,24 @@ export const icon = `
                     <path d="M86.5959184,114.932143 L174.258673,202.594898 C180.061224,208.397449 189.454592,208.397449 195.257143,202.594898 L210.453061,187.39898 C216.255612,181.596429 216.255612,172.203061 210.453061,166.40051 L122.816327,78.7377551 C117.013776,72.9352041 107.620408,72.9352041 101.817857,78.7377551 L86.6219388,93.9336735 C80.7673469,99.7362245 80.7673469,109.155612 86.5959184,114.932143 Z" fill="#F7F7F7" fill-rule="nonzero"></path>
                     <polygon fill="#444444" fill-rule="nonzero" opacity="0.3" points="175.689796 204.078061 124.195408 163.954592 135.592347 163.954592"></polygon>
                     <polygon fill="#444444" fill-rule="nonzero" opacity="0.3" points="121.359184 77.2806122 161.925 117.846429 175.689796 117.846429"></polygon>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>`
+export const helpIcon = `
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" class="fadeIn header-banner__help-icon">
+    <!-- Generator: Sketch 52.5 (67469) - http://www.bohemiancoding.com/sketch -->
+    <title>help_outline</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Icons" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Outlined" transform="translate(-782.000000, -288.000000)">
+            <g id="Action" transform="translate(100.000000, 100.000000)">
+                <g id="Outlined-/-Action-/-help_outline" transform="translate(680.000000, 186.000000)">
+                    <g>
+                        <polygon id="Path" points="0 0 24 0 24 24 0 24"></polygon>
+                        <path d="M11,18 L13,18 L13,16 L11,16 L11,18 Z M12,2 C6.48,2 2,6.48 2,12 C2,17.52 6.48,22 12,22 C17.52,22 22,17.52 22,12 C22,6.48 17.52,2 12,2 Z M12,20 C7.59,20 4,16.41 4,12 C4,7.59 7.59,4 12,4 C16.41,4 20,7.59 20,12 C20,16.41 16.41,20 12,20 Z M12,6 C9.79,6 8,7.79 8,10 L10,10 C10,8.9 10.9,8 12,8 C13.1,8 14,8.9 14,10 C14,12 11,11.75 11,15 L13,15 C13,12.75 16,12.5 16,10 C16,7.79 14.21,6 12,6 Z" id="🔹-Icon-Color" fill="#1D1D1D"></path>
+                    </g>
                 </g>
             </g>
         </g>

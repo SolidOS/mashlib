@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
       var subject = kb.sym(uri);
       // UI.widgets.makeDraggable(icon, subject) // beware many handlers piling up
       outliner.GotoSubject(subject, true, undefined, true, undefined);
+      mungeLoginArea();
     }
 
     const uriField = dom.getElementById('uriField')
@@ -53,7 +54,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     async function mungeLoginArea(){
       loginButtonArea.innerHTML="";
-      loginButtonArea.appendChild(UI.authn.loginStatusBox(document, null, {}))
+      if(uriField.value)
+        loginButtonArea.appendChild(UI.authn.loginStatusBox(document, null, {}))
       if(UI.authn.authSession && UI.authn.authSession.info.isLoggedIn){       
         const logoutButton = loginButtonArea.querySelector('input');         
         logoutButton.value = "Logout";                                       

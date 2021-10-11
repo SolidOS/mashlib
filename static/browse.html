@@ -3,8 +3,8 @@
 <head>
   <meta content="text/html; charset=UTF-8" http-equiv="content-type">
   <!-- was https://solid.github.io/solid-panes/style/tabbedtab.css   -->
-    <link type="text/css" rel="stylesheet" href="mash.css" />
-    <script type="text/javascript" src="mashlib.js"></script>
+  <link type="text/css" rel="stylesheet" href="mash.css" />
+  <script type="text/javascript" src="mashlib.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const panes = require('mashlib')
@@ -33,6 +33,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const uriField = dom.getElementById('uriField')
     const goButton = dom.getElementById('goButton')
+    const loginButtonArea = document.getElementById("loginButtonArea");
+    const webIdArea = dom.getElementById('webId')
+    const banner = dom.getElementById('inputArea')
+ 
     uriField.addEventListener('keyup', function (e) {
       if (e.keyCode === 13) {
         go(e)
@@ -47,24 +51,83 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
       console.log('ready for user input')
     }
-
+    async function mungeLoginArea(){
+      loginButtonArea.innerHTML="";
+      loginButtonArea.appendChild(UI.authn.loginStatusBox(document, null, {}))
+      if(UI.authn.authSession && UI.authn.authSession.info.isLoggedIn){       
+        const logoutButton = loginButtonArea.querySelector('input');         
+        logoutButton.value = "Logout";                                       
+        let displayId = `&lt;${UI.authn.authSession.info.webId}>`;
+        webIdArea.innerHTML = displayId;                                     
+        banner.style.backgroundColor="#bbccbb";                              
+      }                                                                       
+      else {                                                                  
+        banner.style.backgroundColor="#ccbbbb";                              
+      }                                                                       
+      loginButtonArea.style.display="inline-block";                           
+    }      
+    if( UI.authn.authSession ) {
+      UI.authn.authSession.onLogin(() => {
+        mungeLoginArea();
+        go()
+      })
+      UI.authn.authSession.onLogout(() => {
+        mungeLoginArea();
+        webIdArea.innerHTML = "public user";
+        go()
+      })
+      UI.authn.authSession.onSessionRestore((url) => {
+        mungeLoginArea();
+        go()
+      })
+    }    
+    mungeLoginArea();
 });
 </script>
 </head>
 <body>
+
+  <div style="width:100%;" id="inputArea">
+    <div style="margin-bottom:0.6em">
+        The SolidOS Databrowser
+    </div>
+    <div style="margin-left:1em">
+        Viewing <input id="uriField" type="text" style="font-size:100%; min-width:25em; padding:0.5em;" placeholder="enter a pod address e.g. https://you.solidcommunity.net/"/> <input type="button" id="goButton" value="Go" />
+    </div>                                                                  
+    <div style="margin-top:0.5em;margin-left:1em">
+      As user <span id="webId">&lt;public user></span> <span id="loginButtonArea"></span>
+    </div>
+  </div>
+
   <table style="width:100%;">
-    <tr>Data browser</tr>
-    <tr style="font-size:100%">
-      <td style="padding:1em; width:5em;" id="icon">URI:</td>
-      <td><input id="uriField" type="text" style="font-size:100%; min-width:30em; padding:0.5em; width:95%;"/></td>
-      <td  style="width:5em;"><input type="button" id="goButton" value="Go" /></td>
-    </tr>
     <tr>
       <div class="TabulatorOutline" id="DummyUUID" role="main">
           <table id="outline"></table>
           <div id="GlobalDashboard"></div>
       </div>
     </tr>
-</table>
-</body>
-</html>
+  </table>
+
+  <style>
+    #inputArea {
+      width:100%;
+      padding:0.5em;
+      background-color:#d0d0d0;
+    }
+    #loginButtonArea input {
+      display:inline-block;
+      margin:0.25em !important;
+      padding:0.25em !important;
+    }
+    #webId {
+      display:inline-block;
+      padding-top:0.6em;
+      padding-bottom:0.6em;
+    }
+    #uriField {
+      width:70%;
+      margin-top:0.6em !important;
+    }
+  </style>
+
+</body></html>

@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const params = new URLSearchParams(location.search)
       params.set('uri', uri);
-      window.history.replaceState({}, '', `${location.pathname}?${params}`);
+      window.history.replaceState({}, '', `${location.origin}${location.pathname}?${params}`);
 
       var subject = kb.sym(uri);
       // UI.widgets.makeDraggable(icon, subject) // beware many handlers piling up

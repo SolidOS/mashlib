@@ -1,7 +1,6 @@
-import { IndexedFormula, NamedNode, sym } from 'rdflib'
+import { IndexedFormula, NamedNode } from 'rdflib'
 import { authn, widgets } from 'solid-ui'
 import { icon } from './icon'
-import { SolidSession } from '../../typings/solid-auth-client'
 import { emptyProfile } from './empty-profile'
 import { throttle } from '../helpers/throttle'
 import { getPod } from './metadata'
@@ -14,12 +13,15 @@ export async function initHeader (store: IndexedFormula) {
   }
 
   const pod = getPod()
-  authn.solidAuthClient.trackSession(rebuildHeader(header, store, pod))
+  rebuildHeader(header, store, pod)()
+  authn.authSession.onLogin(rebuildHeader(header, store, pod))
+  authn.authSession.onSessionRestore(rebuildHeader(header, store, pod))
+  authn.authSession.onLogout(rebuildHeader(header, store, pod))
 }
 
 function rebuildHeader (header: HTMLElement, store: IndexedFormula, pod: NamedNode) {
-  return async (session: SolidSession | null) => {
-    const user = session ? sym(session.webId) : null
+  return async () => {
+    const user = authn.currentUser()
     header.innerHTML = ''
     header.appendChild(await createBanner(store, pod, user))
   }
@@ -90,7 +92,7 @@ async function createUserMenu (store: IndexedFormula, user: NamedNode): Promise<
   menuItems.forEach(item => {
     loggedInMenuList.appendChild(createUserMenuItem(createUserMenuButton(item.label, () => openDashboardPane(outliner, item.tabName || item.paneName))))
   })
-  loggedInMenuList.appendChild(createUserMenuItem(createUserMenuButton('Log out', () => authn.solidAuthClient.logout())))
+  loggedInMenuList.appendChild(createUserMenuItem(createUserMenuButton('Log out', () => authn.authSession.logout())))
 
   const loggedInMenu = document.createElement('nav')
   loggedInMenu.classList.add('header-user-menu__navigation-menu')

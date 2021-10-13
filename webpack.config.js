@@ -22,7 +22,6 @@ module.exports = (env, args) => {
       extensions: ['.js', '.ts'],
       alias: production ? {} : {
         'rdflib': path.resolve('./node_modules/rdflib'),
-        'solid-auth-client': path.resolve('./node_modules/solid-auth-client'),
         'solid-ui': path.resolve('./node_modules/solid-ui')
       }
     },

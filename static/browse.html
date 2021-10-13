@@ -68,6 +68,13 @@ document.addEventListener('DOMContentLoaded', function() {
       }                                                                       
       loginButtonArea.style.display="inline-block";                           
     }      
+    async function initAuth(){
+      if( !UI.authn.currentUser() ) {
+        await UI.authn.checkUser();
+      }
+    }
+    initAuth();
+
     if( UI.authn.authSession ) {
       UI.authn.authSession.onLogin(() => {
         mungeLoginArea();

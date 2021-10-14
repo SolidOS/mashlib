@@ -14,7 +14,7 @@ global.mashlib = {
   versionInfo
 }
 
-global.panes.runDataBrowser = function () {
+global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
   // Set up cross-site proxy
   const fetcher: any = $rdf.Fetcher
   fetcher.crossSiteProxyTemplate = window.origin + '/xss/?uri={uri}'
@@ -32,7 +32,7 @@ global.panes.runDataBrowser = function () {
   // Authenticate the user
   authn.checkUser().then(function (_profile: $rdf.NamedNode | null) {
     // Set up the view for the current subject
-    const uri = window.location.href
+    uri = uri || window.location.href
     const subject = store.sym(uri)
     const outliner = panes.getOutliner(document)
     outliner.GotoSubject(subject, true, undefined, true, undefined)

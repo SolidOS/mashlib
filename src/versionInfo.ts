@@ -1,6 +1,6 @@
 export default {
-  buildTime: '2021-10-15T09:26:42Z',
-  commit: '5399239535fc4293b0357a7a28e73bfc14f3b23c',
+  buildTime: '2021-10-15T16:03:03Z',
+  commit: '401394d3f3eb2eea2f3cc6fe3593272de3ecae99',
   npmInfo:
 {
   mashlib: '1.7.6',

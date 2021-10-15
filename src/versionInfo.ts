@@ -1,9 +1,9 @@
 export default {
-  buildTime: '2021-10-15T16:03:03Z',
-  commit: '401394d3f3eb2eea2f3cc6fe3593272de3ecae99',
+  buildTime: '2021-10-15T16:22:15Z',
+  commit: '068efceaf6e04b62302e41819459063d2eb3979d',
   npmInfo:
 {
-  mashlib: '1.7.6',
+  mashlib: '1.7.7',
   npm: '6.14.15',
   ares: '1.17.2',
   brotli: '1.0.9',

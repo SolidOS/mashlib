@@ -87,8 +87,8 @@ async function createUserMenu (store: IndexedFormula, user: NamedNode): Promise<
 
   const loggedInMenuList = document.createElement('ul')
   loggedInMenuList.classList.add('header-user-menu__list')
-  loggedInMenuList.appendChild(createUserMenuItem(createUserMenuButton('Show your profile', () => { 
-    window.location.href = user.uri 
+  loggedInMenuList.appendChild(createUserMenuItem(createUserMenuButton('Show your profile', () => {
+    window.location.href = user.uri
     location.reload()
   })))
   const menuItems = await getMenuItems(outliner)

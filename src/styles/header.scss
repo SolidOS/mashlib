@@ -3,6 +3,7 @@ $icon-size: 60px;
 .header-banner {
   @include box-shadow(0px, 1px, 4px, $divider-color);
   display: flex;
+  justify-content: space-between;
   padding: 0 1.5em;
   margin-bottom: 4px;
 
@@ -10,6 +11,12 @@ $icon-size: 60px;
     height: $icon-size;
     width: round($icon-size * 352 / 322);
     width: $icon-size * 352 / 322;
+  }
+
+  &__help-icon {
+    height: $icon-size;
+    width: round($icon-size * 352 / 430);
+    width: $icon-size * 352 / 430;
   }
 
   &__login {
@@ -23,6 +30,10 @@ $icon-size: 60px;
 
   &__link {
     display: block;
+  }
+
+  &__right-menu {
+    display: flex;
   }
 
   &__user-menu {
@@ -86,7 +97,6 @@ $icon-size: 60px;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    margin: $image-margin;
     height: $image-size;
     width: $image-size;
   }

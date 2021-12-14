@@ -56,7 +56,7 @@ async function createBanner (store: IndexedFormula, pod: NamedNode, user: NamedN
 function createHelpMenu () {
   const helpMenuList = document.createElement('ul')
   helpMenuList.classList.add('header-user-menu__list')
-  helpMenuList.appendChild(createUserMenuItem(createUserMenuLink('User guide', 'https://github.com/solid/userguide/blob/gh-pages/index.md', '_blank')))
+  helpMenuList.appendChild(createUserMenuItem(createUserMenuLink('User guide', 'https://solid.github.io/userguide/', '_blank')))
   helpMenuList.appendChild(createUserMenuItem(createUserMenuLink('Report a problem', 'https://github.com/solid/solidos/issues', '_blank')))
 
   const helpMenu = document.createElement('nav')

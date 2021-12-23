@@ -1,4 +1,4 @@
-# mashlib and Data Browser - An Operating System for Solid
+# Solid-compatible data mashup library and Data Browser
 
 [![NPM Package](https://img.shields.io/npm/v/mashlib.svg)](https://www.npmjs.com/package/mashlib)
 
@@ -72,8 +72,6 @@ Progressively, the mashlib evolved to allow types of data for personal informati
 
 It is an extensible platform, and is never finished.  Do help!  
 
-
 ## Local development
-- Here is the [Travis build space](https://travis-ci.org/solid/mashlib/builds)
 
-For local development, we recommend using [mashlib-dev](https://github.com/inrupt/mashlib-dev) to set up your development environment.
+As part of the SolidOS stack, mashlib can be developed locally by setting up the SolidOS code. Read more about that on the [SolidOS Readme](https://github.com/solid/solidos#-getting-started-with-the-solidos-code).

@@ -1,8 +1,6 @@
 import * as $rdf from 'rdflib'
 import * as panes from 'solid-panes'
 import './styles/index.scss'
-import { initHeader } from './global/header'
-import { initFooter } from './global/footer'
 import { authn, store } from 'solid-ui'
 import versionInfo from './versionInfo'
 
@@ -31,14 +29,8 @@ global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
 
   // Authenticate the user
   authn.checkUser().then(function (_profile: $rdf.NamedNode | null) {
-    // Set up the view for the current subject
-    uri = uri || window.location.href
-    const subject = store.sym(uri)
-    const outliner = panes.getOutliner(document)
-    outliner.GotoSubject(subject, true, undefined, true, undefined)
-    const header = initHeader(store)
-    const footer = initFooter(store, store.fetcher)
-    return Promise.all([header, footer])
+    const mainPage = panes.initMainPage(store, uri)
+    return mainPage
   })
 }
 

@@ -9,12 +9,14 @@
 document.addEventListener('DOMContentLoaded', function() {
     const panes = require('mashlib')
     const UI = panes.UI
+    const authn = panes.authn
+    const solidLogicSingleton = panes.solidLogicSingleton
     const $rdf = UI.rdf
     const dom = document
     $rdf.Fetcher.crossSiteProxyTemplate = self.origin + '/xss?uri={uri}';
     var uri = window.location.href;
     window.document.title = 'Data browser: ' + uri;
-    var kb = UI.store;
+    var kb = solidLogicSingleton.store;
     var outliner = panes.getOutliner(dom)
 
     function go ( event ) {
@@ -55,11 +57,11 @@ document.addEventListener('DOMContentLoaded', function() {
     async function mungeLoginArea(){
       loginButtonArea.innerHTML="";
       if(uriField.value)
-        loginButtonArea.appendChild(UI.authn.loginStatusBox(document, null, {}))
-      if(UI.authn.authSession && UI.authn.authSession.info.isLoggedIn){       
+        loginButtonArea.appendChild(UI.login.loginStatusBox(document, null, {}))
+      if(authn.authSession && authn.authSession.info.isLoggedIn){       
         const logoutButton = loginButtonArea.querySelector('input');         
         logoutButton.value = "Logout";                                       
-        let displayId = `&lt;${UI.authn.authSession.info.webId}>`;
+        let displayId = `&lt;${authn.authSession.info.webId}>`;
         webIdArea.innerHTML = displayId;                                     
         banner.style.backgroundColor="#bbccbb";                              
       }                                                                       
@@ -69,23 +71,23 @@ document.addEventListener('DOMContentLoaded', function() {
       loginButtonArea.style.display="inline-block";                           
     }      
     async function initAuth(){
-      if( !UI.authn.currentUser() ) {
-        await UI.authn.checkUser();
+      if( !authn.currentUser() ) {
+        await authn.checkUser();
       }
     }
     //initAuth();
 
-    if( UI.authn.authSession ) {
-      UI.authn.authSession.onLogin(() => {
+    if( authn.authSession ) {
+      authn.authSession.onLogin(() => {
         mungeLoginArea();
         go()
       })
-      UI.authn.authSession.onLogout(() => {
+      authn.authSession.onLogout(() => {
         mungeLoginArea();
         webIdArea.innerHTML = "public user";
         go()
       })
-      UI.authn.authSession.onSessionRestore((url) => {
+      authn.authSession.onSessionRestore((url) => {
         mungeLoginArea();
         go()
       })

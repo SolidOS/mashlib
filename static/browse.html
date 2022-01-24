@@ -7,17 +7,17 @@
   <script type="text/javascript" src="mashlib.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const panes = require('mashlib')
-    const UI = panes.UI
-    const authn = panes.authn
-    const solidLogicSingleton = panes.solidLogicSingleton
+    const mashlib = require('mashlib')
+    const UI = mashlib.UI
+    const authn = mashlib.authn
     const $rdf = UI.rdf
     const dom = document
-    $rdf.Fetcher.crossSiteProxyTemplate = self.origin + '/xss?uri={uri}';
-    var uri = window.location.href;
-    window.document.title = 'Data browser: ' + uri;
-    var kb = solidLogicSingleton.store;
-    var outliner = panes.getOutliner(dom)
+    const authSession = mashlib.authSession_1
+    $rdf.Fetcher.crossSiteProxyTemplate = self.origin + '/xss?uri={uri}'
+    const uri = window.location.href
+    window.document.title = 'SolidOS Web App: ' + uri
+    const store = mashlib.singletonStore
+    const outliner = mashlib.getOutliner(dom)
 
     function go ( event ) {
       let uri = $rdf.uri.join(uriField.value, window.location.href)
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
       params.set('uri', uri);
       window.history.replaceState({}, '', `${location.origin}${location.pathname}?${params}`);
 
-      var subject = kb.sym(uri);
+      var subject = $rdf.sym(uri);
       // UI.widgets.makeDraggable(icon, subject) // beware many handlers piling up
       outliner.GotoSubject(subject, true, undefined, true, undefined);
       mungeLoginArea();
@@ -58,10 +58,10 @@ document.addEventListener('DOMContentLoaded', function() {
       loginButtonArea.innerHTML="";
       if(uriField.value)
         loginButtonArea.appendChild(UI.login.loginStatusBox(document, null, {}))
-      if(authn.authSession && authn.authSession.info.isLoggedIn){       
+      if(authSession && authSession.info.isLoggedIn){       
         const logoutButton = loginButtonArea.querySelector('input');         
         logoutButton.value = "Logout";                                       
-        let displayId = `&lt;${authn.authSession.info.webId}>`;
+        let displayId = `&lt;${authSession.info.webId}>`;
         webIdArea.innerHTML = displayId;                                     
         banner.style.backgroundColor="#bbccbb";                              
       }                                                                       
@@ -77,17 +77,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     //initAuth();
 
-    if( authn.authSession ) {
-      authn.authSession.onLogin(() => {
+    if( authSession ) {
+      authSession.onLogin(() => {
         mungeLoginArea();
         go()
       })
-      authn.authSession.onLogout(() => {
+      authSession.onLogout(() => {
         mungeLoginArea();
         webIdArea.innerHTML = "public user";
         go()
       })
-      authn.authSession.onSessionRestore((url) => {
+      authSession.onSessionRestore((url) => {
         mungeLoginArea();
         go()
       })

@@ -1,7 +1,7 @@
 import * as $rdf from 'rdflib'
 import * as panes from 'solid-panes'
 import './styles/index.scss'
-import { authn, store } from 'solid-ui'
+import { authn, solidLogicSingleton } from 'solid-logic'
 import versionInfo from './versionInfo'
 
 const global: any = window
@@ -29,7 +29,7 @@ global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
 
   // Authenticate the user
   authn.checkUser().then(function (_profile: $rdf.NamedNode | null) {
-    const mainPage = panes.initMainPage(store, uri)
+    const mainPage = panes.initMainPage(solidLogicSingleton.store, uri)
     return mainPage
   })
 }

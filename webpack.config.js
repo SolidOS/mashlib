@@ -22,7 +22,8 @@ module.exports = (env, args) => {
       extensions: ['.js', '.ts'],
       alias: production ? {} : {
         'rdflib': path.resolve('./node_modules/rdflib'),
-        'solid-ui': path.resolve('./node_modules/solid-ui')
+        'solid-panes': path.resolve('./node_modules/solid-panes'),
+        'solid-logic': path.resolve('./node_modules/solid-logic')
       }
     },
     module: {
@@ -78,7 +79,7 @@ module.exports = (env, args) => {
     plugins: [
       new webpack.DefinePlugin({ 'global.IS_BROWSER': true }),
       new HtmlWebpackPlugin({
-        title: 'Solid Data Browser',
+        title: 'SolidOS Web App',
         template: './src/databrowser.html',
         filename: 'databrowser.html'
       }),

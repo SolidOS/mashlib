@@ -9,17 +9,18 @@
 document.addEventListener('DOMContentLoaded', function() {
     const mashlib = require('mashlib')
     const UI = mashlib.UI
-    const authn = mashlib.authn
+    const solidLogicLib = UI.solidLogicLib
+    const authn = solidLogicLib.authn
+    const authSession = solidLogicLib.authSession
+    const store = solidLogicLib.store
     const $rdf = UI.rdf
     const dom = document
-    const authSession = mashlib.authSession_1
     $rdf.Fetcher.crossSiteProxyTemplate = self.origin + '/xss?uri={uri}'
     const uri = window.location.href
     window.document.title = 'SolidOS Web App: ' + uri
-    const store = mashlib.singletonStore
     const outliner = mashlib.getOutliner(dom)
 
-    function go ( event ) {
+    function go (event) {
       let uri = $rdf.uri.join(uriField.value, window.location.href)
       console.log("User field " + uriField.value)
       console.log("User requests " + uri)
@@ -29,7 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
       window.history.replaceState({}, '', `${location.origin}${location.pathname}?${params}`);
 
       var subject = $rdf.sym(uri);
-      // UI.widgets.makeDraggable(icon, subject) // beware many handlers piling up
       outliner.GotoSubject(subject, true, undefined, true, undefined);
       mungeLoginArea();
     }
@@ -56,28 +56,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     async function mungeLoginArea(){
       loginButtonArea.innerHTML="";
-      if(uriField.value)
+      if(uriField.value) {
         loginButtonArea.appendChild(UI.login.loginStatusBox(document, null, {}))
-      if(authSession && authSession.info.isLoggedIn){       
+      }
+      const me = authn.currentUser()
+      if (me) {       
         const logoutButton = loginButtonArea.querySelector('input');         
-        logoutButton.value = "Logout";                                       
-        let displayId = `&lt;${authSession.info.webId}>`;
+        logoutButton.value = "Logout";           
+        let displayId = `&lt;${me.value}>`;
         webIdArea.innerHTML = displayId;                                     
         banner.style.backgroundColor="#bbccbb";                              
-      }                                                                       
-      else {                                                                  
+      } else {                                                                  
         banner.style.backgroundColor="#ccbbbb";                              
       }                                                                       
       loginButtonArea.style.display="inline-block";                           
     }      
-    async function initAuth(){
-      if( !authn.currentUser() ) {
-        await authn.checkUser();
-      }
-    }
-    //initAuth();
 
-    if( authSession ) {
+    if (authSession) {
       authSession.onLogin(() => {
         mungeLoginArea();
         go()

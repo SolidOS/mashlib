@@ -2,14 +2,11 @@
 <html id="docHTML">
 <head>
   <meta content="text/html; charset=UTF-8" http-equiv="content-type">
-  <!-- was https://solid.github.io/solid-panes/style/tabbedtab.css   -->
   <link type="text/css" rel="stylesheet" href="mash.css" />
   <script type="text/javascript" src="mashlib.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // const panes = require('mashlib')
-    // const UI = panes.UI
-    const authn = mashlib.authn
+    const authn = UI.authn
     const authSession = UI.authSession
     const store = UI.store
     const $rdf = UI.rdf

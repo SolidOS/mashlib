@@ -34,22 +34,6 @@ global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
   })
 }
 
-if (typeof global.require === 'undefined') {
-  //  Allow require('mashlib') in the databrowser
-  global.require = function require (lib: string) {
-    if (lib === 'mashlib') {
-      console.warn(
-        'Warning: mashlib\'s custom implementation of `require` will be deprecated in the future. Please import mashlib using a build-time bundler, or access the global `panes` variable when including it as a script.'
-      )
-      return panes
-    } else {
-      throw new Error(
-        'Cannot require (this is a Mashlib-specific require stub)'
-      )
-    }
-  }
-}
-
 window.onpopstate = function (_event: any) {
   global.document.outline.GotoSubject(
     $rdf.sym(window.document.location.href),

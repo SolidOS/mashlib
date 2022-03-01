@@ -38,5 +38,5 @@ dist
 # Built files
 src/versionInfo.ts
 
-# Visual Code 
+# Visual Code
 .history/

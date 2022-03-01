@@ -1,7 +1,7 @@
 import * as $rdf from 'rdflib'
 import * as panes from 'solid-panes'
 import './styles/index.scss'
-import { authn, store } from 'solid-ui'
+import { authn, solidLogicSingleton } from 'solid-logic'
 import versionInfo from './versionInfo'
 
 const global: any = window
@@ -29,25 +29,9 @@ global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
 
   // Authenticate the user
   authn.checkUser().then(function (_profile: $rdf.NamedNode | null) {
-    const mainPage = panes.initMainPage(store, uri)
+    const mainPage = panes.initMainPage(solidLogicSingleton.store, uri)
     return mainPage
   })
-}
-
-if (typeof global.require === 'undefined') {
-  //  Allow require('mashlib') in the databrowser
-  global.require = function require (lib: string) {
-    if (lib === 'mashlib') {
-      console.warn(
-        'Warning: mashlib\'s custom implementation of `require` will be deprecated in the future. Please import mashlib using a build-time bundler, or access the global `panes` variable when including it as a script.'
-      )
-      return panes
-    } else {
-      throw new Error(
-        'Cannot require (this is a Mashlib-specific require stub)'
-      )
-    }
-  }
 }
 
 window.onpopstate = function (_event: any) {

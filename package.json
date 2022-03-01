@@ -1,6 +1,6 @@
 {
   "name": "mashlib",
-  "version": "1.7.21",
+  "version": "1.7.22",
   "description": "Data mashup library",
   "main": "./index.js",
   "files": [
@@ -47,8 +47,8 @@
   "dependencies": {
     "normalize.css": "^8.0.1",
     "rdflib": "^2.2.17",
-    "solid-logic": "1.3.13-53806f5e",
-    "solid-panes": "3.5.19-7b61e5d6"
+    "solid-logic": "^1.3.14",
+    "solid-panes": "^3.5.21"
   },
   "devDependencies": {
     "@babel/cli": "^7.16.0",

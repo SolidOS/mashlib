@@ -47,8 +47,8 @@
   "dependencies": {
     "normalize.css": "^8.0.1",
     "rdflib": "^2.2.17",
-    "solid-logic": "1.3.13-057429fe",
-    "solid-panes": "3.5.18-5dfe2dbf"
+    "solid-logic": "1.3.13-53806f5e",
+    "solid-panes": "3.5.19-7b61e5d6"
   },
   "devDependencies": {
     "@babel/cli": "^7.16.0",

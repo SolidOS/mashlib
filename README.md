@@ -47,7 +47,7 @@ The `static/browse.html` page is compiled one to one into the `dist` (output) fo
 
 You can see and try out a SolidOS Databrowser Webapp deployment at <https://solid.github.io/mashlib/dist/browse.html>.
 
-`browse.html`serves as a perfect example for: Solid WebID authentication and how to make use of mashlib function and variables. 
+`browse.html`serves as a perfect example for Solid WebID authentication and for making use of mashlib functions and variables. 
 
 ### SolidOS Databrowser Frontend
 

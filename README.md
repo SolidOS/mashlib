@@ -61,7 +61,7 @@ SolidOS Data-Kitchen uses `mashlib.js`as a direct import in its source code. Vis
 
 ## Mashlib global variables and funtions
 
-If one wants to use mashlib as a direct import (as a package dependency or script import) one needs to know how they immediate available global variables and functions.
+If one wants to use mashlib as a direct import (as a package dependency or script import), one needs to know how they make global variables and functions available.
 
 The availability of these global variables depends on how the sub-modules are imported and exported but also on where the variables are instanciated. For a basic theoretical read please read [this resource](https://www.javatpoint.com/javascript-global-variable).
 

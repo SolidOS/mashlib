@@ -29,7 +29,7 @@ Mashlib is used in SolidOS and contributes to:
 
 mashlib is also used stand-alone as the SolidOS Databrowser Webapp and can be tried out at <https://solid.github.io/mashlib/dist/browse.html>.
 
-But mashlib is also used as a library by adding `mashlib.js` (of minified version) directly in your applications. For example:
+mashlib is also used as a library by adding `mashlib.js` (or minified version) directly to your applications. For example:
 
 `<script src="https://solidcommunity.net/mashlib.js"></script>`.
 

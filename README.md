@@ -2,7 +2,7 @@
 
 [![NPM Package](https://img.shields.io/npm/v/mashlib.svg)](https://www.npmjs.com/package/mashlib)
 
-The mashlib library (`mashlib.js`) is a solid-compatible code library of application-level functionality for the world of Solid. It compiles together all the following repository into what we know as `mashlib.js`:
+The mashlib library (`mashlib.js`) is a solid-compatible code library of application-level functionality for the world of Solid. It compiles all of the following repositories into what we know as `mashlib.js`:
 - [**solid-logic**](https://github.com/solid/solid-logic) — core business logic of SolidOS
 - [**pane-registry**](https://github.com/solid/pane-registry) - an index to hold all loaded solid panes, whether statically or dynamically loaded
 - [**solid-ui**](https://github.com/solid/solid-ui) — User Interface widgets and utilities for Solid. Building blocks for solid-based apps

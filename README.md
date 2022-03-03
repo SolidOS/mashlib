@@ -101,4 +101,4 @@ How does the data browser work?
 
 The mashlib part of SolidOS Databrowser Frontend is *read-write;* that is, the user is allowed to edit data and create new things. It is *live,* in that often the databrowser subscribed (using a websocket) for any changes which other users make, so users' screens are synchronized.
 
-A major limitation of their data browser hack is that current web browsers are made to distrust any code loaded from one domain that uses data from another domain. This makes it hard, strangely complicated, and sometimes impossible to do some things.
+A major limitation of this data browser hack is that current web browsers are made to distrust any code loaded from one domain that uses data from another domain. This makes it hard, strangely complicated, and sometimes impossible to do some things.

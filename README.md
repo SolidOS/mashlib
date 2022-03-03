@@ -27,7 +27,7 @@ Mashlib is used in SolidOS and contributes to:
 - SolidOS Databrowser Frontend - a frontend for Solid Servers like <solidcommunity.net>
 - SolidOS Data-Kitchen - a stand-alone desktop app: <https://github.com/solid/data-kitchen>
 
-And mashlib is also used standalone as the SolidOS Databrowser Webapp and can be tried out at: <https://solid.github.io/mashlib/dist/browse.html>.
+mashlib is also used stand-alone as the SolidOS Databrowser Webapp and can be tried out at <https://solid.github.io/mashlib/dist/browse.html>.
 
 But mashlib is also used as a library by adding `mashlib.js` (of minified version) directly in your applications. For example:
 

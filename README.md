@@ -24,7 +24,7 @@ One major use of mashlib is as a "databrowser" for a personal data store.
 
 Mashlib is used in SolidOS and contributes to:
 
-- SolidOS Databrowser Frontend - a frontend for Solid Servers like on <solidcommunity.net>
+- SolidOS Databrowser Frontend - a frontend for Solid Servers like <solidcommunity.net>
 - SolidOS Data-Kitchen - a stand-alone desktop app: <https://github.com/solid/data-kitchen<>.
 
 And mashlib is also used standalone as the SolidOS Databrowser Webapp and can be tried out at: <https://solid.github.io/mashlib/dist/browse.html>.

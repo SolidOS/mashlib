@@ -67,7 +67,7 @@ The availability of these global variables depends on how the sub-modules are im
 
 What does `global` mean in mashlib? We mean the `global object` which depends on different environments. In mashlib, for now, we use the `window` context which means these variables will not work if directly used in non-window contexts such as `Node.js` environments. (This does not mean you cannot use mashlib in `Node.js` environments; just import it through `npm`). At some point, we will switch this to the [`globalThis`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis).
 
-Next we list the most important window context/global variables and which sub-repos are they exported from:
+Next we list the most important window context/global variables and which sub-repos they are exported from:
 
 - [**solid-logic**](https://github.com/solid/solid-logic/blob/f606b31382a416ee6188930c3ca05cb4ae73cbda/src/index.ts#L29) exports among others: solidLogicSingleton, authn, authSession, store, chat, profile;
 - [**pane-registry**](https://github.com/solid/pane-registry) is exported entirely through the pane-registry variable;

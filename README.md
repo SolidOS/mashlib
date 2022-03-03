@@ -83,7 +83,7 @@ For backward compatibility reasons, there are now different ways to make use of 
 - the currentUser function is called as `authn.currentUser()` or `UI.auth.currentUser()` or `panes.UI.authn.currentUser()`
 - to make use of the login pop-up, one needs to call the `UI.login.loginStatusBox` function
 
-You can see an example usage in the [SolidOS Databrowser Webapp code](https://github.com/solid/mashlib/blob/main/static/browse.html#L11).
+You can see example usage in the [SolidOS Databrowser Webapp code](https://github.com/solid/mashlib/blob/main/static/browse.html#L11).
 
 ## The databrowser hack: upgrading your browser
 

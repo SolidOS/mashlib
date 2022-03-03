@@ -53,7 +53,7 @@ You can see and try out a SolidOS Databrowser Webapp deployment at <https://soli
 
 The `src/databrowser.html`page is compiled into the SolidOS Databrowser Frontend which is displayed for each WebID on [solidcommunity.net](https://solidcommunity.net/). This is the case because the [solidcommunity.net](https://solidcommunity.net/) Solid Server is configured with SolidOS as its front-end.
 
-More information about the SolidOS Frontend and how to use it visit the [User Guide](https://github.com/solid/userguide).
+More information about the SolidOS Front-end and how to use it visit the [User Guide](https://github.com/solid/userguide).
 
 ### SolidOS Data-Kitchen
 

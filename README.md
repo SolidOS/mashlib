@@ -76,12 +76,12 @@ Next we list the most important window context/global variables and which sub-re
 
 For backward compatibility reasons, there are now different ways to make use of the same variables from mashlib. For example:
 
-- to make use of the UI (solid-ui) one can use `UI` or `panes.UI`;
-- authentication session, part of solid-logic, can be called as `authSession` or `UI.authn.authSession` or `panes.UI.authn.authSession`;
-- the store (from solid-logic) can be used as `store` or `UI.store` or `panes.UI.store`;
+- to make use of the UI (solid-ui) one can use `UI` or `panes.UI`
+- authentication session, part of solid-logic, can be called as `authSession` or `UI.authn.authSession` or `panes.UI.authn.authSession`
+- the store (from solid-logic) can be used as `store` or `UI.store` or `panes.UI.store`
 - rdflib is entirely acessible as `UI.rdf` or `panes.UI.rdf`
 - the currentUser function is called as `authn.currentUser()` or `UI.auth.currentUser()` or `panes.UI.authn.currentUser()`
-- and to make use of the login pop up one needs to call `UI.login.loginStatusBox`function.
+- to make use of the login pop-up, one needs to call the `UI.login.loginStatusBox` function
 
 You can see an example usage in the [SolidOS Databrowser Webapp code](https://github.com/solid/mashlib/blob/main/static/browse.html#L11).
 

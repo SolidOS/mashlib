@@ -99,6 +99,6 @@ How does the data browser work?
 1. The server supplies the actual data of the to-do list or whatever it was.
 1. The `mashlib.js` code provides an editable visualization on the data.
 
-The mashlib part of SolidOS Databrowser Frontend is *read-write*. Where the user is allowed to edit: it lets them edit the data and create new things. It is *live* in that often the databrowser signed up (using a websocket) for any changes which other users make, so users' screens are synchronized.
+The mashlib part of SolidOS Databrowser Frontend is *read-write;* that is, the user is allowed to edit data and create new things. It is *live,* in that often the databrowser subscribed (using a websocket) for any changes which other users make, so users' screens are synchronized.
 
 A major limitation of their data browser hack is that current web browsers are made to distrust any code loaded from one domain that uses data from another domain. This makes it hard, strangely complicated, and sometimes impossible to do some things.

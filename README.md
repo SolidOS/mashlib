@@ -69,10 +69,10 @@ What does `global` mean in mashlib? We mean the `global object` which depends on
 
 Next we list the most important window context/global variables and which sub-repos they are exported from:
 
-- [**solid-logic**](https://github.com/solid/solid-logic/blob/f606b31382a416ee6188930c3ca05cb4ae73cbda/src/index.ts#L29) exports among others: solidLogicSingleton, authn, authSession, store, chat, profile;
-- [**pane-registry**](https://github.com/solid/pane-registry) is exported entirely through the pane-registry variable;
-- [**solid-ui**](https://github.com/solid/solid-ui/blob/c5a8888d6cb61363bc0445be007e3c96de593338/src/index.ts#L79) exports among others: authn, store, rdf, dom under the UI variable;
-- [**solid-panes**](https://github.com/solid/solid-panes/blob/033f48f8987364cb131455b13e8b0637da95a5ab/src/index.ts#L53) exports getOutliner and the entire solid-ui through the UI variable, and solid-panes itself can be used through the `panes` variable.
+- [**solid-logic**](https://github.com/solid/solid-logic/blob/f606b31382a416ee6188930c3ca05cb4ae73cbda/src/index.ts#L29) exports among others: solidLogicSingleton, authn, authSession, store, chat, profile
+- [**pane-registry**](https://github.com/solid/pane-registry) is exported entirely through the pane-registry variable
+- [**solid-ui**](https://github.com/solid/solid-ui/blob/c5a8888d6cb61363bc0445be007e3c96de593338/src/index.ts#L79) exports among others: authn, store, rdf, dom under the UI variable
+- [**solid-panes**](https://github.com/solid/solid-panes/blob/033f48f8987364cb131455b13e8b0637da95a5ab/src/index.ts#L53) exports getOutliner and the entire solid-ui through the UI variable, and solid-panes itself can be used through the `panes` variable
 
 For backward compatibility reasons, there are now different ways to make use of the same variables from mashlib. For example:
 

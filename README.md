@@ -16,7 +16,7 @@ As part of the SolidOS stack, mashlib can be developed locally by setting up the
 
 ## Goals
 
-The goals of mashlib overlaps with the [SolidOS Goals](https://solidos.solidcommunity.net/Team/docs/SolidOSNorthStar.html).
+The goals of mashlib overlap with the [SolidOS Goals](https://solidos.solidcommunity.net/Team/docs/SolidOSNorthStar.html).
 
 ## Typical uses
 

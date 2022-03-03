@@ -39,7 +39,7 @@ Check out [SolidOS Pod](https://solidos.solidcommunity.net/Team/docs/solidos.htm
 
 # Documentation
 
-## Different implemnetation
+## Different implemnetations
 
 ### SolidOS Databrowser Webapp
 
@@ -47,7 +47,7 @@ The `static/browse.html` page is compiled one to one into the `dist` (output) fo
 
 You can see and try out a SolidOS Databrowser Webapp deployment at <https://solid.github.io/mashlib/dist/browse.html>.
 
-`browse.html`serves as a perfect example for Solid WebID authentication and for making use of mashlib functions and variables. 
+`browse.html`serves as a perfect example for Solid WebID authentication and for making use of mashlib functions and variables.
 
 ### SolidOS Databrowser Frontend
 

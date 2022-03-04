@@ -85,6 +85,25 @@ For backward compatibility reasons, there are now different ways to make use of 
 
 You can see example usage in the [SolidOS Databrowser Webapp code](https://github.com/solid/mashlib/blob/main/static/browse.html#L11).
 
+## Code changes due to moving authn from solid-ui to solid-logic
+
+Some packages have been moved and with them some functions too. Here we report on these changes:
+
+### Solid-ui & Solid-logic related:
+
+* There is no more `authn` as you might have known it in solid-ui pre mashlib version 1.7.18 (solid-ui 2.4.16).
+* There are still functions in solid-ui which initially were found under `solid-ui/authn` are now under `solid-ui/login`.
+* Two functions were renamed:
+    * logInLoadPreferences -> ensureLoadedPreferences 
+    * logInLoadProfile -> ensureLoadedProfile
+    * logIn -> ensureLoggedIn
+
+Functions that moved: 
+
+* `currentUser`, `checkUser`, `saveUser`, `offlineTestID` are now part of `solid-logic/authn/SolidAuthnLogic.ts`-> this is because `authn` itself moved to solid-logic. 
+* `setACLUserPublic`, `fetchACLRel` are not part of `solid-logic/src/acl/aclLogic.ts/` and are exported in [index.ts](https://github.com/solid/solid-logic/blob/f606b31382a416ee6188930c3ca05cb4ae73cbda/src/index.ts#L12).
+* `loadIndex`, `loadTypeIndexes`, `ensureTypeIndexes`, `registerInTypeIndex` and are exported in [index.ts](https://github.com/solid/solid-logic/blob/f606b31382a416ee6188930c3ca05cb4ae73cbda/src/index.ts#L16).
+
 ## The databrowser hack: upgrading your browser
 
 This refers to a specific way in which the mashlib is deployed for users who at first only have a conventional web browser - a hypertext browser not a data browser.  It is a hack -- in the original computing sense of a crafty, though not beautiful, little thing which gets the job done.

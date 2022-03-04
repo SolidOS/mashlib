@@ -1,8 +1,9 @@
 import * as $rdf from 'rdflib'
 import * as panes from 'solid-panes'
-import './styles/index.scss'
 import { authn, solidLogicSingleton } from 'solid-logic'
 import versionInfo from './versionInfo'
+import { mashStyle } from './styles/mashlib-style.js'
+import './styles/mash.css'
 
 const global: any = window
 
@@ -13,6 +14,11 @@ global.mashlib = {
 }
 
 global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
+  document.getElementById('PageBody')?.setAttribute('style', mashStyle.dbLayout)
+  document.getElementById('PageHeader')?.setAttribute('style', mashStyle.dbLayoutHeader)
+  document.getElementById('PageFooter')?.setAttribute('style', mashStyle.dbLayoutFooter)
+  document.getElementById('DummyUUID')?.setAttribute('style', mashStyle.dbLayoutContent)
+
   // Set up cross-site proxy
   const fetcher: any = $rdf.Fetcher
   fetcher.crossSiteProxyTemplate = window.origin + '/xss/?uri={uri}'

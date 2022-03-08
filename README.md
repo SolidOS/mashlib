@@ -39,7 +39,7 @@ Check out [SolidOS Pod](https://solidos.solidcommunity.net/Team/docs/solidos.htm
 
 # Documentation
 
-## Different implemnetations
+## Different implementations
 
 ### SolidOS Databrowser Webapp
 
@@ -59,20 +59,20 @@ More information about the SolidOS Front-end and how to use it visit the [User G
 
 SolidOS Data-Kitchen uses `mashlib.js`as a direct import in its source code. Visit the code at [SolidOS Data-Kitchen GitHub](https://github.com/solid/data-kitchen).
 
-## Mashlib global variables and funtions
+## Mashlib global variables and functions
 
-If one wants to use mashlib as a direct import (as a package dependency or script import), one needs to know how they make global variables and functions available.
+If one wants to use mashlib as a direct import (as a package dependency or script import), one needs to know which global variables and functions are available.
 
 The availability of these global variables depends on how the sub-modules are imported and exported and on where the variables are instantiated. For a basic theoretical read, please see [this resource](https://www.javatpoint.com/javascript-global-variable).
 
 What does `global` mean in mashlib? We mean the `global object` which depends on different environments. In mashlib, for now, we use the `window` context which means these variables will not work if directly used in non-window contexts such as `Node.js` environments. (This does not mean you cannot use mashlib in `Node.js` environments; just import it through `npm`). At some point, we will switch this to the [`globalThis`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis).
 
-Next we list the most important window context/global variables and which sub-repos they are exported from:
+These are the most important window context/global variables and the sub-repos from which they are exported:
 
-- [**solid-logic**](https://github.com/solid/solid-logic/blob/f606b31382a416ee6188930c3ca05cb4ae73cbda/src/index.ts#L29) exports among others: solidLogicSingleton, authn, authSession, store, chat, profile
+- [**solid-logic**](https://github.com/solid/solid-logic/blob/f606b31382a416ee6188930c3ca05cb4ae73cbda/src/index.ts#L29) exports among others: `solidLogicSingleton`, `authn`, `authSession`, `store`, `chat`, `profile`
 - [**pane-registry**](https://github.com/solid/pane-registry) is exported entirely through the pane-registry variable
-- [**solid-ui**](https://github.com/solid/solid-ui/blob/c5a8888d6cb61363bc0445be007e3c96de593338/src/index.ts#L79) exports among others: authn, store, rdf, dom under the UI variable
-- [**solid-panes**](https://github.com/solid/solid-panes/blob/033f48f8987364cb131455b13e8b0637da95a5ab/src/index.ts#L53) exports getOutliner and the entire solid-ui through the UI variable, and solid-panes itself can be used through the `panes` variable
+- [**solid-ui**](https://github.com/solid/solid-ui/blob/c5a8888d6cb61363bc0445be007e3c96de593338/src/index.ts#L79) exports among others: authn, store, rdf, dom under the `UI` variable
+- [**solid-panes**](https://github.com/solid/solid-panes/blob/033f48f8987364cb131455b13e8b0637da95a5ab/src/index.ts#L53) exports getOutliner and the entire solid-ui through the `UI` variable, and solid-panes itself can be used through the `panes` variable
 
 For backward compatibility reasons, there are now different ways to make use of the same variables from mashlib. For example:
 
@@ -92,7 +92,7 @@ Some packages have been moved and with them some functions too. Here we report o
 ### Solid-ui & Solid-logic related:
 
 * There is no more `authn` as you might have known it in solid-ui pre mashlib version 1.7.18 (solid-ui 2.4.16).
-* There are still functions in solid-ui which initially were found under `solid-ui/authn` are now under `solid-ui/login`.
+* Some functions in solid-ui which initially were found under `solid-ui/authn` are now under `solid-ui/login`.
 * Two functions were renamed:
     * logInLoadPreferences -> ensureLoadedPreferences 
     * logInLoadProfile -> ensureLoadedProfile

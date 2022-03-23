@@ -10,6 +10,32 @@ The mashlib library (`mashlib.js`) is a solid-compatible code library of applica
 
 A colorful dependency tree can be seen [here](https://github.com/solid/solidos/blob/main/documentation/solidos_dependencies.svg).
 
+## Content of README
+### Intro
+- [Developing mashlib](#developing-mashlib)
+- [Goals](#goals)
+- [Typical uses](#typical-uses)
+
+### Documentation
+
+- [Solid-compatible data mashup library and Databrowser](#solid-compatible-data-mashup-library-and-databrowser)
+  - [Content of README](#content-of-readme)
+    - [Intro](#intro)
+    - [Documentation](#documentation)
+  - [Developing mashlib](#developing-mashlib)
+  - [Goals](#goals)
+  - [Typical uses](#typical-uses)
+  - [Previous versions of this documentation](#previous-versions-of-this-documentation)
+- [Documentation](#documentation-1)
+  - [Different implementations](#different-implementations)
+    - [SolidOS Databrowser Webapp](#solidos-databrowser-webapp)
+    - [SolidOS Databrowser Frontend](#solidos-databrowser-frontend)
+    - [SolidOS Data-Kitchen](#solidos-data-kitchen)
+  - [Mashlib global variables and functions](#mashlib-global-variables-and-functions)
+  - [Code changes due to moving authn from solid-ui to solid-logic](#code-changes-due-to-moving-authn-from-solid-ui-to-solid-logic)
+    - [Solid-ui & Solid-logic related:](#solid-ui--solid-logic-related)
+  - [The databrowser hack: upgrading your browser](#the-databrowser-hack-upgrading-your-browser)
+
 ## Developing mashlib
 
 As part of the SolidOS stack, mashlib can be developed locally by setting up the SolidOS code. Read more about that on the [SolidOS Readme](https://github.com/solid/solidos#-getting-started-with-the-solidos-code).
@@ -48,6 +74,8 @@ The `static/browse.html` page is compiled one to one into the `dist` (output) fo
 You can see and try out a SolidOS Databrowser Webapp deployment at <https://solid.github.io/mashlib/dist/browse.html>.
 
 `browse.html`serves as a perfect example for Solid WebID authentication and for making use of mashlib functions and variables.
+
+To run/test it locally we created a script `npm run startStaticOS`.
 
 ### SolidOS Databrowser Frontend
 

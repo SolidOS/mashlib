@@ -1,7 +1,7 @@
 export default {
-  buildTime: '2022-03-25T09:08:42Z',
-  commit: '9f786c004427b9c16b5e3696a315adba9a616ebd',
-  npmInfo:
+buildTime: "2022-03-25T11:46:43Z",
+commit: "8bf3bf9b42484a1bc356ae58bdd2d01327427678",
+npmInfo:
 {
   mashlib: '1.8.0',
   npm: '6.14.16',
@@ -21,4 +21,4 @@ export default {
   v8: '8.4.371.23-node.85',
   zlib: '1.2.11'
 }
-}
+};

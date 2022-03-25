@@ -12,6 +12,7 @@ module.exports = (env, args) => {
     entry: [
       './src/index.ts'
     ],
+    target: 'web',
     output: {
       path: path.join(__dirname, '/dist/'),
       publicPath: '/',

@@ -24,7 +24,7 @@ ln -s /devel/github.com/solid/solid-ui/ node_modules/solid-ui
 # was: --config webpack-no-mini.config.js
 # webpack --config-name local-webpack.config.js --progress
 # npm run build:dev:local
-webpack --mode development --config-name local-webpack.config.js --colors --progress
+webpack --mode development --config-name local-webpack.config.js --color --progress
 date
 ls -ltr dist
 # ends

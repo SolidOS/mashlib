@@ -24,9 +24,9 @@ module.exports = (env, args) => {
       extensions: ['.js', '.ts'],
       alias: {
         'rdflib': '/devel/github.com/linkeddata/rdflib.js',
-        'solid-ui': '/devel/github.com/solid/solid-ui/',
-        'solid-panes': '/devel/github.com/solid/solid-panes/'
-        '// chat-pane': '../../solid/chat-pane'
+        'solid-ui': '/devel/github.com/solidos/solid-ui/',
+        'solid-panes': '/devel/github.com/solidos/solid-panes/'
+        '// chat-pane': '../../solidos/chat-pane'
       }
     },
     module: {

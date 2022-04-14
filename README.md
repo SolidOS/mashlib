@@ -53,7 +53,7 @@ Mashlib is used in SolidOS and contributes to:
 - SolidOS Databrowser Frontend - a frontend for Solid Servers like <solidcommunity.net>
 - SolidOS Data-Kitchen - a stand-alone desktop app: <https://github.com/solidos/data-kitchen>
 
-mashlib is also used stand-alone as the SolidOS Databrowser Webapp and can be tried out at <https://solid.github.io/mashlib/dist/browse.html>.
+mashlib is also used stand-alone as the SolidOS Databrowser Webapp and can be tried out at <https://solidos.github.io/mashlib/dist/browse.html>.
 
 mashlib is also used as a library by adding `mashlib.js` (or minified version) directly to your applications. For example:
 
@@ -71,7 +71,7 @@ Check out [SolidOS Pod](https://solidos.solidcommunity.net/Team/docs/solidos.htm
 
 The `static/browse.html` page is compiled one to one into the `dist` (output) folder of mashlib and makes mashlib available stand-alone as the SolidOS Databrowser Webapp.
 
-You can see and try out a SolidOS Databrowser Webapp deployment at <https://solid.github.io/mashlib/dist/browse.html>.
+You can see and try out a SolidOS Databrowser Webapp deployment at <https://solidos.github.io/mashlib/dist/browse.html>.
 
 `browse.html`serves as a perfect example for Solid WebID authentication and for making use of mashlib functions and variables.
 

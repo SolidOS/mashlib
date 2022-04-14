@@ -3,12 +3,12 @@
 [![NPM Package](https://img.shields.io/npm/v/mashlib.svg)](https://www.npmjs.com/package/mashlib)
 
 The mashlib library (`mashlib.js`) is a solid-compatible code library of application-level functionality for the world of Solid. It compiles all of the following repositories into what we know as `mashlib.js`:
-- [**solid-logic**](https://github.com/solid/solid-logic) — core business logic of SolidOS
-- [**pane-registry**](https://github.com/solid/pane-registry) - an index to hold all loaded solid panes, whether statically or dynamically loaded
-- [**solid-ui**](https://github.com/solid/solid-ui) — User Interface widgets and utilities for Solid. Building blocks for solid-based apps
-- [**solid-panes**](https://github.com/solid/solid-panes) — a set of core solid-compatible panes based on solid-ui.
+- [**solid-logic**](https://github.com/solidos/solid-logic) — core business logic of SolidOS
+- [**pane-registry**](https://github.com/solidos/pane-registry) - an index to hold all loaded solid panes, whether statically or dynamically loaded
+- [**solid-ui**](https://github.com/solidos/solid-ui) — User Interface widgets and utilities for Solid. Building blocks for solid-based apps
+- [**solid-panes**](https://github.com/solidos/solid-panes) — a set of core solid-compatible panes based on solid-ui.
 
-A colorful dependency tree can be seen [here](https://github.com/solid/solidos/blob/main/documentation/solidos_dependencies.svg).
+A colorful dependency tree can be seen [here](https://github.com/solidos/solidos/blob/main/documentation/solidos_dependencies.svg).
 
 ## Content of README
 ### Intro
@@ -38,7 +38,7 @@ A colorful dependency tree can be seen [here](https://github.com/solid/solidos/b
 
 ## Developing mashlib
 
-As part of the SolidOS stack, mashlib can be developed locally by setting up the SolidOS code. Read more about that on the [SolidOS Readme](https://github.com/solid/solidos#-getting-started-with-the-solidos-code).
+As part of the SolidOS stack, mashlib can be developed locally by setting up the SolidOS code. Read more about that on the [SolidOS Readme](https://github.com/solidos/solidos#-getting-started-with-the-solidos-code).
 
 ## Goals
 
@@ -51,7 +51,7 @@ One major use of mashlib is as a "databrowser" for a personal data store.
 Mashlib is used in SolidOS and contributes to:
 
 - SolidOS Databrowser Frontend - a frontend for Solid Servers like <solidcommunity.net>
-- SolidOS Data-Kitchen - a stand-alone desktop app: <https://github.com/solid/data-kitchen>
+- SolidOS Data-Kitchen - a stand-alone desktop app: <https://github.com/solidos/data-kitchen>
 
 mashlib is also used stand-alone as the SolidOS Databrowser Webapp and can be tried out at <https://solid.github.io/mashlib/dist/browse.html>.
 
@@ -81,11 +81,11 @@ To run/test it locally we created a script `npm run startStaticOS`.
 
 The `src/databrowser.html`page is compiled into the SolidOS Databrowser Frontend which is displayed for each WebID on [solidcommunity.net](https://solidcommunity.net/). This is the case because the [solidcommunity.net](https://solidcommunity.net/) Solid Server is configured with SolidOS as its front-end.
 
-More information about the SolidOS Front-end and how to use it visit the [User Guide](https://github.com/solid/userguide).
+More information about the SolidOS Front-end and how to use it visit the [User Guide](https://github.com/solidos/userguide).
 
 ### SolidOS Data-Kitchen
 
-SolidOS Data-Kitchen uses `mashlib.js`as a direct import in its source code. Visit the code at [SolidOS Data-Kitchen GitHub](https://github.com/solid/data-kitchen).
+SolidOS Data-Kitchen uses `mashlib.js`as a direct import in its source code. Visit the code at [SolidOS Data-Kitchen GitHub](https://github.com/solidos/data-kitchen).
 
 ## Mashlib global variables and functions
 
@@ -97,10 +97,10 @@ What does `global` mean in mashlib? We mean the `global object` which depends on
 
 These are the most important window context/global variables and the sub-repos from which they are exported:
 
-- [**solid-logic**](https://github.com/solid/solid-logic/blob/f606b31382a416ee6188930c3ca05cb4ae73cbda/src/index.ts#L29) exports among others: `solidLogicSingleton`, `authn`, `authSession`, `store`, `chat`, `profile`
-- [**pane-registry**](https://github.com/solid/pane-registry) is exported entirely through the pane-registry variable
-- [**solid-ui**](https://github.com/solid/solid-ui/blob/c5a8888d6cb61363bc0445be007e3c96de593338/src/index.ts#L79) exports among others: authn, store, rdf, dom under the `UI` variable
-- [**solid-panes**](https://github.com/solid/solid-panes/blob/033f48f8987364cb131455b13e8b0637da95a5ab/src/index.ts#L53) exports getOutliner and the entire solid-ui through the `UI` variable, and solid-panes itself can be used through the `panes` variable
+- [**solid-logic**](https://github.com/solidos/solid-logic/blob/f606b31382a416ee6188930c3ca05cb4ae73cbda/src/index.ts#L29) exports among others: `solidLogicSingleton`, `authn`, `authSession`, `store`, `chat`, `profile`
+- [**pane-registry**](https://github.com/solidos/pane-registry) is exported entirely through the pane-registry variable
+- [**solid-ui**](https://github.com/solidos/solid-ui/blob/c5a8888d6cb61363bc0445be007e3c96de593338/src/index.ts#L79) exports among others: authn, store, rdf, dom under the `UI` variable
+- [**solid-panes**](https://github.com/solidos/solid-panes/blob/033f48f8987364cb131455b13e8b0637da95a5ab/src/index.ts#L53) exports getOutliner and the entire solid-ui through the `UI` variable, and solid-panes itself can be used through the `panes` variable
 
 For backward compatibility reasons, there are now different ways to make use of the same variables from mashlib. For example:
 
@@ -111,7 +111,7 @@ For backward compatibility reasons, there are now different ways to make use of 
 - the currentUser function is called as `authn.currentUser()` or `UI.auth.currentUser()` or `panes.UI.authn.currentUser()`
 - to make use of the login pop-up, one needs to call the `UI.login.loginStatusBox` function
 
-You can see example usage in the [SolidOS Databrowser Webapp code](https://github.com/solid/mashlib/blob/main/static/browse.html#L11).
+You can see example usage in the [SolidOS Databrowser Webapp code](https://github.com/solidos/mashlib/blob/main/static/browse.html#L11).
 
 ## Code changes due to moving authn from solid-ui to solid-logic
 
@@ -129,8 +129,8 @@ Some packages have been moved and with them some functions too. Here we report o
 Functions that moved: 
 
 * `currentUser`, `checkUser`, `saveUser`, `offlineTestID` are now part of `solid-logic/authn/SolidAuthnLogic.ts`-> this is because `authn` itself moved to solid-logic. 
-* `setACLUserPublic`, `fetchACLRel` are not part of `solid-logic/src/acl/aclLogic.ts/` and are exported in [index.ts](https://github.com/solid/solid-logic/blob/f606b31382a416ee6188930c3ca05cb4ae73cbda/src/index.ts#L12).
-* `loadIndex`, `loadTypeIndexes`, `ensureTypeIndexes`, `registerInTypeIndex` and are exported in [index.ts](https://github.com/solid/solid-logic/blob/f606b31382a416ee6188930c3ca05cb4ae73cbda/src/index.ts#L16).
+* `setACLUserPublic`, `fetchACLRel` are not part of `solid-logic/src/acl/aclLogic.ts/` and are exported in [index.ts](https://github.com/solidos/solid-logic/blob/f606b31382a416ee6188930c3ca05cb4ae73cbda/src/index.ts#L12).
+* `loadIndex`, `loadTypeIndexes`, `ensureTypeIndexes`, `registerInTypeIndex` and are exported in [index.ts](https://github.com/solidos/solid-logic/blob/f606b31382a416ee6188930c3ca05cb4ae73cbda/src/index.ts#L16).
 
 ## The databrowser hack: upgrading your browser
 

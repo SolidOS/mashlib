@@ -1,6 +1,6 @@
 export default {
-buildTime: "2022-03-31T15:53:37Z",
-commit: "859657ba810154b8464bcb6d22281ae72ac26bc8",
+buildTime: "2022-04-14T14:08:53Z",
+commit: "99a9a36d80f3a4502613dbb4396c235e23a7c4a6",
 npmInfo:
 {
   mashlib: '1.8.1',
@@ -13,8 +13,8 @@ npmInfo:
   modules: '83',
   napi: '8',
   nghttp2: '1.42.0',
-  node: '14.19.0',
-  openssl: '1.1.1m',
+  node: '14.19.1',
+  openssl: '1.1.1n',
   tz: '2021a3',
   unicode: '14.0',
   uv: '1.42.0',

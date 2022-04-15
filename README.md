@@ -109,11 +109,12 @@ For backward compatibility reasons, there are now different ways to make use of 
 - the store (from solid-logic) can be used as `store` or `UI.store` or `panes.UI.store`
 - rdflib is entirely acessible as `UI.rdf` or `panes.UI.rdf`
 - the currentUser function is called as `authn.currentUser()` or `UI.auth.currentUser()` or `panes.UI.authn.currentUser()`
-- to make use of the login pop-up, one needs to call the `UI.login.loginStatusBox` function
 
 You can see example usage in the [SolidOS Databrowser Webapp code](https://github.com/solidos/mashlib/blob/main/static/browse.html#L11).
 
 ## Code changes due to moving authn from solid-ui to solid-logic
+
+One function has been renamed and does not have a backwards-compatible fallback.  To make use of the login pop-up, one needs to call the `UI.login.loginStatusBox` function. The old `UI.authn.loginStatusBox` function will no longer work from v1.8.0 onwards.
 
 Some packages have been moved and with them some functions too. Here we report on these changes:
 

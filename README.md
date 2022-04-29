@@ -122,7 +122,7 @@ Some packages have been moved and with them some functions too. Here we report o
 
 * There is no more `authn` as you might have known it in solid-ui pre mashlib version 1.7.18 (solid-ui 2.4.16).
 * Some functions in solid-ui which initially were found under `solid-ui/authn` are now under `solid-ui/login`.
-* Two functions were renamed:
+* Three functions were renamed:
     * logInLoadPreferences -> ensureLoadedPreferences 
     * logInLoadProfile -> ensureLoadedProfile
     * logIn -> ensureLoggedIn

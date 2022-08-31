@@ -48,7 +48,7 @@
   "dependencies": {
     "rdflib": "^2.2.20",
     "solid-logic": "^2.0.0",
-    "solid-panes": "3.5.25-043927d6",
+    "solid-panes": "^3.5.25-bd98c858",
     "solid-ui": "^2.4.23"
   },
   "devDependencies": {

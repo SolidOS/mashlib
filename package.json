@@ -1,6 +1,6 @@
 {
   "name": "mashlib",
-  "version": "1.8.4",
+  "version": "1.8.5",
   "description": "Data mashup library",
   "main": "./index.js",
   "files": [
@@ -46,35 +46,35 @@
   },
   "homepage": "https://github.com/solidos/mashlib",
   "dependencies": {
-    "rdflib": "^2.2.20",
-    "solid-logic": "^2.0.0",
-    "solid-panes": "^3.5.27",
-    "solid-ui": "^2.4.23"
+    "rdflib": "^2.2.21",
+    "solid-logic": "^2.0.1",
+    "solid-panes": "^3.5.28",
+    "solid-ui": "^2.4.24"
   },
   "devDependencies": {
-    "@babel/cli": "^7.18.10",
-    "@babel/core": "^7.18.13",
-    "@babel/plugin-transform-runtime": "^7.18.10",
-    "@babel/preset-env": "^7.18.10",
+    "@babel/cli": "^7.19.3",
+    "@babel/core": "^7.20.2",
+    "@babel/plugin-transform-runtime": "^7.19.6",
+    "@babel/preset-env": "^7.20.2",
     "@babel/preset-typescript": "^7.18.6",
-    "@typescript-eslint/eslint-plugin": "^5.36.1",
-    "@typescript-eslint/parser": "^5.36.1",
-    "babel-loader": "^8.2.5",
+    "@typescript-eslint/eslint-plugin": "^5.43.0",
+    "@typescript-eslint/parser": "^5.43.0",
+    "babel-loader": "^8.3.0",
     "bundlesize": "^0.18.1",
     "copy-webpack-plugin": "^10.2.4",
-    "css-loader": "^6.7.1",
-    "eslint": "^8.23.0",
+    "css-loader": "^6.7.2",
+    "eslint": "^8.27.0",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.0",
     "husky": "^7.0.4",
     "lint-staged": "^12.5.0",
-    "mini-css-extract-plugin": "^2.6.1",
+    "mini-css-extract-plugin": "^2.7.0",
     "node-polyfill-webpack-plugin": "^1.1.4",
     "typescript": "^4.8.2",
     "url-loader": "^4.1.1",
-    "webpack": "^5.74.0",
+    "webpack": "^5.75.0",
     "webpack-cli": "^4.10.0",
-    "webpack-dev-server": "^4.10.1"
+    "webpack-dev-server": "^4.11.1"
   },
   "husky": {
     "hooks": {

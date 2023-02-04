@@ -1,12 +1,12 @@
 export default {
-buildTime: "2022-11-18T15:47:40Z",
-commit: "32269e6fe51473629b3d56e2a07d1fc0459a0259",
+buildTime: "2023-02-04T09:36:30Z",
+commit: "5214837352dff55aeb8e91e5be21b1b7fa23123b",
 npmInfo:
 {
-  mashlib: '1.8.5',
+  mashlib: '1.8.6',
   npm: '8.19.3',
-  node: '14.20.1',
-  v8: '8.4.371.23-node.87',
+  node: '14.21.2',
+  v8: '8.4.371.23-node.88',
   uv: '1.42.0',
   zlib: '1.2.11',
   brotli: '1.0.9',
@@ -15,10 +15,10 @@ npmInfo:
   nghttp2: '1.42.0',
   napi: '8',
   llhttp: '2.1.6',
-  openssl: '1.1.1q',
+  openssl: '1.1.1s',
   cldr: '40.0',
   icu: '70.1',
-  tz: '2021a3',
+  tz: '2022f',
   unicode: '14.0'
 }
 };

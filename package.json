@@ -45,26 +45,23 @@
     "url": "https://github.com/solidos/mashlib/issues"
   },
   "homepage": "https://github.com/solidos/mashlib",
-  "dependencies": {
-    "solid-panes": "^3.5.29"
-  },
   "devDependencies": {
-    "@babel/cli": "^7.20.7",
-    "@babel/core": "^7.20.12",
-    "@babel/plugin-transform-runtime": "^7.19.6",
+    "@babel/cli": "^7.21.0",
+    "@babel/core": "^7.21.0",
+    "@babel/plugin-transform-runtime": "^7.21.0",
     "@babel/preset-env": "^7.20.2",
-    "@babel/preset-typescript": "^7.18.6",
-    "@typescript-eslint/eslint-plugin": "^5.50.0",
-    "@typescript-eslint/parser": "^5.50.0",
+    "@babel/preset-typescript": "^7.21.0",
+    "@typescript-eslint/eslint-plugin": "^5.54.0",
+    "@typescript-eslint/parser": "^5.54.0",
     "babel-loader": "^9.1.2",
     "bundlesize": "^0.18.1",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.3",
-    "eslint": "^8.33.0",
+    "eslint": "^8.35.0",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.0",
     "husky": "^8.0.3",
-    "lint-staged": "^13.1.0",
+    "lint-staged": "^13.1.2",
     "mini-css-extract-plugin": "^2.7.2",
     "node-polyfill-webpack-plugin": "^2.0.1",
     "typescript": "^4.9.5",
@@ -92,5 +89,9 @@
       "path": "./dist/*[^.min].js",
       "maxSize": "3 MB"
     }
-  ]
+  ],
+  "dependencies": {
+    "rdflib": "^2.2.28",
+    "solid-panes": "^3.5.31"
+  }
 }

@@ -1,9 +1,9 @@
 export default {
-buildTime: "2023-02-28T19:24:07Z",
-commit: "378bad401fe1a010c8304ce9c7b0182eb8928554",
+buildTime: "2023-03-17T15:32:39Z",
+commit: "5e5bbf6e7b264c577e90478def4386bb64d81d12",
 npmInfo:
 {
-  mashlib: '1.8.7',
+  mashlib: '1.8.8',
   npm: '8.19.4',
   node: '16.19.1',
   v8: '9.4.146.26-node.24',

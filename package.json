@@ -80,6 +80,7 @@
   },
   "dependencies": {
     "rdflib": "^2.2.30",
-    "solid-panes": "^3.5.32"
+    "solid-panes": "^3.5.32",
+    "webpack-bundle-analyzer": "^4.8.0"
   }
 }

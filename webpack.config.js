@@ -4,6 +4,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CopyPlugin = require('copy-webpack-plugin')
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
 
 module.exports = (env, args) => {
   const production = args.mode === 'production';
@@ -70,6 +72,7 @@ module.exports = (env, args) => {
 
     plugins: [
       new webpack.DefinePlugin({ 'global.IS_BROWSER': true }),
+      new BundleAnalyzerPlugin(),
       new HtmlWebpackPlugin({
         title: 'SolidOS Web App',
         template: './src/databrowser.html',

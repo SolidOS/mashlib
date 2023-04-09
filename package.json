@@ -17,8 +17,9 @@
     "lint": "eslint 'src/**/*.ts'",
     "lint-fix": "eslint 'src/**/*.ts' --fix",
     "test": "npm run lint",
-    "prepublishOnly": "npm test && npm run build",
+    "prepublishOnly": "npm test && npm run build && npm run bundlesize",
     "postpublish": "git push origin main --follow-tags",
+    "bundlesize": "bundlesize",
     "startStaticOS": "webpack serve --config webpack.config.js --open /browse.html"
   },
   "repository": {
@@ -53,6 +54,7 @@
     "@typescript-eslint/eslint-plugin": "^5.55.0",
     "@typescript-eslint/parser": "^5.55.0",
     "babel-loader": "^9.1.2",
+    "bundlesize": "^0.18.1",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.3",
     "eslint": "^8.36.0",
@@ -78,6 +80,16 @@
       "eslint"
     ]
   },
+  "bundlesize": [
+    {
+      "path": "./dist/*.min.js",
+      "maxSize": "2 MB"
+    },
+    {
+      "path": "./dist/*[^.min].js",
+      "maxSize": "3 MB"
+    }
+  ],
   "dependencies": {
     "rdflib": "^2.2.30",
     "solid-panes": "^3.5.32"

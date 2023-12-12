@@ -91,7 +91,7 @@
     }
   ],
   "dependencies": {
-    "rdflib": "^2.2.30",
-    "solid-panes": "^3.5.32"
+    "rdflib": "^2.2.33",
+    "solid-panes": "^3.5.33-e610b0de"
   }
 }

@@ -19,7 +19,7 @@
     "test": "npm run lint",
     "prepublishOnly": "npm test && npm run build && npm run bundlesize",
     "postpublish": "git push origin main --follow-tags",
-    "bundlesize": "bundlesize",
+    "bundlesize": "npm rebuild iltorb && bundlesize",
     "startStaticOS": "webpack serve --config webpack.config.js --open /browse.html"
   },
   "repository": {
@@ -92,6 +92,6 @@
   ],
   "dependencies": {
     "rdflib": "^2.2.33",
-    "solid-panes": "^3.5.33-e610b0de"
+    "solid-panes": "3.5.33-08b8e36c"
   }
 }

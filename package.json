@@ -19,7 +19,7 @@
     "test": "npm run lint",
     "prepublishOnly": "npm test && npm run build && npm run bundlesize",
     "postpublish": "git push origin main --follow-tags",
-    "bundlesize": "bundlesize",
+    "bundlesize": "npm rebuild iltorb && bundlesize",
     "startStaticOS": "webpack serve --config webpack.config.js --open /browse.html"
   },
   "repository": {

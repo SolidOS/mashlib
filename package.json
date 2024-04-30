@@ -1,6 +1,6 @@
 {
   "name": "mashlib",
-  "version": "1.8.10",
+  "version": "1.8.11",
   "description": "Data mashup library",
   "main": "./index.js",
   "files": [
@@ -92,6 +92,6 @@
   ],
   "dependencies": {
     "rdflib": "^2.2.34",
-    "solid-panes": "^3.5.35"
+    "solid-panes": "^3.5.36"
   }
 }

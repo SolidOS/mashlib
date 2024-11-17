@@ -1,6 +1,6 @@
 {
   "name": "mashlib",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "description": "Data mashup library",
   "main": "./index.js",
   "files": [
@@ -45,15 +45,10 @@
     "url": "https://github.com/solidos/mashlib/issues"
   },
   "homepage": "https://github.com/solidos/mashlib",
-
   "dependencies": {
-    "@inrupt/solid-client-authn-browser": "^2.2.4",
-    "rdflib": "^2.2.32",
-    "solid-logic": "^2.1.2",
-    "solid-panes": "^3.5.28",
-    "solid-ui": "^2.4.24"
+    "rdflib": "^2.2.34",
+    "solid-panes": "^3.5.36"
   },
-
   "devDependencies": {
     "@babel/cli": "^7.24.1",
     "@babel/core": "^7.24.3",
@@ -98,9 +93,5 @@
       "path": "./dist/*[^.min].js",
       "maxSize": "3 MB"
     }
-  ],
-  "dependencies": {
-    "rdflib": "^2.2.34",
-    "solid-panes": "^3.5.36"
-  }
+  ]
 }

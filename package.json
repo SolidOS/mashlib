@@ -46,8 +46,9 @@
   },
   "homepage": "https://github.com/solidos/mashlib",
   "dependencies": {
-    "rdflib": "^2.2.21",
-    "solid-logic": "^2.0.1",
+    "@inrupt/solid-client-authn-browser": "^2.2.4",
+    "rdflib": "^2.2.32",
+    "solid-logic": "^2.1.2",
     "solid-panes": "^3.5.28",
     "solid-ui": "^2.4.24"
   },

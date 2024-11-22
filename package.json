@@ -47,7 +47,7 @@
   "homepage": "https://github.com/solidos/mashlib",
   "dependencies": {
     "rdflib": "^2.2.34",
-    "solid-panes": "^3.5.36"
+    "solid-panes": "^3.6.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.24.1",

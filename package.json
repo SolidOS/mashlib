@@ -17,9 +17,8 @@
     "lint": "eslint 'src/**/*.ts'",
     "lint-fix": "eslint 'src/**/*.ts' --fix",
     "test": "npm run lint",
-    "prepublishOnly": "npm test && npm run build && npm run bundlesize",
+    "prepublishOnly": "npm test && npm run build && bundlesize",
     "postpublish": "git push origin main --follow-tags",
-    "bundlesize": "npm rebuild iltorb && bundlesize",
     "startStaticOS": "webpack serve --mode=production --config webpack.config.js --open /browse.html"
   },
   "repository": {
@@ -58,7 +57,7 @@
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "babel-loader": "^9.1.3",
-    "bundlesize": "^0.18.2",
+    "bundlesize2": "^0.0.32",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.10.0",
     "eslint": "^8.57.0",
@@ -87,11 +86,13 @@
   "bundlesize": [
     {
       "path": "./dist/*.min.js",
-      "maxSize": "2 MB"
+      "maxSize": "2 MB",
+      "compression": "brotli"
     },
     {
       "path": "./dist/*[^.min].js",
-      "maxSize": "3 MB"
+      "maxSize": "3 MB",
+      "compression": "brotli"
     }
   ]
 }

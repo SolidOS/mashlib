@@ -20,7 +20,7 @@
     "prepublishOnly": "npm test && npm run build && npm run bundlesize",
     "postpublish": "git push origin main --follow-tags",
     "bundlesize": "npm rebuild iltorb && bundlesize",
-    "startStaticOS": "webpack serve --config webpack.config.js --open /browse.html"
+    "startStaticOS": "webpack serve --mode=production --config webpack.config.js --open /browse.html"
   },
   "repository": {
     "type": "git",
@@ -93,9 +93,5 @@
       "path": "./dist/*[^.min].js",
       "maxSize": "3 MB"
     }
-  ],
-  "dependencies": {
-    "rdflib": "^2.2.34",
-    "solid-panes": "^3.6.1-7fd4c513"
-  }
+  ]
 }

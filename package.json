@@ -17,7 +17,8 @@
     "lint": "eslint 'src/**/*.ts'",
     "lint-fix": "eslint 'src/**/*.ts' --fix",
     "test": "npm run lint",
-    "prepublishOnly": "npm test && npm run build && bundlesize",
+    "prepublishOnly": "npm test && npm run build && npm run bundlesize",
+    "bundlesize": "bundlesize",
     "postpublish": "git push origin main --follow-tags",
     "startStaticOS": "webpack serve --mode=production --config webpack.config.js --open /browse.html"
   },

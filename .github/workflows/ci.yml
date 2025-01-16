@@ -24,8 +24,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
-      - run: npm run build
-      - run: bundlesize
+      - run: npm run build && bundlesize
       - name: Save build
         if: matrix.node-version == '18.x'
         uses: actions/upload-artifact@v4

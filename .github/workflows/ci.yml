@@ -15,8 +15,8 @@ jobs:
     strategy:
       matrix:
         node-version:
-          - 16.x
           - 18.x
+          - 20.x
     steps:
       - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
@@ -25,9 +25,9 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
       - run: npm run build
-      - run: npm run bundlesize
+      - run: bundlesize
       - name: Save build
-        if: matrix.node-version == '16.x'
+        if: matrix.node-version == '18.x'
         uses: actions/upload-artifact@v4
         with:
           name: build

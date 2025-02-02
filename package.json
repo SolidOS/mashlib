@@ -20,7 +20,7 @@
     "prepublishOnly": "npm test && npm run build && npm run bundlesize",
     "bundlesize": "bundlesize",
     "postpublish": "git push origin main --follow-tags",
-    "startStaticOS": "webpack serve --mode=production --config webpack.config.js --open /browse.html"
+    "startStaticOS": "webpack serve --config webpack.config.js --open /browse-test.html"
   },
   "repository": {
     "type": "git",
@@ -47,7 +47,7 @@
   "homepage": "https://github.com/solidos/mashlib",
   "dependencies": {
     "rdflib": "^2.2.35",
-    "solid-panes": "^3.6.1"
+    "solid-panes": "^3.6.1-6dcdf0e2"
   },
   "devDependencies": {
     "@babel/cli": "^7.26.4",

@@ -31,6 +31,11 @@ module.exports = (env, args) => {
     module: {
       rules: [
         {
+          test: /\.ttl$/, // Target text  files
+          type: 'asset/source', // Load the file's content as a string
+        },
+  
+        {
           test: /\.(mjs|js|ts)$/,
           exclude: /(node_modules|bower_components)/,
           use: {
@@ -94,6 +99,7 @@ module.exports = (env, args) => {
       'whatwg-url': 'window',
       '@trust/webcrypto': 'crypto'
     },
-    devtool: 'source-map'
+    devtool: 'source-map',
+    performance: { hints: false }
   }
 }

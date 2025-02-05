@@ -99,6 +99,7 @@ module.exports = (env, args) => {
       'whatwg-url': 'window',
       '@trust/webcrypto': 'crypto'
     },
-    devtool: 'source-map'
+    devtool: 'source-map',
+    performance: { hints: false }
   }
 }

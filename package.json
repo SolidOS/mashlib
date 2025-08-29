@@ -48,7 +48,7 @@
   "dependencies": {
     "rdflib": "^2.2.37",
     "solid-logic": "^3.0.9",
-    "solid-panes": "^3.7.0"
+    "solid-panes": "^3.7.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.0",

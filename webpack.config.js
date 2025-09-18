@@ -1,32 +1,36 @@
-const path = require('path')
-const webpack = require('webpack')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const CopyPlugin = require('copy-webpack-plugin')
-const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
+import path from 'path'
+import webpack from 'webpack'
+import HtmlWebpackPlugin from 'html-webpack-plugin'
+import MiniCssExtractPlugin from 'mini-css-extract-plugin'
+import CopyPlugin from 'copy-webpack-plugin'
+import NodePolyfillPlugin from 'node-polyfill-webpack-plugin'
+import TerserPlugin from 'terser-webpack-plugin'
 
-module.exports = (env, args) => {
-  const production = args.mode === 'production';
-  return {
-    mode: args.mode || 'development',
+const externalsBase = {
+  'fs': 'null',
+  'node-fetch': 'fetch',
+  'isomorphic-fetch': 'fetch',
+  '@xmldom/xmldom': 'window',
+  'text-encoding': 'TextEncoder',
+  'whatwg-url': 'window',
+  '@trust/webcrypto': 'crypto'
+}
+
+const common = {
     entry: [
       './src/index.ts'
     ],
     target: 'web',
     output: {
-      path: path.join(__dirname, '/dist/'),
+      path: path.resolve(process.cwd(), 'dist'),
       publicPath: '/',
-      filename: production ? 'mashlib.min.js' : 'mashlib.js',
-      library: 'Mashlib',
-      libraryTarget: 'umd'
+      library: {
+        name: 'Mashlib',
+        type: 'umd'
+      },
     },
     resolve: {
       extensions: ['.js', '.ts'],
-      alias: production ? {} : {
-        'rdflib': path.resolve('./node_modules/rdflib'),
-        'solid-panes': path.resolve('./node_modules/solid-panes'),
-        'solid-logic': path.resolve('./node_modules/solid-logic')
-      }
     },
     module: {
       rules: [
@@ -34,7 +38,6 @@ module.exports = (env, args) => {
           test: /\.ttl$/, // Target text  files
           type: 'asset/source', // Load the file's content as a string
         },
-  
         {
           test: /\.(mjs|js|ts)$/,
           exclude: /(node_modules|bower_components)/,
@@ -72,7 +75,6 @@ module.exports = (env, args) => {
         },
       ]
     },
-
     plugins: [
       new webpack.DefinePlugin({ 'global.IS_BROWSER': true }),
       new HtmlWebpackPlugin({
@@ -90,16 +92,41 @@ module.exports = (env, args) => {
         ]
       })
     ],
-    externals: {
-      'fs': 'null',
-      'node-fetch': 'fetch',
-      'isomorphic-fetch': 'fetch',
-      'xmldom': 'window',
-      'text-encoding': 'TextEncoder',
-      'whatwg-url': 'window',
-      '@trust/webcrypto': 'crypto'
-    },
     devtool: 'source-map',
     performance: { hints: false }
+}
+
+// UMD Minified, rdflib bundled
+const minified = {
+  ...common,
+  mode: 'production',
+  output: {
+    ...common.output,
+    filename: 'mashlib.min.js'
+  },
+  externals: externalsBase,
+  optimization: {
+    minimize: true,
+    minimizer: [new TerserPlugin({ extractComments: false })]
   }
 }
+
+// UMD Unminified, rdflib bundled
+const unminified = {
+  ...common,
+  mode: 'production',
+  output: {
+    ...common.output,
+    filename: 'mashlib.js'
+  },
+  externals: externalsBase,
+  optimization: {
+    minimize: false
+  }
+}
+
+export default [
+  minified,
+  unminified
+]
+

@@ -2,22 +2,22 @@
   "name": "mashlib",
   "version": "1.11.0",
   "description": "Data mashup library",
-  "main": "./index.js",
+  "main": "dist/mashlib.js",
   "files": [
-    "index.js",
-    "dist"
+    "dist/",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
-    "build": "npm run clean && npm run build-version && npm run build-dev && npm run build-dist",
-    "build-dev": "webpack --progress",
-    "build-dist": "webpack --progress --mode=production",
+    "clean": "rm -rf dist ./src/versionInfo.ts",
+    "build": "npm run clean && npm run build-version && npm run build-dist && npm run postbuild-js",
     "build-version": "./timestamp.sh > src/versionInfo.ts  && eslint 'src/versionInfo.ts' --fix",
+    "build-dist": "webpack --progress",
+    "postbuild-js": "rm -f dist/versionInfo.d.ts dist/versionInfo.d.ts.map",
+    "lint": "eslint",
+    "test": "echo no jest tests",
     "watch": "npm run build-version && webpack --watch",
-    "clean": "rm -rf dist",
-    "lint": "eslint 'src/**/*.ts'",
-    "lint-fix": "eslint 'src/**/*.ts' --fix",
-    "test": "npm run lint",
-    "prepublishOnly": "npm test && npm run build && npm run bundlesize",
+    "prepublishOnly": "npm run lint && npm run build && npm run bundlesize",
     "bundlesize": "bundlesize",
     "postpublish": "git push origin main --follow-tags",
     "startStaticOS": "webpack serve --config webpack.config.js --open /browse-test.html"
@@ -46,6 +46,7 @@
   },
   "homepage": "https://github.com/solidos/mashlib",
   "dependencies": {
+    "lint-staged": "^16.1.6",
     "rdflib": "^2.2.37",
     "solid-logic": "^3.0.9",
     "solid-panes": "^3.7.2"
@@ -68,9 +69,9 @@
     "globals": "^16.3.0",
     "html-webpack-plugin": "^5.6.3",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.5",
     "mini-css-extract-plugin": "^2.9.4",
     "node-polyfill-webpack-plugin": "^4.1.0",
+    "terser-webpack-plugin": "^5.3.14",
     "typescript": "^5.9.2",
     "url-loader": "^4.1.1",
     "webpack": "^5.101.0",

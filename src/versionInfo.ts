@@ -1,9 +1,9 @@
 export default {
-buildTime: "2025-09-18T11:54:14Z",
-commit: "b72a1d519e72bbf7ed6cb18951daad35947423aa",
+buildTime: "2025-09-18T11:54:35Z",
+commit: "4251fc3e76ac0c932c1703061657b5cad11049fa",
   npmInfo: {
     "mashlib": "'1.11.0',",
-    "npm": "'8.19.4',",
+    "npm": "'10.8.2',",
     "node": "'20.19.5',",
     "acorn": "'8.15.0',",
     "ada": "'2.9.2',",

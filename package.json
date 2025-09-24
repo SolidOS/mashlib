@@ -1,6 +1,6 @@
 {
   "name": "mashlib",
-  "version": "1.11.0",
+  "version": "1.11.1",
   "description": "Data mashup library",
   "main": "./index.js",
   "files": [
@@ -46,9 +46,10 @@
   },
   "homepage": "https://github.com/solidos/mashlib",
   "dependencies": {
+    "lint-staged": "^16.2.0",
     "rdflib": "^2.2.37",
-    "solid-logic": "^3.0.9",
-    "solid-panes": "^3.7.2"
+    "solid-logic": "^3.1.1",
+    "solid-panes": "^3.7.3"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.0",
@@ -68,7 +69,6 @@
     "globals": "^16.3.0",
     "html-webpack-plugin": "^5.6.3",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.5",
     "mini-css-extract-plugin": "^2.9.4",
     "node-polyfill-webpack-plugin": "^4.1.0",
     "typescript": "^5.9.2",

@@ -69,20 +69,20 @@ document.addEventListener('DOMContentLoaded', function() {
     }      
 
     if (authSession) {
-      authSession.onLogin(() => {
+      authSession.events.on(EVENTS.SESSION_LOGIN, () => {
         mungeLoginArea();
         go()
       })
-      authSession.onLogout(() => {
+      authSession.events.on(EVENTS.SESSION_LOGOUT, () => {
         mungeLoginArea();
         webIdArea.innerHTML = "public user";
         go()
       })
-      authSession.onSessionRestore((url) => {
+      authSession.events.on(EVENTS.SESSION_RESTORED, (url) => {
         mungeLoginArea();
         go()
       })
-    }    
+    }
     mungeLoginArea();
 });
 </script>

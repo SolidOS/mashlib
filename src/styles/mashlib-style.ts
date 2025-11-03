@@ -12,6 +12,6 @@ export const mashStyle: MashStyle = {
   dbLayoutHeader: 'flex-shrink: 0;',
   dbLayoutFooter: 'flex-shrink: 0;',
   setStyle: function setStyle(ele: HTMLElement, styleName: keyof Omit<MashStyle, 'setStyle'>) {
-    ele.setAttribute('style', mashStyle[styleName]);
+    ele.setAttribute('style', mashStyle[styleName])
   }
-};
+}

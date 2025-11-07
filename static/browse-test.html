@@ -6,10 +6,9 @@
   <script type="text/javascript" src="mashlib.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const authn = UI.authn
-    const authSession = UI.authn.authSession
-    const store = UI.store
-    const $rdf = UI.rdf
+    const authn = SolidLogic.authn
+    const authSession = SolidLogic.authSession
+    const store = SolidLogic.store
     const dom = document
     $rdf.Fetcher.crossSiteProxyTemplate = self.origin + '/xss?uri={uri}'
     const uri = window.location.href
@@ -69,16 +68,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }      
 
     if (authSession) {
-      authSession.events.on(EVENTS.SESSION_LOGIN, () => {
+      authSession.events.on("login", () => {
         mungeLoginArea();
         go()
       })
-      authSession.events.on(EVENTS.SESSION_LOGOUT, () => {
+      authSession.events.on("logout", () => {
         mungeLoginArea();
         webIdArea.innerHTML = "public user";
         go()
       })
-      authSession.events.on(EVENTS.SESSION_RESTORED, (url) => {
+      authSession.events.on("sessionRestore", (url) => {
         mungeLoginArea();
         go()
       })

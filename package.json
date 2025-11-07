@@ -12,7 +12,7 @@
     "clean": "rm -rf dist ./src/versionInfo.ts",
     "build": "npm run clean && npm run build-version && npm run build-dist && npm run postbuild-js",
     "build-version": "./timestamp.sh > src/versionInfo.ts && eslint 'src/versionInfo.ts' --fix",
-    "build-dist": "webpack --progress",
+    "build-dist": "webpack --progress --mode=production",
     "postbuild-js": "rm -f dist/versionInfo.d.ts dist/versionInfo.d.ts.map",
     "lint": "eslint",
     "lint-fix": "eslint --fix",
@@ -23,11 +23,11 @@
     "preversion": "npm run lint && npm run typecheck && npm test",
     "postpublish": "git push origin main --follow-tags",
     "watch": "npm run build-version && webpack --watch",
-    "startStaticOS": "webpack serve --config webpack.config.js --open /browse-test.html"
+    "start": "npm run build-version && webpack serve --config webpack.config.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/solidos/mashlib"
+    "url": "git+https://github.com/solidos/mashlib.git"
   },
   "keywords": [
     "solid",
@@ -49,9 +49,10 @@
   },
   "homepage": "https://github.com/solidos/mashlib",
   "dependencies": {
-    "rdflib": "^2.2.37",
-    "solid-logic": "^3.1.1",
-    "solid-panes": "^3.7.3"
+    "rdflib": "^2.3.0",
+    "solid-logic": "3.1.1-3343cc7",
+    "solid-panes": "3.7.3-edf20fec",
+    "solid-ui": "2.6.1-c6fc7fe"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.0",
@@ -70,8 +71,6 @@
     "file-loader": "^6.2.0",
     "globals": "^16.3.0",
     "html-webpack-plugin": "^5.6.3",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.2.6",
     "mini-css-extract-plugin": "^2.9.4",
     "node-polyfill-webpack-plugin": "^4.1.0",
     "terser-webpack-plugin": "^5.3.14",
@@ -80,16 +79,6 @@
     "webpack": "^5.101.0",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.2"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "src/**/*.ts": [
-      "eslint"
-    ]
   },
   "bundlesize": [
     {

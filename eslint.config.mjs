@@ -1,34 +1,63 @@
-import typescriptEslint from "@typescript-eslint/eslint-plugin";
-import globals from "globals";
-import tsParser from "@typescript-eslint/parser";
+import globals from 'globals'
+import tsParser from '@typescript-eslint/parser'
 
-export default [{
-    ignores: ["**/dist"],
-}, {
-    plugins: {
-        "@typescript-eslint": typescriptEslint,
+export default [
+    {
+        ignores: [
+            'node_modules/**',
+            'dist/**',
+        ],
     },
+    {
+        files: ['src/**/*.js', 'src/**/*.cjs', 'src/**/*.mjs'],
 
-    languageOptions: {
+        languageOptions: {
         globals: {
             ...globals.browser,
             ...globals.node,
-            Atomics: "readonly",
-            SharedArrayBuffer: "readonly",
+            Atomics: 'readonly',
+            SharedArrayBuffer: 'readonly',
+        }
         },
+         rules: {
+            // Code style - match TypeScript settings
+            semi: ['error', 'never'],
+            quotes: ['error', 'single'],
 
-        parser: tsParser,
-    },
-    files: ["src/**/*.ts"],
-    rules: {
-        "no-unused-vars": ["warn", {
-            argsIgnorePattern: "^_",
-            varsIgnorePattern: "^_",
-        }],
+            // Strict checking - match TypeScript strictness
+            'no-console': 'error',
+            'no-unused-vars': 'error', // Match TypeScript noUnusedLocals: true
+            'no-undef': 'error',
+            strict: ['error', 'global'], // Match TypeScript alwaysStrict: true
 
-        "@typescript-eslint/no-unused-vars": ["warn", {
-            argsIgnorePattern: "^_",
-            varsIgnorePattern: "^_",
-        }],
+            // Additional strictness to match TypeScript behavior
+            'no-implicit-globals': 'error',
+            'prefer-const': 'error', // Encourage immutability
+            'no-var': 'error', // Use let/const only
+            'no-redeclare': 'error'
+            },
     },
-}];
+    {
+        files: ["src/**/*.ts"],
+        languageOptions: {
+            globals: {
+                ...globals.browser,
+                ...globals.node,
+                Atomics: "readonly",
+                SharedArrayBuffer: "readonly",
+            },
+            parser: tsParser,
+            parserOptions: {
+                project: ['./tsconfig.json']
+            },
+        },
+        
+       rules: {
+            semi: ['error', 'never'],
+            quotes: ['error', 'single'],
+            // Disable ESLint rules that TypeScript handles better
+            'no-unused-vars': 'off', // TypeScript handles this via noUnusedLocals
+            'no-undef': 'off', // TypeScript handles undefined variables
+        },
+    }
+]

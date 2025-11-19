@@ -1,14 +1,20 @@
 import * as $rdf from 'rdflib'
 import * as panes from 'solid-panes'
-import { authn, solidLogicSingleton } from 'solid-logic'
+import { authn, solidLogicSingleton, authSession, store } from 'solid-logic'
 import versionInfo from './versionInfo'
-import { mashStyle } from './styles/mashlib-style.js'
+import { mashStyle } from './styles/mashlib-style'
 import './styles/mash.css'
 
 const global: any = window
 
 global.$rdf = $rdf
 global.panes = panes
+global.SolidLogic = {
+  authn,
+  authSession, 
+  store,
+  solidLogicSingleton
+}
 global.mashlib = {
   versionInfo
 }
@@ -34,7 +40,7 @@ global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
   }
 
   // Authenticate the user
-  authn.checkUser().then(function (_profile: $rdf.NamedNode | null) {
+  authn.checkUser().then(function (_profile: any) {
     const mainPage = panes.initMainPage(solidLogicSingleton.store, uri)
     return mainPage
   })

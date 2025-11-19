@@ -75,7 +75,7 @@ You can see and try out a SolidOS Databrowser Webapp deployment at <https://soli
 
 `browse.html`serves as a perfect example for Solid WebID authentication and for making use of mashlib functions and variables.
 
-To run/test it locally we created a script `npm run startStaticOS`.
+To run/test locally we created a script `npm run start`.
 
 ### SolidOS Databrowser Frontend
 
@@ -97,18 +97,18 @@ What does `global` mean in mashlib? We mean the `global object` which depends on
 
 These are the most important window context/global variables and the sub-repos from which they are exported:
 
-- [**solid-logic**](https://github.com/solidos/solid-logic/blob/f606b31382a416ee6188930c3ca05cb4ae73cbda/src/index.ts#L29) exports among others: `solidLogicSingleton`, `authn`, `authSession`, `store`, `chat`, `profile`
+- [**solid-logic**](https://github.com/solidos/solid-logic/blob/f606b31382a416ee6188930c3ca05cb4ae73cbda/src/index.ts#L29) exports among others: `SolidLogic`
 - [**pane-registry**](https://github.com/solidos/pane-registry) is exported entirely through the pane-registry variable
 - [**solid-ui**](https://github.com/solidos/solid-ui/blob/c5a8888d6cb61363bc0445be007e3c96de593338/src/index.ts#L79) exports among others: authn, store, rdf, dom under the `UI` variable
 - [**solid-panes**](https://github.com/solidos/solid-panes/blob/033f48f8987364cb131455b13e8b0637da95a5ab/src/index.ts#L53) exports getOutliner and the entire solid-ui through the `UI` variable, and solid-panes itself can be used through the `panes` variable
 
 For backward compatibility reasons, there are now different ways to make use of the same variables from mashlib. For example:
 
-- to make use of the UI (solid-ui) one can use `UI` or `panes.UI`
-- authentication session, part of solid-logic, can be called as `authSession` or `UI.authn.authSession` or `panes.UI.authn.authSession`
-- the store (from solid-logic) can be used as `store` or `UI.store` or `panes.UI.store`
-- rdflib is entirely acessible as `UI.rdf` or `panes.UI.rdf`
-- the currentUser function is called as `authn.currentUser()` or `UI.auth.currentUser()` or `panes.UI.authn.currentUser()`
+- to make use of the UI (solid-ui) one can use `UI` BUT NOT `panes.UI` anymore
+- authentication session, part of solid-logic, can be called as `SolidLogic.authSession` BUT NOT `UI.authn.authSession` nor `panes.UI.authn.authSession` anymore
+- the store (from solid-logic) can be used as `SolidLogic.store` BUT NOT `UI.store` nor `panes.UI.store` anymore
+- rdflib NOT entirely acessible as `UI.rdf` or `panes.UI.rdf` anymore but as `$rdf`
+- the currentUser function is called as `SolidLogic.authn.currentUser()` BUT NOT `UI.auth.currentUser()` nor `panes.UI.authn.currentUser()` anymore
 
 You can see example usage in the [SolidOS Databrowser Webapp code](https://github.com/solidos/mashlib/blob/main/static/browse.html#L11).
 
@@ -130,7 +130,7 @@ Some packages have been moved and with them some functions too. Here we report o
 Functions that moved: 
 
 * `currentUser`, `checkUser`, `saveUser`, `offlineTestID` are now part of `solid-logic/authn/SolidAuthnLogic.ts`-> this is because `authn` itself moved to solid-logic. 
-* `setACLUserPublic`, `fetchACLRel` are not part of `solid-logic/src/acl/aclLogic.ts/` and are exported in [index.ts](https://github.com/solidos/solid-logic/blob/f606b31382a416ee6188930c3ca05cb4ae73cbda/src/index.ts#L12).
+* `setACLUserPublic`, `fetchACLRel` are now part of `solid-logic/src/acl/aclLogic.ts/` and are exported in [index.ts](https://github.com/solidos/solid-logic/blob/f606b31382a416ee6188930c3ca05cb4ae73cbda/src/index.ts#L12).
 * `loadIndex`, `loadTypeIndexes`, `ensureTypeIndexes`, `registerInTypeIndex` and are exported in [index.ts](https://github.com/solidos/solid-logic/blob/f606b31382a416ee6188930c3ca05cb4ae73cbda/src/index.ts#L16).
 
 ## The databrowser hack: upgrading your browser

@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "clean": "rm -rf dist ./src/versionInfo.ts",
-    "build": "npm run clean && npm run build-version && npm run build-dist && npm run postbuild-js",
+    "build": "npm run clean && npm run build-version && npm run typecheck && npm run build-dist && npm run postbuild-js",
     "build-version": "./timestamp.sh > src/versionInfo.ts && eslint 'src/versionInfo.ts' --fix",
     "build-dist": "webpack --progress --mode=production",
     "postbuild-js": "rm -f dist/versionInfo.d.ts dist/versionInfo.d.ts.map",
@@ -50,9 +50,9 @@
   "homepage": "https://github.com/solidos/mashlib",
   "dependencies": {
     "rdflib": "^2.3.0",
-    "solid-logic": "3.1.1-3343cc7",
-    "solid-panes": "3.7.3-edf20fec",
-    "solid-ui": "2.6.1-c6fc7fe"
+    "solid-logic": "^3.1.1-a44ca66",
+    "solid-panes": "^3.7.3-f06890f4",
+    "solid-ui": "^2.6.1-e78cbe5"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.0",

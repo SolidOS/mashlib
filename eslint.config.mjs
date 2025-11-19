@@ -1,4 +1,3 @@
-import tseslintPlugin from '@typescript-eslint/eslint-plugin'
 import globals from 'globals'
 import tsParser from '@typescript-eslint/parser'
 
@@ -20,19 +19,26 @@ export default [
             SharedArrayBuffer: 'readonly',
         }
         },
-        rules: {
-        semi: ['error', 'never'],
-        quotes: ['error', 'single'],
-        'no-console': 'error',
-        'no-unused-vars': 'error',
-        'no-undef': 'error'
-        },
+         rules: {
+            // Code style - match TypeScript settings
+            semi: ['error', 'never'],
+            quotes: ['error', 'single'],
+
+            // Strict checking - match TypeScript strictness
+            'no-console': 'error',
+            'no-unused-vars': 'error', // Match TypeScript noUnusedLocals: true
+            'no-undef': 'error',
+            strict: ['error', 'global'], // Match TypeScript alwaysStrict: true
+
+            // Additional strictness to match TypeScript behavior
+            'no-implicit-globals': 'error',
+            'prefer-const': 'error', // Encourage immutability
+            'no-var': 'error', // Use let/const only
+            'no-redeclare': 'error'
+            },
     },
     {
         files: ["src/**/*.ts"],
-        plugins: {
-            "@typescript-eslint": tseslintPlugin,
-        },
         languageOptions: {
             globals: {
                 ...globals.browser,
@@ -46,15 +52,12 @@ export default [
             },
         },
         
-        rules: {
+       rules: {
             semi: ['error', 'never'],
             quotes: ['error', 'single'],
-            'no-console': 'warn',
-            'no-unused-vars': 'off',
-            "@typescript-eslint/no-unused-vars": ["warn", {
-                argsIgnorePattern: "^_",
-                varsIgnorePattern: "^_",
-            }],
+            // Disable ESLint rules that TypeScript handles better
+            'no-unused-vars': 'off', // TypeScript handles this via noUnusedLocals
+            'no-undef': 'off', // TypeScript handles undefined variables
         },
     }
 ]

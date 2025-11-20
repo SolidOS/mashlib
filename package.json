@@ -54,6 +54,11 @@
     "solid-panes": "github:solidos/solid-panes#newStyle",
     "solid-ui": "^2.6.1-e78cbe5"
   },
+  "overrides": {
+    "rdflib": "^2.3.0",
+    "solid-logic": "^3.1.1-a44ca66",
+    "solid-ui": "^2.6.1-e78cbe5"
+  },
   "devDependencies": {
     "@babel/cli": "^7.28.0",
     "@babel/core": "^7.28.0",

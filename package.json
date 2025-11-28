@@ -23,7 +23,7 @@
     "preversion": "npm run lint && npm run typecheck && npm test",
     "postpublish": "git push origin main --follow-tags",
     "watch": "npm run build-version && webpack --watch",
-    "start": "npm run build-version && webpack serve --config webpack.config.js"
+    "start": "npm run build-version && webpack serve --config webpack.config.mjs"
   },
   "repository": {
     "type": "git",
@@ -51,8 +51,8 @@
   "dependencies": {
     "rdflib": "^2.3.0",
     "solid-logic": "^3.1.1-8dffdcb",
-    "solid-panes": "^3.7.3-f06890f4",
-    "solid-ui": "^2.6.1-5ad23f4"
+    "solid-panes": "^3.7.3-dcffc0b8",
+    "solid-ui": "^2.6.1-3a3c0bd"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.0",

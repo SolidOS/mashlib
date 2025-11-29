@@ -12,21 +12,21 @@
 <script type="text/javascript" src="./mashlib.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-  var UI = window.Mashlib
+  var Mashlib = window.Mashlib
 
-  UI.config = {
+  Mashlib.config = {
     //  idpSelectUri:  './idp-select-ui.html',
     callbackUri:  './idp-callback.html'
   }
 
-  UI.rdf.Fetcher.crossSiteProxyTemplate = 'https://databox.me/,proxy?uri={uri}'
+  Mashlib.rdf.Fetcher.crossSiteProxyTemplate = 'https://databox.me/,proxy?uri={uri}'
 
-  UI.authn.checkUser()
+  Mashlib.authn.checkUser()
     .then(function () {
       var uri = window.location.href
       var data_uri = window.document.title = uri.slice(0, uri.lastIndexOf('/')+1) + ''
-      var subject = UI.rdf.sym(data_uri)
-      UI.outline.GotoSubject(subject, true, undefined, true, undefined)
+      var subject = Mashlib.rdf.sym(data_uri)
+      Mashlib.outline.GotoSubject(subject, true, undefined, true, undefined)
     })
   })
 </script>

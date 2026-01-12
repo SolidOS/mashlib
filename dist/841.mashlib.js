@@ -1,44 +1,441 @@
 (self["webpackChunkMashlib"] = self["webpackChunkMashlib"] || []).push([[841],{
 
-/***/ 378:
+/***/ 202:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 "use strict";
 /*!
- * Copyright (c) 2016-2021 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2016-2023 Digital Bazaar, Inc. All rights reserved.
  */
 
 
-const MessageDigest = __webpack_require__(3751);
-const URDNA2015Sync = __webpack_require__(2438);
+const IdentifierIssuer = __webpack_require__(2985);
+// FIXME: do not import; convert to requiring a
+// hash factory
+const MessageDigest = __webpack_require__(7920);
+const Permuter = __webpack_require__(9925);
+const NQuads = __webpack_require__(1227);
 
-module.exports = class URDNA2012Sync extends URDNA2015Sync {
-  constructor() {
-    super();
-    this.name = 'URGNA2012';
-    this.createMessageDigest = () => new MessageDigest('sha1');
+module.exports = class RDFC10Sync {
+  constructor({
+    createMessageDigest = null,
+    messageDigestAlgorithm = 'sha256',
+    canonicalIdMap = new Map(),
+    maxWorkFactor = 1,
+    maxDeepIterations = -1,
+    timeout = 0
+  } = {}) {
+    this.name = 'RDFC-1.0';
+    this.blankNodeInfo = new Map();
+    this.canonicalIssuer = new IdentifierIssuer('c14n', canonicalIdMap);
+    this.createMessageDigest = createMessageDigest ||
+      (() => new MessageDigest(messageDigestAlgorithm));
+    this.maxWorkFactor = maxWorkFactor;
+    this.maxDeepIterations = maxDeepIterations;
+    this.remainingDeepIterations = 0;
+    this.timeout = timeout;
+    if(timeout > 0) {
+      this.startTime = Date.now();
+    }
+    this.quads = null;
+  }
+
+  // 4.4) Normalization Algorithm
+  main(dataset) {
+    this.quads = dataset;
+
+    // 1) Create the normalization state.
+    // 2) For every quad in input dataset:
+    for(const quad of dataset) {
+      // 2.1) For each blank node that occurs in the quad, add a reference
+      // to the quad using the blank node identifier in the blank node to
+      // quads map, creating a new entry if necessary.
+      this._addBlankNodeQuadInfo({quad, component: quad.subject});
+      this._addBlankNodeQuadInfo({quad, component: quad.object});
+      this._addBlankNodeQuadInfo({quad, component: quad.graph});
+    }
+
+    // 3) Create a list of non-normalized blank node identifiers
+    // non-normalized identifiers and populate it using the keys from the
+    // blank node to quads map.
+    // Note: We use a map here and it was generated during step 2.
+
+    // 4) `simple` flag is skipped -- loop is optimized away. This optimization
+    // is permitted because there was a typo in the hash first degree quads
+    // algorithm in the RDFC-1.0 spec that was implemented widely making it
+    // such that it could not be fixed; the result was that the loop only
+    // needs to be run once and the first degree quad hashes will never change.
+    // 5.1-5.2 are skipped; first degree quad hashes are generated just once
+    // for all non-normalized blank nodes.
+
+    // 5.3) For each blank node identifier identifier in non-normalized
+    // identifiers:
+    const hashToBlankNodes = new Map();
+    const nonNormalized = [...this.blankNodeInfo.keys()];
+    for(const id of nonNormalized) {
+      // steps 5.3.1 and 5.3.2:
+      this._hashAndTrackBlankNode({id, hashToBlankNodes});
+    }
+
+    // 5.4) For each hash to identifier list mapping in hash to blank
+    // nodes map, lexicographically-sorted by hash:
+    const hashes = [...hashToBlankNodes.keys()].sort();
+    // optimize away second sort, gather non-unique hashes in order as we go
+    const nonUnique = [];
+    for(const hash of hashes) {
+      // 5.4.1) If the length of identifier list is greater than 1,
+      // continue to the next mapping.
+      const idList = hashToBlankNodes.get(hash);
+      if(idList.length > 1) {
+        nonUnique.push(idList);
+        continue;
+      }
+
+      // 5.4.2) Use the Issue Identifier algorithm, passing canonical
+      // issuer and the single blank node identifier in identifier
+      // list, identifier, to issue a canonical replacement identifier
+      // for identifier.
+      const id = idList[0];
+      this.canonicalIssuer.getId(id);
+
+      // Note: These steps are skipped, optimized away since the loop
+      // only needs to be run once.
+      // 5.4.3) Remove identifier from non-normalized identifiers.
+      // 5.4.4) Remove hash from the hash to blank nodes map.
+      // 5.4.5) Set simple to true.
+    }
+
+    if(this.maxDeepIterations < 0) {
+      // calculate maxDeepIterations if not explicit
+      if(this.maxWorkFactor === 0) {
+        this.maxDeepIterations = 0;
+      } else if(this.maxWorkFactor === Infinity) {
+        this.maxDeepIterations = Infinity;
+      } else {
+        const nonUniqueCount =
+          nonUnique.reduce((count, v) => count + v.length, 0);
+        this.maxDeepIterations = nonUniqueCount ** this.maxWorkFactor;
+      }
+    }
+    // handle any large inputs as Infinity
+    if(this.maxDeepIterations > Number.MAX_SAFE_INTEGER) {
+      this.maxDeepIterations = Infinity;
+    }
+    this.remainingDeepIterations = this.maxDeepIterations;
+
+    // 6) For each hash to identifier list mapping in hash to blank nodes map,
+    // lexicographically-sorted by hash:
+    // Note: sort optimized away, use `nonUnique`.
+    for(const idList of nonUnique) {
+      // 6.1) Create hash path list where each item will be a result of
+      // running the Hash N-Degree Quads algorithm.
+      const hashPathList = [];
+
+      // 6.2) For each blank node identifier identifier in identifier list:
+      for(const id of idList) {
+        // 6.2.1) If a canonical identifier has already been issued for
+        // identifier, continue to the next identifier.
+        if(this.canonicalIssuer.hasId(id)) {
+          continue;
+        }
+
+        // 6.2.2) Create temporary issuer, an identifier issuer
+        // initialized with the prefix _:b.
+        const issuer = new IdentifierIssuer('b');
+
+        // 6.2.3) Use the Issue Identifier algorithm, passing temporary
+        // issuer and identifier, to issue a new temporary blank node
+        // identifier for identifier.
+        issuer.getId(id);
+
+        // 6.2.4) Run the Hash N-Degree Quads algorithm, passing
+        // temporary issuer, and append the result to the hash path list.
+        const result = this.hashNDegreeQuads(id, issuer);
+        hashPathList.push(result);
+      }
+
+      // 6.3) For each result in the hash path list,
+      // lexicographically-sorted by the hash in result:
+      hashPathList.sort(_stringHashCompare);
+      for(const result of hashPathList) {
+        // 6.3.1) For each blank node identifier, existing identifier,
+        // that was issued a temporary identifier by identifier issuer
+        // in result, issue a canonical identifier, in the same order,
+        // using the Issue Identifier algorithm, passing canonical
+        // issuer and existing identifier.
+        const oldIds = result.issuer.getOldIds();
+        for(const id of oldIds) {
+          this.canonicalIssuer.getId(id);
+        }
+      }
+    }
+
+    /* Note: At this point all blank nodes in the set of RDF quads have been
+    assigned canonical identifiers, which have been stored in the canonical
+    issuer. Here each quad is updated by assigning each of its blank nodes
+    its new identifier. */
+
+    // 7) For each quad, quad, in input dataset:
+    const normalized = [];
+    for(const quad of this.quads) {
+      // 7.1) Create a copy, quad copy, of quad and replace any existing
+      // blank node identifiers using the canonical identifiers
+      // previously issued by canonical issuer.
+      // Note: We optimize away the copy here.
+      const nQuad = NQuads.serializeQuadComponents(
+        this._componentWithCanonicalId(quad.subject),
+        quad.predicate,
+        this._componentWithCanonicalId(quad.object),
+        this._componentWithCanonicalId(quad.graph)
+      );
+      // 7.2) Add quad copy to the normalized dataset.
+      normalized.push(nQuad);
+    }
+
+    // sort normalized output
+    normalized.sort();
+
+    // 8) Return the normalized dataset.
+    return normalized.join('');
+  }
+
+  // 4.6) Hash First Degree Quads
+  hashFirstDegreeQuads(id) {
+    // 1) Initialize nquads to an empty list. It will be used to store quads in
+    // N-Quads format.
+    const nquads = [];
+
+    // 2) Get the list of quads `quads` associated with the reference blank node
+    // identifier in the blank node to quads map.
+    const info = this.blankNodeInfo.get(id);
+    const quads = info.quads;
+
+    // 3) For each quad `quad` in `quads`:
+    for(const quad of quads) {
+      // 3.1) Serialize the quad in N-Quads format with the following special
+      // rule:
+
+      // 3.1.1) If any component in quad is an blank node, then serialize it
+      // using a special identifier as follows:
+      // 3.1.2) If the blank node's existing blank node identifier matches
+      // the reference blank node identifier then use the blank node
+      // identifier _:a, otherwise, use the blank node identifier _:z.
+      nquads.push(NQuads.serializeQuadComponents(
+        this.modifyFirstDegreeComponent(id, quad.subject, 'subject'),
+        quad.predicate,
+        this.modifyFirstDegreeComponent(id, quad.object, 'object'),
+        this.modifyFirstDegreeComponent(id, quad.graph, 'graph')
+      ));
+    }
+
+    // 4) Sort nquads in lexicographical order.
+    nquads.sort();
+
+    // 5) Return the hash that results from passing the sorted, joined nquads
+    // through the hash algorithm.
+    const md = this.createMessageDigest();
+    for(const nquad of nquads) {
+      md.update(nquad);
+    }
+    info.hash = md.digest();
+    return info.hash;
+  }
+
+  // 4.7) Hash Related Blank Node
+  hashRelatedBlankNode(related, quad, issuer, position) {
+    // 1) Initialize a string input to the value of position.
+    // Note: We use a hash object instead.
+    const md = this.createMessageDigest();
+    md.update(position);
+
+    // 2) If position is not g, append <, the value of the predicate in quad,
+    // and > to input.
+    if(position !== 'g') {
+      md.update(this.getRelatedPredicate(quad));
+    }
+
+    // 3) Set the identifier to use for related, preferring first the canonical
+    // identifier for related if issued, second the identifier issued by issuer
+    // if issued, and last, if necessary, the result of the Hash First Degree
+    // Quads algorithm, passing related.
+    let id;
+    if(this.canonicalIssuer.hasId(related)) {
+      id = '_:' + this.canonicalIssuer.getId(related);
+    } else if(issuer.hasId(related)) {
+      id = '_:' + issuer.getId(related);
+    } else {
+      id = this.blankNodeInfo.get(related).hash;
+    }
+
+    // 4) Append identifier to input.
+    md.update(id);
+
+    // 5) Return the hash that results from passing input through the hash
+    // algorithm.
+    return md.digest();
+  }
+
+  // 4.8) Hash N-Degree Quads
+  hashNDegreeQuads(id, issuer) {
+    if(this.remainingDeepIterations === 0) {
+      throw new Error(
+        `Maximum deep iterations exceeded (${this.maxDeepIterations}).`);
+    }
+    this.remainingDeepIterations--;
+
+    // 1) Create a hash to related blank nodes map for storing hashes that
+    // identify related blank nodes.
+    // Note: 2) and 3) handled within `createHashToRelated`
+    const md = this.createMessageDigest();
+    const hashToRelated = this.createHashToRelated(id, issuer);
+
+    // 4) Create an empty string, data to hash.
+    // Note: We created a hash object `md` above instead.
+
+    // 5) For each related hash to blank node list mapping in hash to related
+    // blank nodes map, sorted lexicographically by related hash:
+    const hashes = [...hashToRelated.keys()].sort();
+    for(const hash of hashes) {
+      // 5.1) Append the related hash to the data to hash.
+      md.update(hash);
+
+      // 5.2) Create a string chosen path.
+      let chosenPath = '';
+
+      // 5.3) Create an unset chosen issuer variable.
+      let chosenIssuer;
+
+      // 5.4) For each permutation of blank node list:
+      const permuter = new Permuter(hashToRelated.get(hash));
+      let i = 0;
+      while(permuter.hasNext()) {
+        const permutation = permuter.next();
+        // Note: batch permutations 3 at a time
+        if(++i % 3 === 0) {
+          if(this.timeout > 0 && Date.now() - this.startTime > this.timeout) {
+            throw new Error('Canonize timeout.');
+          }
+        }
+
+        // 5.4.1) Create a copy of issuer, issuer copy.
+        let issuerCopy = issuer.clone();
+
+        // 5.4.2) Create a string path.
+        let path = '';
+
+        // 5.4.3) Create a recursion list, to store blank node identifiers
+        // that must be recursively processed by this algorithm.
+        const recursionList = [];
+
+        // 5.4.4) For each related in permutation:
+        let nextPermutation = false;
+        for(const related of permutation) {
+          // 5.4.4.1) If a canonical identifier has been issued for
+          // related, append it to path.
+          if(this.canonicalIssuer.hasId(related)) {
+            path += '_:' + this.canonicalIssuer.getId(related);
+          } else {
+            // 5.4.4.2) Otherwise:
+            // 5.4.4.2.1) If issuer copy has not issued an identifier for
+            // related, append related to recursion list.
+            if(!issuerCopy.hasId(related)) {
+              recursionList.push(related);
+            }
+            // 5.4.4.2.2) Use the Issue Identifier algorithm, passing
+            // issuer copy and related and append the result to path.
+            path += '_:' + issuerCopy.getId(related);
+          }
+
+          // 5.4.4.3) If chosen path is not empty and the length of path
+          // is greater than or equal to the length of chosen path and
+          // path is lexicographically greater than chosen path, then
+          // skip to the next permutation.
+          // Note: Comparing path length to chosen path length can be optimized
+          // away; only compare lexicographically.
+          if(chosenPath.length !== 0 && path > chosenPath) {
+            nextPermutation = true;
+            break;
+          }
+        }
+
+        if(nextPermutation) {
+          continue;
+        }
+
+        // 5.4.5) For each related in recursion list:
+        for(const related of recursionList) {
+          // 5.4.5.1) Set result to the result of recursively executing
+          // the Hash N-Degree Quads algorithm, passing related for
+          // identifier and issuer copy for path identifier issuer.
+          const result = this.hashNDegreeQuads(related, issuerCopy);
+
+          // 5.4.5.2) Use the Issue Identifier algorithm, passing issuer
+          // copy and related and append the result to path.
+          path += '_:' + issuerCopy.getId(related);
+
+          // 5.4.5.3) Append <, the hash in result, and > to path.
+          path += `<${result.hash}>`;
+
+          // 5.4.5.4) Set issuer copy to the identifier issuer in
+          // result.
+          issuerCopy = result.issuer;
+
+          // 5.4.5.5) If chosen path is not empty and the length of path
+          // is greater than or equal to the length of chosen path and
+          // path is lexicographically greater than chosen path, then
+          // skip to the next permutation.
+          // Note: Comparing path length to chosen path length can be optimized
+          // away; only compare lexicographically.
+          if(chosenPath.length !== 0 && path > chosenPath) {
+            nextPermutation = true;
+            break;
+          }
+        }
+
+        if(nextPermutation) {
+          continue;
+        }
+
+        // 5.4.6) If chosen path is empty or path is lexicographically
+        // less than chosen path, set chosen path to path and chosen
+        // issuer to issuer copy.
+        if(chosenPath.length === 0 || path < chosenPath) {
+          chosenPath = path;
+          chosenIssuer = issuerCopy;
+        }
+      }
+
+      // 5.5) Append chosen path to data to hash.
+      md.update(chosenPath);
+
+      // 5.6) Replace issuer, by reference, with chosen issuer.
+      issuer = chosenIssuer;
+    }
+
+    // 6) Return issuer and the hash that results from passing data to hash
+    // through the hash algorithm.
+    return {hash: md.digest(), issuer};
   }
 
   // helper for modifying component during Hash First Degree Quads
-  modifyFirstDegreeComponent(id, component, key) {
+  modifyFirstDegreeComponent(id, component) {
     if(component.termType !== 'BlankNode') {
       return component;
     }
-    if(key === 'graph') {
-      return {
-        termType: 'BlankNode',
-        value: '_:g'
-      };
-    }
+    /* Note: A mistake in the RDFC-1.0 spec that made its way into
+    implementations (and therefore must stay to avoid interop breakage)
+    resulted in an assigned canonical ID, if available for
+    `component.value`, not being used in place of `_:a`/`_:z`, so
+    we don't use it here. */
     return {
       termType: 'BlankNode',
-      value: (component.value === id ? '_:a' : '_:z')
+      value: component.value === id ? 'a' : 'z'
     };
   }
 
   // helper for getting a related predicate
   getRelatedPredicate(quad) {
-    return quad.predicate.value;
+    return `<${quad.predicate.value}>`;
   }
 
   // helper for creating hash to related blank nodes map
@@ -53,42 +450,97 @@ module.exports = class URDNA2012Sync extends URDNA2015Sync {
 
     // 3) For each quad in quads:
     for(const quad of quads) {
-      // 3.1) If the quad's subject is a blank node that does not match
-      // identifier, set hash to the result of the Hash Related Blank Node
-      // algorithm, passing the blank node identifier for subject as related,
-      // quad, path identifier issuer as issuer, and p as position.
-      let position;
-      let related;
-      if(quad.subject.termType === 'BlankNode' && quad.subject.value !== id) {
-        related = quad.subject.value;
-        position = 'p';
-      } else if(
-        quad.object.termType === 'BlankNode' && quad.object.value !== id) {
-        // 3.2) Otherwise, if quad's object is a blank node that does not match
-        // identifier, to the result of the Hash Related Blank Node algorithm,
-        // passing the blank node identifier for object as related, quad, path
-        // identifier issuer as issuer, and r as position.
-        related = quad.object.value;
-        position = 'r';
-      } else {
-        // 3.3) Otherwise, continue to the next quad.
-        continue;
-      }
-      // 3.4) Add a mapping of hash to the blank node identifier for the
-      // component that matched (subject or object) to hash to related blank
-      // nodes map, adding an entry as necessary.
-      const hash = this.hashRelatedBlankNode(related, quad, issuer, position);
-      const entries = hashToRelated.get(hash);
-      if(entries) {
-        entries.push(related);
-      } else {
-        hashToRelated.set(hash, [related]);
-      }
+      // 3.1) For each component in quad, if component is the subject, object,
+      // or graph name and it is a blank node that is not identified by
+      // identifier:
+      // steps 3.1.1 and 3.1.2 occur in helpers:
+      this._addRelatedBlankNodeHash({
+        quad, component: quad.subject, position: 's',
+        id, issuer, hashToRelated
+      });
+      this._addRelatedBlankNodeHash({
+        quad, component: quad.object, position: 'o',
+        id, issuer, hashToRelated
+      });
+      this._addRelatedBlankNodeHash({
+        quad, component: quad.graph, position: 'g',
+        id, issuer, hashToRelated
+      });
     }
 
     return hashToRelated;
   }
+
+  _hashAndTrackBlankNode({id, hashToBlankNodes}) {
+    // 5.3.1) Create a hash, hash, according to the Hash First Degree
+    // Quads algorithm.
+    const hash = this.hashFirstDegreeQuads(id);
+
+    // 5.3.2) Add hash and identifier to hash to blank nodes map,
+    // creating a new entry if necessary.
+    const idList = hashToBlankNodes.get(hash);
+    if(!idList) {
+      hashToBlankNodes.set(hash, [id]);
+    } else {
+      idList.push(id);
+    }
+  }
+
+  _addBlankNodeQuadInfo({quad, component}) {
+    if(component.termType !== 'BlankNode') {
+      return;
+    }
+    const id = component.value;
+    const info = this.blankNodeInfo.get(id);
+    if(info) {
+      info.quads.add(quad);
+    } else {
+      this.blankNodeInfo.set(id, {quads: new Set([quad]), hash: null});
+    }
+  }
+
+  _addRelatedBlankNodeHash(
+    {quad, component, position, id, issuer, hashToRelated}) {
+    if(!(component.termType === 'BlankNode' && component.value !== id)) {
+      return;
+    }
+    // 3.1.1) Set hash to the result of the Hash Related Blank Node
+    // algorithm, passing the blank node identifier for component as
+    // related, quad, path identifier issuer as issuer, and position as
+    // either s, o, or g based on whether component is a subject, object,
+    // graph name, respectively.
+    const related = component.value;
+    const hash = this.hashRelatedBlankNode(
+      related, quad, issuer, position);
+
+    // 3.1.2) Add a mapping of hash to the blank node identifier for
+    // component to hash to related blank nodes map, adding an entry as
+    // necessary.
+    const entries = hashToRelated.get(hash);
+    if(entries) {
+      entries.push(related);
+    } else {
+      hashToRelated.set(hash, [related]);
+    }
+  }
+
+  // canonical ids for 7.1
+  _componentWithCanonicalId(component) {
+    if(component.termType === 'BlankNode' &&
+      !component.value.startsWith(this.canonicalIssuer.prefix)) {
+      // create new BlankNode
+      return {
+        termType: 'BlankNode',
+        value: this.canonicalIssuer.getId(component.value)
+      };
+    }
+    return component;
+  }
 };
+
+function _stringHashCompare(a, b) {
+  return a.hash < b.hash ? -1 : a.hash > b.hash ? 1 : 0;
+}
 
 
 /***/ }),
@@ -800,7 +1252,7 @@ api.compact = async ({
           });
       }
 
-      // recusively process array values
+      // recursively process array values
       for(const expandedItem of expandedValue) {
         // compact property and get container type
         const itemActiveProperty = api.compactIri({
@@ -1136,7 +1588,7 @@ api.compactIri = ({
       value = value['@preserve'][0];
     }
 
-    // prefer most specific container including @graph, prefering @set
+    // prefer most specific container including @graph, preferring @set
     // variations
     if(_isGraph(value)) {
       // favor indexmap if the graph is indexed
@@ -1610,7 +2062,7 @@ const TYPE_DEFAULT_GRAPH = 'DefaultGraph';
 // build regexes
 const REGEX = {};
 (() => {
-  const iri = '(?:<([^:]+:[^>]*)>)';
+  // https://www.w3.org/TR/n-quads/#sec-grammar
   // https://www.w3.org/TR/turtle/#grammar-production-BLANK_NODE_LABEL
   const PN_CHARS_BASE =
     'A-Z' + 'a-z' +
@@ -1638,23 +2090,31 @@ const REGEX = {};
     '\u0300-\u036F' +
     '\u203F-\u2040';
   const BLANK_NODE_LABEL =
-    '(_:' +
+    '_:(' +
       '(?:[' + PN_CHARS_U + '0-9])' +
       '(?:(?:[' + PN_CHARS + '.])*(?:[' + PN_CHARS + ']))?' +
     ')';
+  // Older simple regex: const IRI = '(?:<([^:]+:[^>]*)>)';
+  const UCHAR4 = '\\\\u[0-9A-Fa-f]{4}';
+  const UCHAR8 = '\\\\U[0-9A-Fa-f]{8}';
+  const IRI = '(?:<((?:' +
+    '[^\u0000-\u0020<>"{}|^`\\\\]' + '|' +
+    UCHAR4 + '|' +
+    UCHAR8 +
+    ')*)>)';
   const bnode = BLANK_NODE_LABEL;
   const plain = '"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"';
-  const datatype = '(?:\\^\\^' + iri + ')';
+  const datatype = '(?:\\^\\^' + IRI + ')';
   const language = '(?:@([a-zA-Z]+(?:-[a-zA-Z0-9]+)*))';
   const literal = '(?:' + plain + '(?:' + datatype + '|' + language + ')?)';
   const ws = '[ \\t]+';
   const wso = '[ \\t]*';
 
   // define quad part regexes
-  const subject = '(?:' + iri + '|' + bnode + ')' + ws;
-  const property = iri + ws;
-  const object = '(?:' + iri + '|' + bnode + '|' + literal + ')' + wso;
-  const graphName = '(?:\\.|(?:(?:' + iri + '|' + bnode + ')' + wso + '\\.))';
+  const subject = '(?:' + IRI + '|' + bnode + ')' + ws;
+  const property = IRI + ws;
+  const object = '(?:' + IRI + '|' + bnode + '|' + literal + ')' + wso;
+  const graphName = '(?:\\.|(?:(?:' + IRI + '|' + bnode + ')' + wso + '\\.))';
 
   // end of line and empty regexes
   REGEX.eoln = /(?:\r\n)|(?:\n)|(?:\r)/g;
@@ -1669,9 +2129,10 @@ module.exports = class NQuads {
   /**
    * Parses RDF in the form of N-Quads.
    *
-   * @param input the N-Quads input to parse.
+   * @param {string} input - The N-Quads input to parse.
    *
-   * @return an RDF dataset (an array of quads per http://rdf.js.org/).
+   * @returns {Array} - An RDF dataset (an array of quads per
+   *   https://rdf.js.org/).
    */
   static parse(input) {
     // build RDF dataset
@@ -1701,19 +2162,34 @@ module.exports = class NQuads {
 
       // get subject
       if(match[1] !== undefined) {
-        quad.subject = {termType: TYPE_NAMED_NODE, value: match[1]};
+        quad.subject = {
+          termType: TYPE_NAMED_NODE,
+          value: _iriUnescape(match[1])
+        };
       } else {
-        quad.subject = {termType: TYPE_BLANK_NODE, value: match[2]};
+        quad.subject = {
+          termType: TYPE_BLANK_NODE,
+          value: match[2]
+        };
       }
 
       // get predicate
-      quad.predicate = {termType: TYPE_NAMED_NODE, value: match[3]};
+      quad.predicate = {
+        termType: TYPE_NAMED_NODE,
+        value: _iriUnescape(match[3])
+      };
 
       // get object
       if(match[4] !== undefined) {
-        quad.object = {termType: TYPE_NAMED_NODE, value: match[4]};
+        quad.object = {
+          termType: TYPE_NAMED_NODE,
+          value: _iriUnescape(match[4])
+        };
       } else if(match[5] !== undefined) {
-        quad.object = {termType: TYPE_BLANK_NODE, value: match[5]};
+        quad.object = {
+          termType: TYPE_BLANK_NODE,
+          value: match[5]
+        };
       } else {
         quad.object = {
           termType: TYPE_LITERAL,
@@ -1723,21 +2199,21 @@ module.exports = class NQuads {
           }
         };
         if(match[7] !== undefined) {
-          quad.object.datatype.value = match[7];
+          quad.object.datatype.value = _iriUnescape(match[7]);
         } else if(match[8] !== undefined) {
           quad.object.datatype.value = RDF_LANGSTRING;
           quad.object.language = match[8];
         } else {
           quad.object.datatype.value = XSD_STRING;
         }
-        quad.object.value = _unescape(match[6]);
+        quad.object.value = _stringLiteralUnescape(match[6]);
       }
 
       // get graph
       if(match[9] !== undefined) {
         quad.graph = {
           termType: TYPE_NAMED_NODE,
-          value: match[9]
+          value: _iriUnescape(match[9])
         };
       } else if(match[10] !== undefined) {
         quad.graph = {
@@ -1777,14 +2253,11 @@ module.exports = class NQuads {
   /**
    * Converts an RDF dataset to N-Quads.
    *
-   * @param dataset (array of quads) the RDF dataset to convert.
+   * @param {Array} dataset - The Array of quads RDF dataset to convert.
    *
-   * @return the N-Quads string.
+   * @returns {string} - The N-Quads string.
    */
   static serialize(dataset) {
-    if(!Array.isArray(dataset)) {
-      dataset = NQuads.legacyDatasetToQuads(dataset);
-    }
     const quads = [];
     for(const quad of dataset) {
       quads.push(NQuads.serializeQuad(quad));
@@ -1795,48 +2268,52 @@ module.exports = class NQuads {
   /**
    * Converts RDF quad components to an N-Quad string (a single quad).
    *
-   * @param {Object} s - N-Quad subject component.
-   * @param {Object} p - N-Quad predicate component.
-   * @param {Object} o - N-Quad object component.
-   * @param {Object} g - N-Quad graph component.
+   * @param {object} s - N-Quad subject component.
+   * @param {object} p - N-Quad predicate component.
+   * @param {object} o - N-Quad object component.
+   * @param {object} g - N-Quad graph component.
    *
-   * @return {string} the N-Quad.
+   * @returns {string} - The N-Quad.
    */
   static serializeQuadComponents(s, p, o, g) {
     let nquad = '';
 
     // subject can only be NamedNode or BlankNode
     if(s.termType === TYPE_NAMED_NODE) {
-      nquad += `<${s.value}>`;
+      nquad += `<${_iriEscape(s.value)}>`;
     } else {
-      nquad += `${s.value}`;
+      nquad += `_:${s.value}`;
     }
 
-    // predicate can only be NamedNode
-    nquad += ` <${p.value}> `;
+    // predicate normally a NamedNode, can be a BlankNode in generalized RDF
+    if(p.termType === TYPE_NAMED_NODE) {
+      nquad += ` <${_iriEscape(p.value)}> `;
+    } else {
+      nquad += ` _:${p.value} `;
+    }
 
     // object is NamedNode, BlankNode, or Literal
     if(o.termType === TYPE_NAMED_NODE) {
-      nquad += `<${o.value}>`;
+      nquad += `<${_iriEscape(o.value)}>`;
     } else if(o.termType === TYPE_BLANK_NODE) {
-      nquad += o.value;
+      nquad += `_:${o.value}`;
     } else {
-      nquad += `"${_escape(o.value)}"`;
+      nquad += `"${_stringLiteralEscape(o.value)}"`;
       if(o.datatype.value === RDF_LANGSTRING) {
         if(o.language) {
           nquad += `@${o.language}`;
         }
       } else if(o.datatype.value !== XSD_STRING) {
-        nquad += `^^<${o.datatype.value}>`;
+        nquad += `^^<${_iriEscape(o.datatype.value)}>`;
       }
     }
 
     // graph can only be NamedNode or BlankNode (or DefaultGraph, but that
     // does not add to `nquad`)
     if(g.termType === TYPE_NAMED_NODE) {
-      nquad += ` <${g.value}>`;
+      nquad += ` <${_iriEscape(g.value)}>`;
     } else if(g.termType === TYPE_BLANK_NODE) {
-      nquad += ` ${g.value}`;
+      nquad += ` _:${g.value}`;
     }
 
     nquad += ' .\n';
@@ -1846,87 +2323,23 @@ module.exports = class NQuads {
   /**
    * Converts an RDF quad to an N-Quad string (a single quad).
    *
-   * @param quad the RDF quad convert.
+   * @param {object} quad - The RDF quad convert.
    *
-   * @return the N-Quad string.
+   * @returns {string} - The N-Quad string.
    */
   static serializeQuad(quad) {
     return NQuads.serializeQuadComponents(
       quad.subject, quad.predicate, quad.object, quad.graph);
-  }
-
-  /**
-   * Converts a legacy-formatted dataset to an array of quads dataset per
-   * http://rdf.js.org/.
-   *
-   * @param dataset the legacy dataset to convert.
-   *
-   * @return the array of quads dataset.
-   */
-  static legacyDatasetToQuads(dataset) {
-    const quads = [];
-
-    const termTypeMap = {
-      'blank node': TYPE_BLANK_NODE,
-      IRI: TYPE_NAMED_NODE,
-      literal: TYPE_LITERAL
-    };
-
-    for(const graphName in dataset) {
-      const triples = dataset[graphName];
-      triples.forEach(triple => {
-        const quad = {};
-        for(const componentName in triple) {
-          const oldComponent = triple[componentName];
-          const newComponent = {
-            termType: termTypeMap[oldComponent.type],
-            value: oldComponent.value
-          };
-          if(newComponent.termType === TYPE_LITERAL) {
-            newComponent.datatype = {
-              termType: TYPE_NAMED_NODE
-            };
-            if('datatype' in oldComponent) {
-              newComponent.datatype.value = oldComponent.datatype;
-            }
-            if('language' in oldComponent) {
-              if(!('datatype' in oldComponent)) {
-                newComponent.datatype.value = RDF_LANGSTRING;
-              }
-              newComponent.language = oldComponent.language;
-            } else if(!('datatype' in oldComponent)) {
-              newComponent.datatype.value = XSD_STRING;
-            }
-          }
-          quad[componentName] = newComponent;
-        }
-        if(graphName === '@default') {
-          quad.graph = {
-            termType: TYPE_DEFAULT_GRAPH,
-            value: ''
-          };
-        } else {
-          quad.graph = {
-            termType: graphName.startsWith('_:') ?
-              TYPE_BLANK_NODE : TYPE_NAMED_NODE,
-            value: graphName
-          };
-        }
-        quads.push(quad);
-      });
-    }
-
-    return quads;
   }
 };
 
 /**
  * Compares two RDF triples for equality.
  *
- * @param t1 the first triple.
- * @param t2 the second triple.
+ * @param {object} t1 - The first triple.
+ * @param {object} t2 - The second triple.
  *
- * @return true if the triples are the same, false if not.
+ * @returns {boolean} - True if the triples are the same, false if not.
  */
 function _compareTriples(t1, t2) {
   // compare subject and object types first as it is the quickest check
@@ -1951,35 +2364,64 @@ function _compareTriples(t1, t2) {
   );
 }
 
-const _escapeRegex = /["\\\n\r]/g;
+const _stringLiteralEscapeRegex = /[\u0000-\u001F\u007F"\\]/g;
+const _stringLiteralEscapeMap = [];
+for(let n = 0; n <= 0x7f; ++n) {
+  if(_stringLiteralEscapeRegex.test(String.fromCharCode(n))) {
+    // default UCHAR mapping
+    _stringLiteralEscapeMap[n] =
+      '\\u' + n.toString(16).toUpperCase().padStart(4, '0');
+    // reset regex
+    _stringLiteralEscapeRegex.lastIndex = 0;
+  }
+}
+// special ECHAR mappings
+_stringLiteralEscapeMap['\b'.codePointAt(0)] = '\\b';
+_stringLiteralEscapeMap['\t'.codePointAt(0)] = '\\t';
+_stringLiteralEscapeMap['\n'.codePointAt(0)] = '\\n';
+_stringLiteralEscapeMap['\f'.codePointAt(0)] = '\\f';
+_stringLiteralEscapeMap['\r'.codePointAt(0)] = '\\r';
+_stringLiteralEscapeMap['"' .codePointAt(0)] = '\\"';
+_stringLiteralEscapeMap['\\'.codePointAt(0)] = '\\\\';
+
 /**
- * Escape string to N-Quads literal
+ * Escape string to N-Quads literal.
+ *
+ * @param {string} s - String to escape.
+ *
+ * @returns {string} - Escaped N-Quads literal.
  */
-function _escape(s) {
-  return s.replace(_escapeRegex, function(match) {
-    switch(match) {
-      case '"': return '\\"';
-      case '\\': return '\\\\';
-      case '\n': return '\\n';
-      case '\r': return '\\r';
-    }
+function _stringLiteralEscape(s) {
+  if(!_stringLiteralEscapeRegex.test(s)) {
+    return s;
+  }
+  return s.replace(_stringLiteralEscapeRegex, function(match) {
+    return _stringLiteralEscapeMap[match.codePointAt(0)];
   });
 }
 
-const _unescapeRegex =
-  /(?:\\([tbnrf"'\\]))|(?:\\u([0-9A-Fa-f]{4}))|(?:\\U([0-9A-Fa-f]{8}))/g;
+const _stringLiteralUnescapeRegex =
+  /(?:\\([btnfr"'\\]))|(?:\\u([0-9A-Fa-f]{4}))|(?:\\U([0-9A-Fa-f]{8}))/g;
+
 /**
- * Unescape N-Quads literal to string
+ * Unescape N-Quads literal to string.
+ *
+ * @param {string} s - String to unescape.
+ *
+ * @returns {string} - Unescaped N-Quads literal.
  */
-function _unescape(s) {
-  return s.replace(_unescapeRegex, function(match, code, u, U) {
+function _stringLiteralUnescape(s) {
+  if(!_stringLiteralUnescapeRegex.test(s)) {
+    return s;
+  }
+  return s.replace(_stringLiteralUnescapeRegex, function(match, code, u, U) {
     if(code) {
       switch(code) {
-        case 't': return '\t';
         case 'b': return '\b';
+        case 't': return '\t';
         case 'n': return '\n';
-        case 'r': return '\r';
         case 'f': return '\f';
+        case 'r': return '\r';
         case '"': return '"';
         case '\'': return '\'';
         case '\\': return '\\';
@@ -1989,8 +2431,59 @@ function _unescape(s) {
       return String.fromCharCode(parseInt(u, 16));
     }
     if(U) {
-      // FIXME: support larger values
-      throw new Error('Unsupported U escape');
+      return String.fromCodePoint(parseInt(U, 16));
+    }
+  });
+}
+
+const _iriEscapeRegex = /[\u0000-\u0020<>"{}|^`\\]/g;
+const _iriEscapeRegexMap = [];
+for(let n = 0; n <= 0x7f; ++n) {
+  if(_iriEscapeRegex.test(String.fromCharCode(n))) {
+    // UCHAR mapping
+    _iriEscapeRegexMap[n] =
+      '\\u' + n.toString(16).toUpperCase().padStart(4, '0');
+    // reset regex
+    _iriEscapeRegex.lastIndex = 0;
+  }
+}
+
+/**
+ * Escape IRI to N-Quads IRI.
+ *
+ * @param {string} s - IRI to escape.
+ *
+ * @returns {string} - Escaped N-Quads IRI.
+ */
+function _iriEscape(s) {
+  if(!_iriEscapeRegex.test(s)) {
+    return s;
+  }
+  return s.replace(_iriEscapeRegex, function(match) {
+    return _iriEscapeRegexMap[match.codePointAt(0)];
+  });
+}
+
+const _iriUnescapeRegex =
+  /(?:\\u([0-9A-Fa-f]{4}))|(?:\\U([0-9A-Fa-f]{8}))/g;
+
+/**
+ * Unescape N-Quads IRI to IRI.
+ *
+ * @param {string} s - IRI to unescape.
+ *
+ * @returns {string} - Unescaped N-Quads IRI.
+ */
+function _iriUnescape(s) {
+  if(!_iriUnescapeRegex.test(s)) {
+    return s;
+  }
+  return s.replace(_iriUnescapeRegex, function(match, u, U) {
+    if(u) {
+      return String.fromCharCode(parseInt(u, 16));
+    }
+    if(U) {
+      return String.fromCodePoint(parseInt(U, 16));
     }
   });
 }
@@ -2725,7 +3218,7 @@ api.process = async ({
           }
         }
 
-        // Note: this could potenially conflict if the import
+        // Note: this could potentially conflict if the import
         // were used in the same active context as a referenced
         // context and an import. In this case, we
         // could override the cached result, but seems unlikely.
@@ -4045,7 +4538,7 @@ api.setupEventHandler = ({options = {}}) => {
  * should be called to let the next handler process the event.
  *
  * NOTE: Only call this function if options.eventHandler is set and is an
- * array of hanlers. This is an optimization. Callers are expected to check
+ * array of handlers. This is an optimization. Callers are expected to check
  * for an event handler before constructing events and calling this function.
  *
  * @param {object} event - event structure:
@@ -4183,543 +4676,41 @@ api.setDefaultEventHandler = function({eventHandler} = {}) {
 
 
 module.exports = function serialize (object) {
-  if (object === null || typeof object !== 'object' || object.toJSON != null) {
+  if (typeof object === 'number' && isNaN(object)) {
+    throw new Error('NaN is not allowed');
+  }
+
+  if (typeof object === 'number' && !isFinite(object)) {
+    throw new Error('Infinity is not allowed');
+  }
+
+  if (object === null || typeof object !== 'object') {
     return JSON.stringify(object);
   }
 
-  if (Array.isArray(object)) {
-    return '[' + object.reduce((t, cv, ci) => {
-      const comma = ci === 0 ? '' : ',';
-      const value = cv === undefined || typeof cv === 'symbol' ? null : cv;
-      return t + comma + serialize(value);
-    }, '') + ']';
+  if (object.toJSON instanceof Function) {
+    return serialize(object.toJSON());
   }
 
-  return '{' + Object.keys(object).sort().reduce((t, cv, ci) => {
+  if (Array.isArray(object)) {
+    const values = object.reduce((t, cv, ci) => {
+      const comma = ci === 0 ? '' : ',';
+      const value = cv === undefined || typeof cv === 'symbol' ? null : cv;
+      return `${t}${comma}${serialize(value)}`;
+    }, '');
+    return `[${values}]`;
+  }
+
+  const values = Object.keys(object).sort().reduce((t, cv) => {
     if (object[cv] === undefined ||
         typeof object[cv] === 'symbol') {
       return t;
     }
     const comma = t.length === 0 ? '' : ',';
-    return t + comma + serialize(cv) + ':' + serialize(object[cv]);
-  }, '') + '}';
+    return `${t}${comma}${serialize(cv)}:${serialize(object[cv])}`;
+  }, '');
+  return `{${values}}`;
 };
-
-
-/***/ }),
-
-/***/ 2438:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-/*!
- * Copyright (c) 2016-2022 Digital Bazaar, Inc. All rights reserved.
- */
-
-
-const IdentifierIssuer = __webpack_require__(2985);
-// FIXME: do not import; convert to requiring a
-// hash factory
-const MessageDigest = __webpack_require__(3751);
-const Permuter = __webpack_require__(9925);
-const NQuads = __webpack_require__(1227);
-
-module.exports = class URDNA2015Sync {
-  constructor({
-    createMessageDigest = () => new MessageDigest('sha256'),
-    canonicalIdMap = new Map(),
-    maxDeepIterations = Infinity
-  } = {}) {
-    this.name = 'URDNA2015';
-    this.blankNodeInfo = new Map();
-    this.canonicalIssuer = new IdentifierIssuer('_:c14n', canonicalIdMap);
-    this.createMessageDigest = createMessageDigest;
-    this.maxDeepIterations = maxDeepIterations;
-    this.quads = null;
-    this.deepIterations = null;
-  }
-
-  // 4.4) Normalization Algorithm
-  main(dataset) {
-    this.deepIterations = new Map();
-    this.quads = dataset;
-
-    // 1) Create the normalization state.
-    // 2) For every quad in input dataset:
-    for(const quad of dataset) {
-      // 2.1) For each blank node that occurs in the quad, add a reference
-      // to the quad using the blank node identifier in the blank node to
-      // quads map, creating a new entry if necessary.
-      this._addBlankNodeQuadInfo({quad, component: quad.subject});
-      this._addBlankNodeQuadInfo({quad, component: quad.object});
-      this._addBlankNodeQuadInfo({quad, component: quad.graph});
-    }
-
-    // 3) Create a list of non-normalized blank node identifiers
-    // non-normalized identifiers and populate it using the keys from the
-    // blank node to quads map.
-    // Note: We use a map here and it was generated during step 2.
-
-    // 4) `simple` flag is skipped -- loop is optimized away. This optimization
-    // is permitted because there was a typo in the hash first degree quads
-    // algorithm in the URDNA2015 spec that was implemented widely making it
-    // such that it could not be fixed; the result was that the loop only
-    // needs to be run once and the first degree quad hashes will never change.
-    // 5.1-5.2 are skipped; first degree quad hashes are generated just once
-    // for all non-normalized blank nodes.
-
-    // 5.3) For each blank node identifier identifier in non-normalized
-    // identifiers:
-    const hashToBlankNodes = new Map();
-    const nonNormalized = [...this.blankNodeInfo.keys()];
-    for(const id of nonNormalized) {
-      // steps 5.3.1 and 5.3.2:
-      this._hashAndTrackBlankNode({id, hashToBlankNodes});
-    }
-
-    // 5.4) For each hash to identifier list mapping in hash to blank
-    // nodes map, lexicographically-sorted by hash:
-    const hashes = [...hashToBlankNodes.keys()].sort();
-    // optimize away second sort, gather non-unique hashes in order as we go
-    const nonUnique = [];
-    for(const hash of hashes) {
-      // 5.4.1) If the length of identifier list is greater than 1,
-      // continue to the next mapping.
-      const idList = hashToBlankNodes.get(hash);
-      if(idList.length > 1) {
-        nonUnique.push(idList);
-        continue;
-      }
-
-      // 5.4.2) Use the Issue Identifier algorithm, passing canonical
-      // issuer and the single blank node identifier in identifier
-      // list, identifier, to issue a canonical replacement identifier
-      // for identifier.
-      const id = idList[0];
-      this.canonicalIssuer.getId(id);
-
-      // Note: These steps are skipped, optimized away since the loop
-      // only needs to be run once.
-      // 5.4.3) Remove identifier from non-normalized identifiers.
-      // 5.4.4) Remove hash from the hash to blank nodes map.
-      // 5.4.5) Set simple to true.
-    }
-
-    // 6) For each hash to identifier list mapping in hash to blank nodes map,
-    // lexicographically-sorted by hash:
-    // Note: sort optimized away, use `nonUnique`.
-    for(const idList of nonUnique) {
-      // 6.1) Create hash path list where each item will be a result of
-      // running the Hash N-Degree Quads algorithm.
-      const hashPathList = [];
-
-      // 6.2) For each blank node identifier identifier in identifier list:
-      for(const id of idList) {
-        // 6.2.1) If a canonical identifier has already been issued for
-        // identifier, continue to the next identifier.
-        if(this.canonicalIssuer.hasId(id)) {
-          continue;
-        }
-
-        // 6.2.2) Create temporary issuer, an identifier issuer
-        // initialized with the prefix _:b.
-        const issuer = new IdentifierIssuer('_:b');
-
-        // 6.2.3) Use the Issue Identifier algorithm, passing temporary
-        // issuer and identifier, to issue a new temporary blank node
-        // identifier for identifier.
-        issuer.getId(id);
-
-        // 6.2.4) Run the Hash N-Degree Quads algorithm, passing
-        // temporary issuer, and append the result to the hash path list.
-        const result = this.hashNDegreeQuads(id, issuer);
-        hashPathList.push(result);
-      }
-
-      // 6.3) For each result in the hash path list,
-      // lexicographically-sorted by the hash in result:
-      hashPathList.sort(_stringHashCompare);
-      for(const result of hashPathList) {
-        // 6.3.1) For each blank node identifier, existing identifier,
-        // that was issued a temporary identifier by identifier issuer
-        // in result, issue a canonical identifier, in the same order,
-        // using the Issue Identifier algorithm, passing canonical
-        // issuer and existing identifier.
-        const oldIds = result.issuer.getOldIds();
-        for(const id of oldIds) {
-          this.canonicalIssuer.getId(id);
-        }
-      }
-    }
-
-    /* Note: At this point all blank nodes in the set of RDF quads have been
-    assigned canonical identifiers, which have been stored in the canonical
-    issuer. Here each quad is updated by assigning each of its blank nodes
-    its new identifier. */
-
-    // 7) For each quad, quad, in input dataset:
-    const normalized = [];
-    for(const quad of this.quads) {
-      // 7.1) Create a copy, quad copy, of quad and replace any existing
-      // blank node identifiers using the canonical identifiers
-      // previously issued by canonical issuer.
-      // Note: We optimize away the copy here.
-      const nQuad = NQuads.serializeQuadComponents(
-        this._componentWithCanonicalId({component: quad.subject}),
-        quad.predicate,
-        this._componentWithCanonicalId({component: quad.object}),
-        this._componentWithCanonicalId({component: quad.graph})
-      );
-      // 7.2) Add quad copy to the normalized dataset.
-      normalized.push(nQuad);
-    }
-
-    // sort normalized output
-    normalized.sort();
-
-    // 8) Return the normalized dataset.
-    return normalized.join('');
-  }
-
-  // 4.6) Hash First Degree Quads
-  hashFirstDegreeQuads(id) {
-    // 1) Initialize nquads to an empty list. It will be used to store quads in
-    // N-Quads format.
-    const nquads = [];
-
-    // 2) Get the list of quads `quads` associated with the reference blank node
-    // identifier in the blank node to quads map.
-    const info = this.blankNodeInfo.get(id);
-    const quads = info.quads;
-
-    // 3) For each quad `quad` in `quads`:
-    for(const quad of quads) {
-      // 3.1) Serialize the quad in N-Quads format with the following special
-      // rule:
-
-      // 3.1.1) If any component in quad is an blank node, then serialize it
-      // using a special identifier as follows:
-      const copy = {
-        subject: null, predicate: quad.predicate, object: null, graph: null
-      };
-      // 3.1.2) If the blank node's existing blank node identifier matches
-      // the reference blank node identifier then use the blank node
-      // identifier _:a, otherwise, use the blank node identifier _:z.
-      copy.subject = this.modifyFirstDegreeComponent(
-        id, quad.subject, 'subject');
-      copy.object = this.modifyFirstDegreeComponent(
-        id, quad.object, 'object');
-      copy.graph = this.modifyFirstDegreeComponent(
-        id, quad.graph, 'graph');
-      nquads.push(NQuads.serializeQuad(copy));
-    }
-
-    // 4) Sort nquads in lexicographical order.
-    nquads.sort();
-
-    // 5) Return the hash that results from passing the sorted, joined nquads
-    // through the hash algorithm.
-    const md = this.createMessageDigest();
-    for(const nquad of nquads) {
-      md.update(nquad);
-    }
-    info.hash = md.digest();
-    return info.hash;
-  }
-
-  // 4.7) Hash Related Blank Node
-  hashRelatedBlankNode(related, quad, issuer, position) {
-    // 1) Set the identifier to use for related, preferring first the canonical
-    // identifier for related if issued, second the identifier issued by issuer
-    // if issued, and last, if necessary, the result of the Hash First Degree
-    // Quads algorithm, passing related.
-    let id;
-    if(this.canonicalIssuer.hasId(related)) {
-      id = this.canonicalIssuer.getId(related);
-    } else if(issuer.hasId(related)) {
-      id = issuer.getId(related);
-    } else {
-      id = this.blankNodeInfo.get(related).hash;
-    }
-
-    // 2) Initialize a string input to the value of position.
-    // Note: We use a hash object instead.
-    const md = this.createMessageDigest();
-    md.update(position);
-
-    // 3) If position is not g, append <, the value of the predicate in quad,
-    // and > to input.
-    if(position !== 'g') {
-      md.update(this.getRelatedPredicate(quad));
-    }
-
-    // 4) Append identifier to input.
-    md.update(id);
-
-    // 5) Return the hash that results from passing input through the hash
-    // algorithm.
-    return md.digest();
-  }
-
-  // 4.8) Hash N-Degree Quads
-  hashNDegreeQuads(id, issuer) {
-    const deepIterations = this.deepIterations.get(id) || 0;
-    if(deepIterations > this.maxDeepIterations) {
-      throw new Error(
-        `Maximum deep iterations (${this.maxDeepIterations}) exceeded.`);
-    }
-    this.deepIterations.set(id, deepIterations + 1);
-
-    // 1) Create a hash to related blank nodes map for storing hashes that
-    // identify related blank nodes.
-    // Note: 2) and 3) handled within `createHashToRelated`
-    const md = this.createMessageDigest();
-    const hashToRelated = this.createHashToRelated(id, issuer);
-
-    // 4) Create an empty string, data to hash.
-    // Note: We created a hash object `md` above instead.
-
-    // 5) For each related hash to blank node list mapping in hash to related
-    // blank nodes map, sorted lexicographically by related hash:
-    const hashes = [...hashToRelated.keys()].sort();
-    for(const hash of hashes) {
-      // 5.1) Append the related hash to the data to hash.
-      md.update(hash);
-
-      // 5.2) Create a string chosen path.
-      let chosenPath = '';
-
-      // 5.3) Create an unset chosen issuer variable.
-      let chosenIssuer;
-
-      // 5.4) For each permutation of blank node list:
-      const permuter = new Permuter(hashToRelated.get(hash));
-      while(permuter.hasNext()) {
-        const permutation = permuter.next();
-
-        // 5.4.1) Create a copy of issuer, issuer copy.
-        let issuerCopy = issuer.clone();
-
-        // 5.4.2) Create a string path.
-        let path = '';
-
-        // 5.4.3) Create a recursion list, to store blank node identifiers
-        // that must be recursively processed by this algorithm.
-        const recursionList = [];
-
-        // 5.4.4) For each related in permutation:
-        let nextPermutation = false;
-        for(const related of permutation) {
-          // 5.4.4.1) If a canonical identifier has been issued for
-          // related, append it to path.
-          if(this.canonicalIssuer.hasId(related)) {
-            path += this.canonicalIssuer.getId(related);
-          } else {
-            // 5.4.4.2) Otherwise:
-            // 5.4.4.2.1) If issuer copy has not issued an identifier for
-            // related, append related to recursion list.
-            if(!issuerCopy.hasId(related)) {
-              recursionList.push(related);
-            }
-            // 5.4.4.2.2) Use the Issue Identifier algorithm, passing
-            // issuer copy and related and append the result to path.
-            path += issuerCopy.getId(related);
-          }
-
-          // 5.4.4.3) If chosen path is not empty and the length of path
-          // is greater than or equal to the length of chosen path and
-          // path is lexicographically greater than chosen path, then
-          // skip to the next permutation.
-          // Note: Comparing path length to chosen path length can be optimized
-          // away; only compare lexicographically.
-          if(chosenPath.length !== 0 && path > chosenPath) {
-            nextPermutation = true;
-            break;
-          }
-        }
-
-        if(nextPermutation) {
-          continue;
-        }
-
-        // 5.4.5) For each related in recursion list:
-        for(const related of recursionList) {
-          // 5.4.5.1) Set result to the result of recursively executing
-          // the Hash N-Degree Quads algorithm, passing related for
-          // identifier and issuer copy for path identifier issuer.
-          const result = this.hashNDegreeQuads(related, issuerCopy);
-
-          // 5.4.5.2) Use the Issue Identifier algorithm, passing issuer
-          // copy and related and append the result to path.
-          path += issuerCopy.getId(related);
-
-          // 5.4.5.3) Append <, the hash in result, and > to path.
-          path += `<${result.hash}>`;
-
-          // 5.4.5.4) Set issuer copy to the identifier issuer in
-          // result.
-          issuerCopy = result.issuer;
-
-          // 5.4.5.5) If chosen path is not empty and the length of path
-          // is greater than or equal to the length of chosen path and
-          // path is lexicographically greater than chosen path, then
-          // skip to the next permutation.
-          // Note: Comparing path length to chosen path length can be optimized
-          // away; only compare lexicographically.
-          if(chosenPath.length !== 0 && path > chosenPath) {
-            nextPermutation = true;
-            break;
-          }
-        }
-
-        if(nextPermutation) {
-          continue;
-        }
-
-        // 5.4.6) If chosen path is empty or path is lexicographically
-        // less than chosen path, set chosen path to path and chosen
-        // issuer to issuer copy.
-        if(chosenPath.length === 0 || path < chosenPath) {
-          chosenPath = path;
-          chosenIssuer = issuerCopy;
-        }
-      }
-
-      // 5.5) Append chosen path to data to hash.
-      md.update(chosenPath);
-
-      // 5.6) Replace issuer, by reference, with chosen issuer.
-      issuer = chosenIssuer;
-    }
-
-    // 6) Return issuer and the hash that results from passing data to hash
-    // through the hash algorithm.
-    return {hash: md.digest(), issuer};
-  }
-
-  // helper for modifying component during Hash First Degree Quads
-  modifyFirstDegreeComponent(id, component) {
-    if(component.termType !== 'BlankNode') {
-      return component;
-    }
-    /* Note: A mistake in the URDNA2015 spec that made its way into
-    implementations (and therefore must stay to avoid interop breakage)
-    resulted in an assigned canonical ID, if available for
-    `component.value`, not being used in place of `_:a`/`_:z`, so
-    we don't use it here. */
-    return {
-      termType: 'BlankNode',
-      value: component.value === id ? '_:a' : '_:z'
-    };
-  }
-
-  // helper for getting a related predicate
-  getRelatedPredicate(quad) {
-    return `<${quad.predicate.value}>`;
-  }
-
-  // helper for creating hash to related blank nodes map
-  createHashToRelated(id, issuer) {
-    // 1) Create a hash to related blank nodes map for storing hashes that
-    // identify related blank nodes.
-    const hashToRelated = new Map();
-
-    // 2) Get a reference, quads, to the list of quads in the blank node to
-    // quads map for the key identifier.
-    const quads = this.blankNodeInfo.get(id).quads;
-
-    // 3) For each quad in quads:
-    for(const quad of quads) {
-      // 3.1) For each component in quad, if component is the subject, object,
-      // or graph name and it is a blank node that is not identified by
-      // identifier:
-      // steps 3.1.1 and 3.1.2 occur in helpers:
-      this._addRelatedBlankNodeHash({
-        quad, component: quad.subject, position: 's',
-        id, issuer, hashToRelated
-      });
-      this._addRelatedBlankNodeHash({
-        quad, component: quad.object, position: 'o',
-        id, issuer, hashToRelated
-      });
-      this._addRelatedBlankNodeHash({
-        quad, component: quad.graph, position: 'g',
-        id, issuer, hashToRelated
-      });
-    }
-
-    return hashToRelated;
-  }
-
-  _hashAndTrackBlankNode({id, hashToBlankNodes}) {
-    // 5.3.1) Create a hash, hash, according to the Hash First Degree
-    // Quads algorithm.
-    const hash = this.hashFirstDegreeQuads(id);
-
-    // 5.3.2) Add hash and identifier to hash to blank nodes map,
-    // creating a new entry if necessary.
-    const idList = hashToBlankNodes.get(hash);
-    if(!idList) {
-      hashToBlankNodes.set(hash, [id]);
-    } else {
-      idList.push(id);
-    }
-  }
-
-  _addBlankNodeQuadInfo({quad, component}) {
-    if(component.termType !== 'BlankNode') {
-      return;
-    }
-    const id = component.value;
-    const info = this.blankNodeInfo.get(id);
-    if(info) {
-      info.quads.add(quad);
-    } else {
-      this.blankNodeInfo.set(id, {quads: new Set([quad]), hash: null});
-    }
-  }
-
-  _addRelatedBlankNodeHash(
-    {quad, component, position, id, issuer, hashToRelated}) {
-    if(!(component.termType === 'BlankNode' && component.value !== id)) {
-      return;
-    }
-    // 3.1.1) Set hash to the result of the Hash Related Blank Node
-    // algorithm, passing the blank node identifier for component as
-    // related, quad, path identifier issuer as issuer, and position as
-    // either s, o, or g based on whether component is a subject, object,
-    // graph name, respectively.
-    const related = component.value;
-    const hash = this.hashRelatedBlankNode(related, quad, issuer, position);
-
-    // 3.1.2) Add a mapping of hash to the blank node identifier for
-    // component to hash to related blank nodes map, adding an entry as
-    // necessary.
-    const entries = hashToRelated.get(hash);
-    if(entries) {
-      entries.push(related);
-    } else {
-      hashToRelated.set(hash, [related]);
-    }
-  }
-
-  // canonical ids for 7.1
-  _componentWithCanonicalId({component}) {
-    if(component.termType === 'BlankNode' &&
-      !component.value.startsWith(this.canonicalIssuer.prefix)) {
-      // create new BlankNode
-      return {
-        termType: 'BlankNode',
-        value: this.canonicalIssuer.getId(component.value)
-      };
-    }
-    return component;
-  }
-};
-
-function _stringHashCompare(a, b) {
-  return a.hash < b.hash ? -1 : a.hash > b.hash ? 1 : 0;
-}
 
 
 /***/ }),
@@ -4931,9 +4922,9 @@ module.exports = class IdentifierIssuer {
    * Creates a new IdentifierIssuer. A IdentifierIssuer issues unique
    * identifiers, keeping track of any previously issued identifiers.
    *
-   * @param prefix the prefix to use ('<prefix><counter>').
-   * @param existing an existing Map to use.
-   * @param counter the counter to use.
+   * @param {string} prefix - The prefix to use ('<prefix><counter>').
+   * @param {Map} [existing] - An existing Map to use.
+   * @param {number} [counter] - The counter to use.
    */
   constructor(prefix, existing = new Map(), counter = 0) {
     this.prefix = prefix;
@@ -4944,7 +4935,7 @@ module.exports = class IdentifierIssuer {
   /**
    * Copies this IdentifierIssuer.
    *
-   * @return a copy of this IdentifierIssuer.
+   * @returns {object} - A copy of this IdentifierIssuer.
    */
   clone() {
     const {prefix, _existing, counter} = this;
@@ -4955,9 +4946,9 @@ module.exports = class IdentifierIssuer {
    * Gets the new identifier for the given old identifier, where if no old
    * identifier is given a new identifier will be generated.
    *
-   * @param [old] the old identifier to get the new identifier for.
+   * @param {string} [old] - The old identifier to get the new identifier for.
    *
-   * @return the new identifier.
+   * @returns {string} - The new identifier.
    */
   getId(old) {
     // return existing old identifier
@@ -4982,10 +4973,10 @@ module.exports = class IdentifierIssuer {
    * Returns true if the given old identifer has already been assigned a new
    * identifier.
    *
-   * @param old the old identifier to check.
+   * @param {string} old - The old identifier to check.
    *
-   * @return true if the old identifier has been assigned a new identifier,
-   *   false if not.
+   * @returns {boolean} - True if the old identifier has been assigned a new
+   *   identifier, false if not.
    */
   hasId(old) {
     return this._existing.has(old);
@@ -4995,7 +4986,8 @@ module.exports = class IdentifierIssuer {
    * Returns all of the IDs that have been issued new IDs in the order in
    * which they were issued new IDs.
    *
-   * @return the list of old IDs that has been issued new IDs in order.
+   * @returns {Array} - The list of old IDs that has been issued new IDs in
+   *   order.
    */
   getOldIds() {
     return [...this._existing.keys()];
@@ -5068,542 +5060,6 @@ module.exports = function (Yallist) {
 
 /***/ }),
 
-/***/ 3513:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-/*!
- * Copyright (c) 2016-2022 Digital Bazaar, Inc. All rights reserved.
- */
-
-
-const IdentifierIssuer = __webpack_require__(2985);
-const MessageDigest = __webpack_require__(3751);
-const Permuter = __webpack_require__(9925);
-const NQuads = __webpack_require__(1227);
-
-module.exports = class URDNA2015 {
-  constructor({
-    createMessageDigest = () => new MessageDigest('sha256'),
-    canonicalIdMap = new Map(),
-    maxDeepIterations = Infinity
-  } = {}) {
-    this.name = 'URDNA2015';
-    this.blankNodeInfo = new Map();
-    this.canonicalIssuer = new IdentifierIssuer('_:c14n', canonicalIdMap);
-    this.createMessageDigest = createMessageDigest;
-    this.maxDeepIterations = maxDeepIterations;
-    this.quads = null;
-    this.deepIterations = null;
-  }
-
-  // 4.4) Normalization Algorithm
-  async main(dataset) {
-    this.deepIterations = new Map();
-    this.quads = dataset;
-
-    // 1) Create the normalization state.
-    // 2) For every quad in input dataset:
-    for(const quad of dataset) {
-      // 2.1) For each blank node that occurs in the quad, add a reference
-      // to the quad using the blank node identifier in the blank node to
-      // quads map, creating a new entry if necessary.
-      this._addBlankNodeQuadInfo({quad, component: quad.subject});
-      this._addBlankNodeQuadInfo({quad, component: quad.object});
-      this._addBlankNodeQuadInfo({quad, component: quad.graph});
-    }
-
-    // 3) Create a list of non-normalized blank node identifiers
-    // non-normalized identifiers and populate it using the keys from the
-    // blank node to quads map.
-    // Note: We use a map here and it was generated during step 2.
-
-    // 4) `simple` flag is skipped -- loop is optimized away. This optimization
-    // is permitted because there was a typo in the hash first degree quads
-    // algorithm in the URDNA2015 spec that was implemented widely making it
-    // such that it could not be fixed; the result was that the loop only
-    // needs to be run once and the first degree quad hashes will never change.
-    // 5.1-5.2 are skipped; first degree quad hashes are generated just once
-    // for all non-normalized blank nodes.
-
-    // 5.3) For each blank node identifier identifier in non-normalized
-    // identifiers:
-    const hashToBlankNodes = new Map();
-    const nonNormalized = [...this.blankNodeInfo.keys()];
-    let i = 0;
-    for(const id of nonNormalized) {
-      // Note: batch hashing first degree quads 100 at a time
-      if(++i % 100 === 0) {
-        await this._yield();
-      }
-      // steps 5.3.1 and 5.3.2:
-      await this._hashAndTrackBlankNode({id, hashToBlankNodes});
-    }
-
-    // 5.4) For each hash to identifier list mapping in hash to blank
-    // nodes map, lexicographically-sorted by hash:
-    const hashes = [...hashToBlankNodes.keys()].sort();
-    // optimize away second sort, gather non-unique hashes in order as we go
-    const nonUnique = [];
-    for(const hash of hashes) {
-      // 5.4.1) If the length of identifier list is greater than 1,
-      // continue to the next mapping.
-      const idList = hashToBlankNodes.get(hash);
-      if(idList.length > 1) {
-        nonUnique.push(idList);
-        continue;
-      }
-
-      // 5.4.2) Use the Issue Identifier algorithm, passing canonical
-      // issuer and the single blank node identifier in identifier
-      // list, identifier, to issue a canonical replacement identifier
-      // for identifier.
-      const id = idList[0];
-      this.canonicalIssuer.getId(id);
-
-      // Note: These steps are skipped, optimized away since the loop
-      // only needs to be run once.
-      // 5.4.3) Remove identifier from non-normalized identifiers.
-      // 5.4.4) Remove hash from the hash to blank nodes map.
-      // 5.4.5) Set simple to true.
-    }
-
-    // 6) For each hash to identifier list mapping in hash to blank nodes map,
-    // lexicographically-sorted by hash:
-    // Note: sort optimized away, use `nonUnique`.
-    for(const idList of nonUnique) {
-      // 6.1) Create hash path list where each item will be a result of
-      // running the Hash N-Degree Quads algorithm.
-      const hashPathList = [];
-
-      // 6.2) For each blank node identifier identifier in identifier list:
-      for(const id of idList) {
-        // 6.2.1) If a canonical identifier has already been issued for
-        // identifier, continue to the next identifier.
-        if(this.canonicalIssuer.hasId(id)) {
-          continue;
-        }
-
-        // 6.2.2) Create temporary issuer, an identifier issuer
-        // initialized with the prefix _:b.
-        const issuer = new IdentifierIssuer('_:b');
-
-        // 6.2.3) Use the Issue Identifier algorithm, passing temporary
-        // issuer and identifier, to issue a new temporary blank node
-        // identifier for identifier.
-        issuer.getId(id);
-
-        // 6.2.4) Run the Hash N-Degree Quads algorithm, passing
-        // temporary issuer, and append the result to the hash path list.
-        const result = await this.hashNDegreeQuads(id, issuer);
-        hashPathList.push(result);
-      }
-
-      // 6.3) For each result in the hash path list,
-      // lexicographically-sorted by the hash in result:
-      hashPathList.sort(_stringHashCompare);
-      for(const result of hashPathList) {
-        // 6.3.1) For each blank node identifier, existing identifier,
-        // that was issued a temporary identifier by identifier issuer
-        // in result, issue a canonical identifier, in the same order,
-        // using the Issue Identifier algorithm, passing canonical
-        // issuer and existing identifier.
-        const oldIds = result.issuer.getOldIds();
-        for(const id of oldIds) {
-          this.canonicalIssuer.getId(id);
-        }
-      }
-    }
-
-    /* Note: At this point all blank nodes in the set of RDF quads have been
-    assigned canonical identifiers, which have been stored in the canonical
-    issuer. Here each quad is updated by assigning each of its blank nodes
-    its new identifier. */
-
-    // 7) For each quad, quad, in input dataset:
-    const normalized = [];
-    for(const quad of this.quads) {
-      // 7.1) Create a copy, quad copy, of quad and replace any existing
-      // blank node identifiers using the canonical identifiers
-      // previously issued by canonical issuer.
-      // Note: We optimize away the copy here.
-      const nQuad = NQuads.serializeQuadComponents(
-        this._componentWithCanonicalId(quad.subject),
-        quad.predicate,
-        this._componentWithCanonicalId(quad.object),
-        this._componentWithCanonicalId(quad.graph)
-      );
-      // 7.2) Add quad copy to the normalized dataset.
-      normalized.push(nQuad);
-    }
-
-    // sort normalized output
-    normalized.sort();
-
-    // 8) Return the normalized dataset.
-    return normalized.join('');
-  }
-
-  // 4.6) Hash First Degree Quads
-  async hashFirstDegreeQuads(id) {
-    // 1) Initialize nquads to an empty list. It will be used to store quads in
-    // N-Quads format.
-    const nquads = [];
-
-    // 2) Get the list of quads `quads` associated with the reference blank node
-    // identifier in the blank node to quads map.
-    const info = this.blankNodeInfo.get(id);
-    const quads = info.quads;
-
-    // 3) For each quad `quad` in `quads`:
-    for(const quad of quads) {
-      // 3.1) Serialize the quad in N-Quads format with the following special
-      // rule:
-
-      // 3.1.1) If any component in quad is an blank node, then serialize it
-      // using a special identifier as follows:
-      const copy = {
-        subject: null, predicate: quad.predicate, object: null, graph: null
-      };
-      // 3.1.2) If the blank node's existing blank node identifier matches
-      // the reference blank node identifier then use the blank node
-      // identifier _:a, otherwise, use the blank node identifier _:z.
-      copy.subject = this.modifyFirstDegreeComponent(
-        id, quad.subject, 'subject');
-      copy.object = this.modifyFirstDegreeComponent(
-        id, quad.object, 'object');
-      copy.graph = this.modifyFirstDegreeComponent(
-        id, quad.graph, 'graph');
-      nquads.push(NQuads.serializeQuad(copy));
-    }
-
-    // 4) Sort nquads in lexicographical order.
-    nquads.sort();
-
-    // 5) Return the hash that results from passing the sorted, joined nquads
-    // through the hash algorithm.
-    const md = this.createMessageDigest();
-    for(const nquad of nquads) {
-      md.update(nquad);
-    }
-    info.hash = await md.digest();
-    return info.hash;
-  }
-
-  // 4.7) Hash Related Blank Node
-  async hashRelatedBlankNode(related, quad, issuer, position) {
-    // 1) Set the identifier to use for related, preferring first the canonical
-    // identifier for related if issued, second the identifier issued by issuer
-    // if issued, and last, if necessary, the result of the Hash First Degree
-    // Quads algorithm, passing related.
-    let id;
-    if(this.canonicalIssuer.hasId(related)) {
-      id = this.canonicalIssuer.getId(related);
-    } else if(issuer.hasId(related)) {
-      id = issuer.getId(related);
-    } else {
-      id = this.blankNodeInfo.get(related).hash;
-    }
-
-    // 2) Initialize a string input to the value of position.
-    // Note: We use a hash object instead.
-    const md = this.createMessageDigest();
-    md.update(position);
-
-    // 3) If position is not g, append <, the value of the predicate in quad,
-    // and > to input.
-    if(position !== 'g') {
-      md.update(this.getRelatedPredicate(quad));
-    }
-
-    // 4) Append identifier to input.
-    md.update(id);
-
-    // 5) Return the hash that results from passing input through the hash
-    // algorithm.
-    return md.digest();
-  }
-
-  // 4.8) Hash N-Degree Quads
-  async hashNDegreeQuads(id, issuer) {
-    const deepIterations = this.deepIterations.get(id) || 0;
-    if(deepIterations > this.maxDeepIterations) {
-      throw new Error(
-        `Maximum deep iterations (${this.maxDeepIterations}) exceeded.`);
-    }
-    this.deepIterations.set(id, deepIterations + 1);
-
-    // 1) Create a hash to related blank nodes map for storing hashes that
-    // identify related blank nodes.
-    // Note: 2) and 3) handled within `createHashToRelated`
-    const md = this.createMessageDigest();
-    const hashToRelated = await this.createHashToRelated(id, issuer);
-
-    // 4) Create an empty string, data to hash.
-    // Note: We created a hash object `md` above instead.
-
-    // 5) For each related hash to blank node list mapping in hash to related
-    // blank nodes map, sorted lexicographically by related hash:
-    const hashes = [...hashToRelated.keys()].sort();
-    for(const hash of hashes) {
-      // 5.1) Append the related hash to the data to hash.
-      md.update(hash);
-
-      // 5.2) Create a string chosen path.
-      let chosenPath = '';
-
-      // 5.3) Create an unset chosen issuer variable.
-      let chosenIssuer;
-
-      // 5.4) For each permutation of blank node list:
-      const permuter = new Permuter(hashToRelated.get(hash));
-      let i = 0;
-      while(permuter.hasNext()) {
-        const permutation = permuter.next();
-        // Note: batch permutations 3 at a time
-        if(++i % 3 === 0) {
-          await this._yield();
-        }
-
-        // 5.4.1) Create a copy of issuer, issuer copy.
-        let issuerCopy = issuer.clone();
-
-        // 5.4.2) Create a string path.
-        let path = '';
-
-        // 5.4.3) Create a recursion list, to store blank node identifiers
-        // that must be recursively processed by this algorithm.
-        const recursionList = [];
-
-        // 5.4.4) For each related in permutation:
-        let nextPermutation = false;
-        for(const related of permutation) {
-          // 5.4.4.1) If a canonical identifier has been issued for
-          // related, append it to path.
-          if(this.canonicalIssuer.hasId(related)) {
-            path += this.canonicalIssuer.getId(related);
-          } else {
-            // 5.4.4.2) Otherwise:
-            // 5.4.4.2.1) If issuer copy has not issued an identifier for
-            // related, append related to recursion list.
-            if(!issuerCopy.hasId(related)) {
-              recursionList.push(related);
-            }
-            // 5.4.4.2.2) Use the Issue Identifier algorithm, passing
-            // issuer copy and related and append the result to path.
-            path += issuerCopy.getId(related);
-          }
-
-          // 5.4.4.3) If chosen path is not empty and the length of path
-          // is greater than or equal to the length of chosen path and
-          // path is lexicographically greater than chosen path, then
-          // skip to the next permutation.
-          // Note: Comparing path length to chosen path length can be optimized
-          // away; only compare lexicographically.
-          if(chosenPath.length !== 0 && path > chosenPath) {
-            nextPermutation = true;
-            break;
-          }
-        }
-
-        if(nextPermutation) {
-          continue;
-        }
-
-        // 5.4.5) For each related in recursion list:
-        for(const related of recursionList) {
-          // 5.4.5.1) Set result to the result of recursively executing
-          // the Hash N-Degree Quads algorithm, passing related for
-          // identifier and issuer copy for path identifier issuer.
-          const result = await this.hashNDegreeQuads(related, issuerCopy);
-
-          // 5.4.5.2) Use the Issue Identifier algorithm, passing issuer
-          // copy and related and append the result to path.
-          path += issuerCopy.getId(related);
-
-          // 5.4.5.3) Append <, the hash in result, and > to path.
-          path += `<${result.hash}>`;
-
-          // 5.4.5.4) Set issuer copy to the identifier issuer in
-          // result.
-          issuerCopy = result.issuer;
-
-          // 5.4.5.5) If chosen path is not empty and the length of path
-          // is greater than or equal to the length of chosen path and
-          // path is lexicographically greater than chosen path, then
-          // skip to the next permutation.
-          // Note: Comparing path length to chosen path length can be optimized
-          // away; only compare lexicographically.
-          if(chosenPath.length !== 0 && path > chosenPath) {
-            nextPermutation = true;
-            break;
-          }
-        }
-
-        if(nextPermutation) {
-          continue;
-        }
-
-        // 5.4.6) If chosen path is empty or path is lexicographically
-        // less than chosen path, set chosen path to path and chosen
-        // issuer to issuer copy.
-        if(chosenPath.length === 0 || path < chosenPath) {
-          chosenPath = path;
-          chosenIssuer = issuerCopy;
-        }
-      }
-
-      // 5.5) Append chosen path to data to hash.
-      md.update(chosenPath);
-
-      // 5.6) Replace issuer, by reference, with chosen issuer.
-      issuer = chosenIssuer;
-    }
-
-    // 6) Return issuer and the hash that results from passing data to hash
-    // through the hash algorithm.
-    return {hash: await md.digest(), issuer};
-  }
-
-  // helper for modifying component during Hash First Degree Quads
-  modifyFirstDegreeComponent(id, component) {
-    if(component.termType !== 'BlankNode') {
-      return component;
-    }
-    /* Note: A mistake in the URDNA2015 spec that made its way into
-    implementations (and therefore must stay to avoid interop breakage)
-    resulted in an assigned canonical ID, if available for
-    `component.value`, not being used in place of `_:a`/`_:z`, so
-    we don't use it here. */
-    return {
-      termType: 'BlankNode',
-      value: component.value === id ? '_:a' : '_:z'
-    };
-  }
-
-  // helper for getting a related predicate
-  getRelatedPredicate(quad) {
-    return `<${quad.predicate.value}>`;
-  }
-
-  // helper for creating hash to related blank nodes map
-  async createHashToRelated(id, issuer) {
-    // 1) Create a hash to related blank nodes map for storing hashes that
-    // identify related blank nodes.
-    const hashToRelated = new Map();
-
-    // 2) Get a reference, quads, to the list of quads in the blank node to
-    // quads map for the key identifier.
-    const quads = this.blankNodeInfo.get(id).quads;
-
-    // 3) For each quad in quads:
-    let i = 0;
-    for(const quad of quads) {
-      // Note: batch hashing related blank node quads 100 at a time
-      if(++i % 100 === 0) {
-        await this._yield();
-      }
-      // 3.1) For each component in quad, if component is the subject, object,
-      // and graph name and it is a blank node that is not identified by
-      // identifier:
-      // steps 3.1.1 and 3.1.2 occur in helpers:
-      await Promise.all([
-        this._addRelatedBlankNodeHash({
-          quad, component: quad.subject, position: 's',
-          id, issuer, hashToRelated
-        }),
-        this._addRelatedBlankNodeHash({
-          quad, component: quad.object, position: 'o',
-          id, issuer, hashToRelated
-        }),
-        this._addRelatedBlankNodeHash({
-          quad, component: quad.graph, position: 'g',
-          id, issuer, hashToRelated
-        })
-      ]);
-    }
-
-    return hashToRelated;
-  }
-
-  async _hashAndTrackBlankNode({id, hashToBlankNodes}) {
-    // 5.3.1) Create a hash, hash, according to the Hash First Degree
-    // Quads algorithm.
-    const hash = await this.hashFirstDegreeQuads(id);
-
-    // 5.3.2) Add hash and identifier to hash to blank nodes map,
-    // creating a new entry if necessary.
-    const idList = hashToBlankNodes.get(hash);
-    if(!idList) {
-      hashToBlankNodes.set(hash, [id]);
-    } else {
-      idList.push(id);
-    }
-  }
-
-  _addBlankNodeQuadInfo({quad, component}) {
-    if(component.termType !== 'BlankNode') {
-      return;
-    }
-    const id = component.value;
-    const info = this.blankNodeInfo.get(id);
-    if(info) {
-      info.quads.add(quad);
-    } else {
-      this.blankNodeInfo.set(id, {quads: new Set([quad]), hash: null});
-    }
-  }
-
-  async _addRelatedBlankNodeHash(
-    {quad, component, position, id, issuer, hashToRelated}) {
-    if(!(component.termType === 'BlankNode' && component.value !== id)) {
-      return;
-    }
-    // 3.1.1) Set hash to the result of the Hash Related Blank Node
-    // algorithm, passing the blank node identifier for component as
-    // related, quad, path identifier issuer as issuer, and position as
-    // either s, o, or g based on whether component is a subject, object,
-    // graph name, respectively.
-    const related = component.value;
-    const hash = await this.hashRelatedBlankNode(
-      related, quad, issuer, position);
-
-    // 3.1.2) Add a mapping of hash to the blank node identifier for
-    // component to hash to related blank nodes map, adding an entry as
-    // necessary.
-    const entries = hashToRelated.get(hash);
-    if(entries) {
-      entries.push(related);
-    } else {
-      hashToRelated.set(hash, [related]);
-    }
-  }
-
-  // canonical ids for 7.1
-  _componentWithCanonicalId(component) {
-    if(component.termType === 'BlankNode' &&
-      !component.value.startsWith(this.canonicalIssuer.prefix)) {
-      // create new BlankNode
-      return {
-        termType: 'BlankNode',
-        value: this.canonicalIssuer.getId(component.value)
-      };
-    }
-    return component;
-  }
-
-  async _yield() {
-    return new Promise(resolve => setImmediate(resolve));
-  }
-};
-
-function _stringHashCompare(a, b) {
-  return a.hash < b.hash ? -1 : a.hash > b.hash ? 1 : 0;
-}
-
-
-/***/ }),
-
 /***/ 3743:
 /***/ ((module) => {
 
@@ -5644,160 +5100,6 @@ module.exports = class RequestQueue {
     } finally {
       delete this._requests[url];
     }
-  }
-};
-
-
-/***/ }),
-
-/***/ 3751:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-/*!
- * Copyright (c) 2016-2022 Digital Bazaar, Inc. All rights reserved.
- */
-
-
-__webpack_require__(2791);
-
-const crypto = self.crypto || self.msCrypto;
-
-module.exports = class MessageDigest {
-  /**
-   * Creates a new MessageDigest.
-   *
-   * @param algorithm the algorithm to use.
-   */
-  constructor(algorithm) {
-    // check if crypto.subtle is available
-    // check is here rather than top-level to only fail if class is used
-    if(!(crypto && crypto.subtle)) {
-      throw new Error('crypto.subtle not found.');
-    }
-    if(algorithm === 'sha256') {
-      this.algorithm = {name: 'SHA-256'};
-    } else if(algorithm === 'sha1') {
-      this.algorithm = {name: 'SHA-1'};
-    } else {
-      throw new Error(`Unsupported algorithm "${algorithm}".`);
-    }
-    this._content = '';
-  }
-
-  update(msg) {
-    this._content += msg;
-  }
-
-  async digest() {
-    const data = new TextEncoder().encode(this._content);
-    const buffer = new Uint8Array(
-      await crypto.subtle.digest(this.algorithm, data));
-    // return digest in hex
-    let hex = '';
-    for(let i = 0; i < buffer.length; ++i) {
-      hex += buffer[i].toString(16).padStart(2, '0');
-    }
-    return hex;
-  }
-};
-
-
-/***/ }),
-
-/***/ 3845:
-/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
-
-"use strict";
-/*!
- * Copyright (c) 2016-2022 Digital Bazaar, Inc. All rights reserved.
- */
-
-
-const MessageDigest = __webpack_require__(3751);
-const URDNA2015 = __webpack_require__(3513);
-
-module.exports = class URDNA2012 extends URDNA2015 {
-  constructor() {
-    super();
-    this.name = 'URGNA2012';
-    this.createMessageDigest = () => new MessageDigest('sha1');
-  }
-
-  // helper for modifying component during Hash First Degree Quads
-  modifyFirstDegreeComponent(id, component, key) {
-    if(component.termType !== 'BlankNode') {
-      return component;
-    }
-    if(key === 'graph') {
-      return {
-        termType: 'BlankNode',
-        value: '_:g'
-      };
-    }
-    return {
-      termType: 'BlankNode',
-      value: (component.value === id ? '_:a' : '_:z')
-    };
-  }
-
-  // helper for getting a related predicate
-  getRelatedPredicate(quad) {
-    return quad.predicate.value;
-  }
-
-  // helper for creating hash to related blank nodes map
-  async createHashToRelated(id, issuer) {
-    // 1) Create a hash to related blank nodes map for storing hashes that
-    // identify related blank nodes.
-    const hashToRelated = new Map();
-
-    // 2) Get a reference, quads, to the list of quads in the blank node to
-    // quads map for the key identifier.
-    const quads = this.blankNodeInfo.get(id).quads;
-
-    // 3) For each quad in quads:
-    let i = 0;
-    for(const quad of quads) {
-      // 3.1) If the quad's subject is a blank node that does not match
-      // identifier, set hash to the result of the Hash Related Blank Node
-      // algorithm, passing the blank node identifier for subject as related,
-      // quad, path identifier issuer as issuer, and p as position.
-      let position;
-      let related;
-      if(quad.subject.termType === 'BlankNode' && quad.subject.value !== id) {
-        related = quad.subject.value;
-        position = 'p';
-      } else if(
-        quad.object.termType === 'BlankNode' && quad.object.value !== id) {
-        // 3.2) Otherwise, if quad's object is a blank node that does not match
-        // identifier, to the result of the Hash Related Blank Node algorithm,
-        // passing the blank node identifier for object as related, quad, path
-        // identifier issuer as issuer, and r as position.
-        related = quad.object.value;
-        position = 'r';
-      } else {
-        // 3.3) Otherwise, continue to the next quad.
-        continue;
-      }
-      // Note: batch hashing related blank nodes 100 at a time
-      if(++i % 100 === 0) {
-        await this._yield();
-      }
-      // 3.4) Add a mapping of hash to the blank node identifier for the
-      // component that matched (subject or object) to hash to related blank
-      // nodes map, adding an entry as necessary.
-      const hash = await this.hashRelatedBlankNode(
-        related, quad, issuer, position);
-      const entries = hashToRelated.get(hash);
-      if(entries) {
-        entries.push(related);
-      } else {
-        hashToRelated.set(hash, [related]);
-      }
-    }
-
-    return hashToRelated;
   }
 };
 
@@ -5899,7 +5201,7 @@ api.fromRDF = async (
     const nodeMap = graphMap[name];
 
     // get subject, predicate, object
-    const s = quad.subject.value;
+    const s = _nodeId(quad.subject);
     const p = quad.predicate.value;
     const o = quad.object;
 
@@ -5908,13 +5210,14 @@ api.fromRDF = async (
     }
     const node = nodeMap[s];
 
-    const objectIsNode = o.termType.endsWith('Node');
-    if(objectIsNode && !(o.value in nodeMap)) {
-      nodeMap[o.value] = {'@id': o.value};
+    const objectNodeId = _nodeId(o);
+    const objectIsNode = !!objectNodeId;
+    if(objectIsNode && !(objectNodeId in nodeMap)) {
+      nodeMap[objectNodeId] = {'@id': objectNodeId};
     }
 
     if(p === RDF_TYPE && !useRdfType && objectIsNode) {
-      _addValue(node, '@type', o.value, {propertyIsArray: true});
+      _addValue(node, '@type', objectNodeId, {propertyIsArray: true});
       continue;
     }
 
@@ -5924,9 +5227,9 @@ api.fromRDF = async (
     // object may be an RDF list/partial list node but we can't know easily
     // until all triples are read
     if(objectIsNode) {
-      if(o.value === RDF_NIL) {
+      if(objectNodeId === RDF_NIL) {
         // track rdf:nil uniquely per graph
-        const object = nodeMap[o.value];
+        const object = nodeMap[objectNodeId];
         if(!('usages' in object)) {
           object.usages = [];
         }
@@ -5935,12 +5238,12 @@ api.fromRDF = async (
           property: p,
           value
         });
-      } else if(o.value in referencedOnce) {
+      } else if(objectNodeId in referencedOnce) {
         // object referenced more than once
-        referencedOnce[o.value] = false;
+        referencedOnce[objectNodeId] = false;
       } else {
         // keep track of single reference
-        referencedOnce[o.value] = {
+        referencedOnce[objectNodeId] = {
           node,
           property: p,
           value
@@ -6113,8 +5416,9 @@ api.fromRDF = async (
  */
 function _RDFToObject(o, useNativeTypes, rdfDirection, options) {
   // convert NamedNode/BlankNode object to JSON-LD
-  if(o.termType.endsWith('Node')) {
-    return {'@id': o.value};
+  const nodeId = _nodeId(o);
+  if(nodeId) {
+    return {'@id': nodeId};
   }
 
   // convert literal to JSON-LD
@@ -6158,23 +5462,29 @@ function _RDFToObject(o, useNativeTypes, rdfDirection, options) {
     // use native types for certain xsd types
     if(useNativeTypes) {
       if(type === XSD_BOOLEAN) {
-        if(rval['@value'] === 'true') {
+        if(rval['@value'] === 'true' || rval['@value'] === '1') {
           rval['@value'] = true;
-        } else if(rval['@value'] === 'false') {
+        } else if(rval['@value'] === 'false' || rval['@value'] === '0') {
           rval['@value'] = false;
+        } else {
+          rval['@type'] = type;
         }
-      } else if(types.isNumeric(rval['@value'])) {
-        if(type === XSD_INTEGER) {
+      } else if(type === XSD_INTEGER) {
+        if(types.isNumeric(rval['@value'])) {
           const i = parseInt(rval['@value'], 10);
           if(i.toFixed(0) === rval['@value']) {
             rval['@value'] = i;
           }
-        } else if(type === XSD_DOUBLE) {
-          rval['@value'] = parseFloat(rval['@value']);
+        } else {
+          rval['@type'] = type;
         }
-      }
-      // do not add native type
-      if(![XSD_BOOLEAN, XSD_INTEGER, XSD_DOUBLE, XSD_STRING].includes(type)) {
+      } else if(type === XSD_DOUBLE) {
+        if(types.isNumeric(rval['@value'])) {
+          rval['@value'] = parseFloat(rval['@value']);
+        } else {
+          rval['@type'] = type;
+        }
+      } else {
         rval['@type'] = type;
       }
     } else if(rdfDirection === 'i18n-datatype' &&
@@ -6206,6 +5516,23 @@ function _RDFToObject(o, useNativeTypes, rdfDirection, options) {
   }
 
   return rval;
+}
+
+/**
+ * Return id for a term. Handles BlankNodes and NamedNodes. Adds a '_:' prefix
+ * for BlanksNodes.
+ *
+ * @param term a term object.
+ *
+ * @return the Node term id or null.
+ */
+function _nodeId(term) {
+  if(term.termType === 'NamedNode') {
+    return term.value;
+  } else if(term.termType === 'BlankNode') {
+    return '_:' + term.value;
+  }
+  return null;
 }
 
 
@@ -6379,24 +5706,40 @@ api.isBlankNode = v => {
  */
 
 
-const URDNA2015 = __webpack_require__(3513);
-const URGNA2012 = __webpack_require__(3845);
-const URDNA2015Sync = __webpack_require__(2438);
-const URGNA2012Sync = __webpack_require__(378);
+const RDFC10 = __webpack_require__(4229);
+const RDFC10Sync = __webpack_require__(202);
 
-// optional native support
-let rdfCanonizeNative;
-try {
-  rdfCanonizeNative = __webpack_require__(7789);
-} catch(e) {}
-
-// return a dataset from input dataset or legacy dataset
-function _inputToDataset(input/*, options*/) {
-  // back-compat with legacy dataset
-  if(!Array.isArray(input)) {
-    return exports.NQuads.legacyDatasetToQuads(input);
+// return a dataset from input dataset or n-quads
+function _inputToDataset(input, options) {
+  if(options.inputFormat) {
+    if(options.inputFormat === 'application/n-quads') {
+      if(typeof input !== 'string') {
+        throw new Error('N-Quads input must be a string.');
+      }
+      return exports.NQuads.parse(input);
+    }
+    throw new Error(
+      `Unknown canonicalization input format: "${options.inputFormat}".`);
   }
   return input;
+}
+
+// check for valid output format
+function _checkOutputFormat(options) {
+  // only N-Quads supported
+  if(options.format) {
+    if(options.format !== 'application/n-quads') {
+      throw new Error(
+        `Unknown canonicalization output format: "${options.format}".`);
+    }
+  }
+}
+
+// helper to trace URDNA2015 usage
+function _traceURDNA2015() {
+  if(!!globalThis.RDF_CANONIZE_TRACE_URDNA2015) {
+    console.trace('[rdf-canonize] URDNA2015 is deprecated, use RDFC-1.0');
+  }
 }
 
 // expose helpers
@@ -6404,73 +5747,68 @@ exports.NQuads = __webpack_require__(1227);
 exports.IdentifierIssuer = __webpack_require__(2985);
 
 /**
- * Get or set native API.
- *
- * @param api the native API.
- *
- * @return the currently set native API.
- */
-exports._rdfCanonizeNative = function(api) {
-  if(api) {
-    rdfCanonizeNative = api;
-  }
-  return rdfCanonizeNative;
-};
-
-/**
  * Asynchronously canonizes an RDF dataset.
  *
  * @param {Array|object|string} input - The input to canonize given as a
- *   dataset or legacy dataset.
+ *   dataset or format specified by 'inputFormat' option.
  * @param {object} options - The options to use:
- *   {string} algorithm - The canonicalization algorithm to use, `URDNA2015` or
- *     `URGNA2012`.
+ *   {string} algorithm - The canonicalization algorithm to use, `RDFC-1.0`.
  *   {Function} [createMessageDigest] - A factory function for creating a
  *     `MessageDigest` interface that overrides the built-in message digest
  *     implementation used by the canonize algorithm; note that using a hash
  *     algorithm (or HMAC algorithm) that differs from the one specified by
  *     the canonize algorithm will result in different output.
+ *   {string} [messageDigestAlgorithm=sha256] - Message digest algorithm used
+ *     by the default implementation of `createMessageDigest`. Supported
+ *     algorithms are: 'sha256', 'sha384', 'sha512', and the 'SHA###' and
+ *     'SHA-###' variations.
  *   {Map} [canonicalIdMap] - An optional Map to be populated by the canonical
  *     identifier issuer with the bnode identifier mapping generated by the
  *     canonicalization algorithm.
- *   {boolean} [useNative=false] - Use native implementation.
- *   {number} [maxDeepIterations=Infinity] - The maximum number of times to run
+ *   {string} [inputFormat] - The format of the input. Use
+ *     'application/n-quads' for a N-Quads string that will be parsed. Omit or
+ *     falsy for a JSON dataset.
+ *   {string} [format] - The format of the output. Omit or use
+ *     'application/n-quads' for a N-Quads string.
+ *   {number} [maxWorkFactor=1] - Control of the maximum number of times to run
  *     deep comparison algorithms (such as the N-Degree Hash Quads algorithm
- *     used in URDNA2015) before bailing out and throwing an error; this is a
+ *     used in RDFC-1.0) before bailing out and throwing an error; this is a
  *     useful setting for preventing wasted CPU cycles or DoS when canonizing
- *     meaningless or potentially malicious datasets, a recommended value is
- *     `1`.
+ *     meaningless or potentially malicious datasets. This parameter sets the
+ *     maximum number of iterations based on the number of non-unique blank
+ *     nodes. `0` to disable iterations, `1` for a O(n) limit, `2` for a O(n^2)
+ *     limit, `3` and higher may handle "poison" graphs but may take
+ *     significant computational resources, `Infinity` for no limitation.
+ *     Defaults to `1` which can handle many common inputs.
+ *   {number} [maxDeepIterations=-1] - The maximum number of times to run
+ *     deep comparison algorithms (such as the N-Degree Hash Quads algorithm
+ *     used in RDFC-1.0) before bailing out and throwing an error; this is a
+ *     useful setting for preventing wasted CPU cycles or DoS when canonizing
+ *     meaningless or potentially malicious datasets. If set to a value other
+ *     than `-1` it will explicitly set the number of iterations and override
+ *     `maxWorkFactor`. It is recommended to use `maxWorkFactor`.
+ *   {AbortSignal} [signal] - An AbortSignal used to abort the operation. The
+ *     aborted status is only periodically checked for performance reasons.
+ *   {boolean} [rejectURDNA2015=false] - Reject the "URDNA2015" algorithm name
+ *     instead of treating it as an alias for "RDFC-1.0".
  *
- * @return a Promise that resolves to the canonicalized RDF Dataset.
+ * @returns {Promise<object>} - A Promise that resolves to the canonicalized
+ *   RDF Dataset.
  */
-exports.canonize = async function(input, options) {
+exports.canonize = async function(input, options = {}) {
   const dataset = _inputToDataset(input, options);
+  _checkOutputFormat(options);
 
-  if(options.useNative) {
-    if(!rdfCanonizeNative) {
-      throw new Error('rdf-canonize-native not available');
-    }
-    if(options.createMessageDigest) {
-      throw new Error(
-        '"createMessageDigest" cannot be used with "useNative".');
-    }
-    return new Promise((resolve, reject) =>
-      rdfCanonizeNative.canonize(dataset, options, (err, canonical) =>
-        err ? reject(err) : resolve(canonical)));
-  }
-
-  if(options.algorithm === 'URDNA2015') {
-    return new URDNA2015(options).main(dataset);
-  }
-  if(options.algorithm === 'URGNA2012') {
-    if(options.createMessageDigest) {
-      throw new Error(
-        '"createMessageDigest" cannot be used with "URGNA2012".');
-    }
-    return new URGNA2012(options).main(dataset);
-  }
   if(!('algorithm' in options)) {
     throw new Error('No RDF Dataset Canonicalization algorithm specified.');
+  }
+  if(options.algorithm === 'RDFC-1.0') {
+    return new RDFC10(options).main(dataset);
+  }
+  // URDNA2015 deprecated, handled as alias for RDFC-1.0 if allowed
+  if(options.algorithm === 'URDNA2015' && !options.rejectURDNA2015) {
+    _traceURDNA2015();
+    return new RDFC10(options).main(dataset);
   }
   throw new Error(
     'Invalid RDF Dataset Canonicalization algorithm: ' + options.algorithm);
@@ -6482,50 +5820,69 @@ exports.canonize = async function(input, options) {
  * browser.
  *
  * @param {Array|object|string} input - The input to canonize given as a
- *   dataset or legacy dataset.
+ *   dataset or format specified by 'inputFormat' option.
  * @param {object} options - The options to use:
- *   {string} algorithm - The canonicalization algorithm to use, `URDNA2015` or
- *     `URGNA2012`.
+ *   {string} algorithm - The canonicalization algorithm to use, `RDFC-1.0`.
  *   {Function} [createMessageDigest] - A factory function for creating a
  *     `MessageDigest` interface that overrides the built-in message digest
  *     implementation used by the canonize algorithm; note that using a hash
  *     algorithm (or HMAC algorithm) that differs from the one specified by
  *     the canonize algorithm will result in different output.
- *   {boolean} [useNative=false] - Use native implementation.
- *   {number} [maxDeepIterations=Infinity] - The maximum number of times to run
+ *   {string} [messageDigestAlgorithm=sha256] - Message digest algorithm used
+ *     by the default implementation of `createMessageDigest`. Supported
+ *     algorithms are: 'sha256', 'sha384', 'sha512', and the 'SHA###' and
+ *     'SHA-###' variations.
+ *   {Map} [canonicalIdMap] - An optional Map to be populated by the canonical
+ *     identifier issuer with the bnode identifier mapping generated by the
+ *     canonicalization algorithm.
+ *   {string} [inputFormat] - The format of the input. Use
+ *     'application/n-quads' for a N-Quads string that will be parsed. Omit or
+ *     falsy for a JSON dataset.
+ *   {string} [format] - The format of the output. Omit or use
+ *     'application/n-quads' for a N-Quads string.
+ *   {number} [maxWorkFactor=1] - Control of the maximum number of times to run
  *     deep comparison algorithms (such as the N-Degree Hash Quads algorithm
- *     used in URDNA2015) before bailing out and throwing an error; this is a
+ *     used in RDFC-1.0) before bailing out and throwing an error; this is a
  *     useful setting for preventing wasted CPU cycles or DoS when canonizing
- *     meaningless or potentially malicious datasets, a recommended value is
- *     `1`.
+ *     meaningless or potentially malicious datasets. This parameter sets the
+ *     maximum number of iterations based on the number of non-unique blank
+ *     nodes. `0` to disable iterations, `1` for a O(n) limit, `2` for a O(n^2)
+ *     limit, `3` and higher may handle "poison" graphs but may take
+ *     significant computational resources, `Infinity` for no limitation.
+ *     Defaults to `1` which can handle many common inputs.
+ *   {number} [maxDeepIterations=-1] - The maximum number of times to run
+ *     deep comparison algorithms (such as the N-Degree Hash Quads algorithm
+ *     used in RDFC-1.0) before bailing out and throwing an error; this is a
+ *     useful setting for preventing wasted CPU cycles or DoS when canonizing
+ *     meaningless or potentially malicious datasets. If set to a value other
+ *     than `-1` it will explicitly set the number of iterations and override
+ *     `maxWorkFactor`. It is recommended to use `maxWorkFactor`.
+ *   {number} [timeout=1000] - The maximum number of milliseconds before the
+ *     operation will timeout. This is only periodically checked for
+ *     performance reasons. Use 0 to disable. Note: This is a replacement for
+ *     the async canonize `signal` option common timeout use case. If complex
+ *     abort logic is required, use the async function and the `signal`
+ *     parameter.
+ *   {boolean} [rejectURDNA2015=false] - Reject the "URDNA2015" algorithm name
+ *     instead of treating it as an alias for "RDFC-1.0".
  *
- * @return the RDF dataset in canonical form.
+ * @returns {Promise<object>} - A Promise that resolves to the canonicalized
+ *   RDF Dataset.
  */
-exports._canonizeSync = function(input, options) {
+exports._canonizeSync = function(input, options = {}) {
   const dataset = _inputToDataset(input, options);
+  _checkOutputFormat(options);
 
-  if(options.useNative) {
-    if(!rdfCanonizeNative) {
-      throw new Error('rdf-canonize-native not available');
-    }
-    if(options.createMessageDigest) {
-      throw new Error(
-        '"createMessageDigest" cannot be used with "useNative".');
-    }
-    return rdfCanonizeNative.canonizeSync(dataset, options);
-  }
-  if(options.algorithm === 'URDNA2015') {
-    return new URDNA2015Sync(options).main(dataset);
-  }
-  if(options.algorithm === 'URGNA2012') {
-    if(options.createMessageDigest) {
-      throw new Error(
-        '"createMessageDigest" cannot be used with "URGNA2012".');
-    }
-    return new URGNA2012Sync(options).main(dataset);
-  }
   if(!('algorithm' in options)) {
     throw new Error('No RDF Dataset Canonicalization algorithm specified.');
+  }
+  if(options.algorithm === 'RDFC-1.0') {
+    return new RDFC10Sync(options).main(dataset);
+  }
+  // URDNA2015 deprecated, handled as alias for RDFC-1.0 if allowed
+  if(options.algorithm === 'URDNA2015' && !options.rejectURDNA2015) {
+    _traceURDNA2015();
+    return new RDFC10Sync(options).main(dataset);
   }
   throw new Error(
     'Invalid RDF Dataset Canonicalization algorithm: ' + options.algorithm);
@@ -7823,6 +7180,564 @@ async function _expandIndexMap({
 
 /***/ }),
 
+/***/ 4229:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+/*!
+ * Copyright (c) 2016-2023 Digital Bazaar, Inc. All rights reserved.
+ */
+
+
+const IdentifierIssuer = __webpack_require__(2985);
+const MessageDigest = __webpack_require__(7920);
+const Permuter = __webpack_require__(9925);
+const NQuads = __webpack_require__(1227);
+const {setImmediate} = __webpack_require__(4991);
+
+module.exports = class RDFC10 {
+  constructor({
+    createMessageDigest = null,
+    messageDigestAlgorithm = 'sha256',
+    canonicalIdMap = new Map(),
+    maxWorkFactor = 1,
+    maxDeepIterations = -1,
+    signal = null
+  } = {}) {
+    this.name = 'RDFC-1.0';
+    this.blankNodeInfo = new Map();
+    this.canonicalIssuer = new IdentifierIssuer('c14n', canonicalIdMap);
+    this.createMessageDigest = createMessageDigest ||
+      (() => new MessageDigest(messageDigestAlgorithm));
+    this.maxWorkFactor = maxWorkFactor;
+    this.maxDeepIterations = maxDeepIterations;
+    this.remainingDeepIterations = 0;
+    this.signal = signal;
+    this.quads = null;
+  }
+
+  // 4.4) Normalization Algorithm
+  async main(dataset) {
+    this.quads = dataset;
+
+    // 1) Create the normalization state.
+    // 2) For every quad in input dataset:
+    for(const quad of dataset) {
+      // 2.1) For each blank node that occurs in the quad, add a reference
+      // to the quad using the blank node identifier in the blank node to
+      // quads map, creating a new entry if necessary.
+      this._addBlankNodeQuadInfo({quad, component: quad.subject});
+      this._addBlankNodeQuadInfo({quad, component: quad.object});
+      this._addBlankNodeQuadInfo({quad, component: quad.graph});
+    }
+
+    // 3) Create a list of non-normalized blank node identifiers
+    // non-normalized identifiers and populate it using the keys from the
+    // blank node to quads map.
+    // Note: We use a map here and it was generated during step 2.
+
+    // 4) `simple` flag is skipped -- loop is optimized away. This optimization
+    // is permitted because there was a typo in the hash first degree quads
+    // algorithm in the RDFC-1.0 spec that was implemented widely making it
+    // such that it could not be fixed; the result was that the loop only
+    // needs to be run once and the first degree quad hashes will never change.
+    // 5.1-5.2 are skipped; first degree quad hashes are generated just once
+    // for all non-normalized blank nodes.
+
+    // 5.3) For each blank node identifier identifier in non-normalized
+    // identifiers:
+    const hashToBlankNodes = new Map();
+    const nonNormalized = [...this.blankNodeInfo.keys()];
+    let i = 0;
+    for(const id of nonNormalized) {
+      // Note: batch hashing first degree quads 100 at a time
+      if(++i % 100 === 0) {
+        await this._yield();
+      }
+      // steps 5.3.1 and 5.3.2:
+      await this._hashAndTrackBlankNode({id, hashToBlankNodes});
+    }
+
+    // 5.4) For each hash to identifier list mapping in hash to blank
+    // nodes map, lexicographically-sorted by hash:
+    const hashes = [...hashToBlankNodes.keys()].sort();
+    // optimize away second sort, gather non-unique hashes in order as we go
+    const nonUnique = [];
+    for(const hash of hashes) {
+      // 5.4.1) If the length of identifier list is greater than 1,
+      // continue to the next mapping.
+      const idList = hashToBlankNodes.get(hash);
+      if(idList.length > 1) {
+        nonUnique.push(idList);
+        continue;
+      }
+
+      // 5.4.2) Use the Issue Identifier algorithm, passing canonical
+      // issuer and the single blank node identifier in identifier
+      // list, identifier, to issue a canonical replacement identifier
+      // for identifier.
+      const id = idList[0];
+      this.canonicalIssuer.getId(id);
+
+      // Note: These steps are skipped, optimized away since the loop
+      // only needs to be run once.
+      // 5.4.3) Remove identifier from non-normalized identifiers.
+      // 5.4.4) Remove hash from the hash to blank nodes map.
+      // 5.4.5) Set simple to true.
+    }
+
+    if(this.maxDeepIterations < 0) {
+      // calculate maxDeepIterations if not explicit
+      if(this.maxWorkFactor === 0) {
+        this.maxDeepIterations = 0;
+      } else if(this.maxWorkFactor === Infinity) {
+        this.maxDeepIterations = Infinity;
+      } else {
+        const nonUniqueCount =
+          nonUnique.reduce((count, v) => count + v.length, 0);
+        this.maxDeepIterations = nonUniqueCount ** this.maxWorkFactor;
+      }
+    }
+    // handle any large inputs as Infinity
+    if(this.maxDeepIterations > Number.MAX_SAFE_INTEGER) {
+      this.maxDeepIterations = Infinity;
+    }
+    this.remainingDeepIterations = this.maxDeepIterations;
+
+    // 6) For each hash to identifier list mapping in hash to blank nodes map,
+    // lexicographically-sorted by hash:
+    // Note: sort optimized away, use `nonUnique`.
+    for(const idList of nonUnique) {
+      // 6.1) Create hash path list where each item will be a result of
+      // running the Hash N-Degree Quads algorithm.
+      const hashPathList = [];
+
+      // 6.2) For each blank node identifier identifier in identifier list:
+      for(const id of idList) {
+        // 6.2.1) If a canonical identifier has already been issued for
+        // identifier, continue to the next identifier.
+        if(this.canonicalIssuer.hasId(id)) {
+          continue;
+        }
+
+        // 6.2.2) Create temporary issuer, an identifier issuer
+        // initialized with the prefix _:b.
+        const issuer = new IdentifierIssuer('b');
+
+        // 6.2.3) Use the Issue Identifier algorithm, passing temporary
+        // issuer and identifier, to issue a new temporary blank node
+        // identifier for identifier.
+        issuer.getId(id);
+
+        // 6.2.4) Run the Hash N-Degree Quads algorithm, passing
+        // temporary issuer, and append the result to the hash path list.
+        const result = await this.hashNDegreeQuads(id, issuer);
+        hashPathList.push(result);
+      }
+
+      // 6.3) For each result in the hash path list,
+      // lexicographically-sorted by the hash in result:
+      hashPathList.sort(_stringHashCompare);
+      for(const result of hashPathList) {
+        // 6.3.1) For each blank node identifier, existing identifier,
+        // that was issued a temporary identifier by identifier issuer
+        // in result, issue a canonical identifier, in the same order,
+        // using the Issue Identifier algorithm, passing canonical
+        // issuer and existing identifier.
+        const oldIds = result.issuer.getOldIds();
+        for(const id of oldIds) {
+          this.canonicalIssuer.getId(id);
+        }
+      }
+    }
+
+    /* Note: At this point all blank nodes in the set of RDF quads have been
+    assigned canonical identifiers, which have been stored in the canonical
+    issuer. Here each quad is updated by assigning each of its blank nodes
+    its new identifier. */
+
+    // 7) For each quad, quad, in input dataset:
+    const normalized = [];
+    for(const quad of this.quads) {
+      // 7.1) Create a copy, quad copy, of quad and replace any existing
+      // blank node identifiers using the canonical identifiers
+      // previously issued by canonical issuer.
+      // Note: We optimize away the copy here.
+      const nQuad = NQuads.serializeQuadComponents(
+        this._componentWithCanonicalId(quad.subject),
+        quad.predicate,
+        this._componentWithCanonicalId(quad.object),
+        this._componentWithCanonicalId(quad.graph)
+      );
+      // 7.2) Add quad copy to the normalized dataset.
+      normalized.push(nQuad);
+    }
+
+    // sort normalized output
+    normalized.sort();
+
+    // 8) Return the normalized dataset.
+    return normalized.join('');
+  }
+
+  // 4.6) Hash First Degree Quads
+  async hashFirstDegreeQuads(id) {
+    // 1) Initialize nquads to an empty list. It will be used to store quads in
+    // N-Quads format.
+    const nquads = [];
+
+    // 2) Get the list of quads `quads` associated with the reference blank node
+    // identifier in the blank node to quads map.
+    const info = this.blankNodeInfo.get(id);
+    const quads = info.quads;
+
+    // 3) For each quad `quad` in `quads`:
+    for(const quad of quads) {
+      // 3.1) Serialize the quad in N-Quads format with the following special
+      // rule:
+
+      // 3.1.1) If any component in quad is an blank node, then serialize it
+      // using a special identifier as follows:
+      // 3.1.2) If the blank node's existing blank node identifier matches
+      // the reference blank node identifier then use the blank node
+      // identifier _:a, otherwise, use the blank node identifier _:z.
+      nquads.push(NQuads.serializeQuadComponents(
+        this.modifyFirstDegreeComponent(id, quad.subject, 'subject'),
+        quad.predicate,
+        this.modifyFirstDegreeComponent(id, quad.object, 'object'),
+        this.modifyFirstDegreeComponent(id, quad.graph, 'graph')
+      ));
+    }
+
+    // 4) Sort nquads in lexicographical order.
+    nquads.sort();
+
+    // 5) Return the hash that results from passing the sorted, joined nquads
+    // through the hash algorithm.
+    const md = this.createMessageDigest();
+    for(const nquad of nquads) {
+      md.update(nquad);
+    }
+    info.hash = await md.digest();
+    return info.hash;
+  }
+
+  // 4.7) Hash Related Blank Node
+  async hashRelatedBlankNode(related, quad, issuer, position) {
+    // 1) Initialize a string input to the value of position.
+    // Note: We use a hash object instead.
+    const md = this.createMessageDigest();
+    md.update(position);
+
+    // 2) If position is not g, append <, the value of the predicate in quad,
+    // and > to input.
+    if(position !== 'g') {
+      md.update(this.getRelatedPredicate(quad));
+    }
+
+    // 3) Set the identifier to use for related, preferring first the canonical
+    // identifier for related if issued, second the identifier issued by issuer
+    // if issued, and last, if necessary, the result of the Hash First Degree
+    // Quads algorithm, passing related.
+    let id;
+    if(this.canonicalIssuer.hasId(related)) {
+      id = '_:' + this.canonicalIssuer.getId(related);
+    } else if(issuer.hasId(related)) {
+      id = '_:' + issuer.getId(related);
+    } else {
+      id = this.blankNodeInfo.get(related).hash;
+    }
+
+    // 4) Append identifier to input.
+    md.update(id);
+
+    // 5) Return the hash that results from passing input through the hash
+    // algorithm.
+    return md.digest();
+  }
+
+  // 4.8) Hash N-Degree Quads
+  async hashNDegreeQuads(id, issuer) {
+    if(this.remainingDeepIterations === 0) {
+      throw new Error(
+        `Maximum deep iterations exceeded (${this.maxDeepIterations}).`);
+    }
+    this.remainingDeepIterations--;
+
+    // 1) Create a hash to related blank nodes map for storing hashes that
+    // identify related blank nodes.
+    // Note: 2) and 3) handled within `createHashToRelated`
+    const md = this.createMessageDigest();
+    const hashToRelated = await this.createHashToRelated(id, issuer);
+
+    // 4) Create an empty string, data to hash.
+    // Note: We created a hash object `md` above instead.
+
+    // 5) For each related hash to blank node list mapping in hash to related
+    // blank nodes map, sorted lexicographically by related hash:
+    const hashes = [...hashToRelated.keys()].sort();
+    for(const hash of hashes) {
+      // 5.1) Append the related hash to the data to hash.
+      md.update(hash);
+
+      // 5.2) Create a string chosen path.
+      let chosenPath = '';
+
+      // 5.3) Create an unset chosen issuer variable.
+      let chosenIssuer;
+
+      // 5.4) For each permutation of blank node list:
+      const permuter = new Permuter(hashToRelated.get(hash));
+      let i = 0;
+      while(permuter.hasNext()) {
+        const permutation = permuter.next();
+        // Note: batch permutations 3 at a time
+        if(++i % 3 === 0) {
+          if(this.signal && this.signal.aborted) {
+            throw new Error(`Abort signal received: "${this.signal.reason}".`);
+          }
+          await this._yield();
+        }
+
+        // 5.4.1) Create a copy of issuer, issuer copy.
+        let issuerCopy = issuer.clone();
+
+        // 5.4.2) Create a string path.
+        let path = '';
+
+        // 5.4.3) Create a recursion list, to store blank node identifiers
+        // that must be recursively processed by this algorithm.
+        const recursionList = [];
+
+        // 5.4.4) For each related in permutation:
+        let nextPermutation = false;
+        for(const related of permutation) {
+          // 5.4.4.1) If a canonical identifier has been issued for
+          // related, append it to path.
+          if(this.canonicalIssuer.hasId(related)) {
+            path += '_:' + this.canonicalIssuer.getId(related);
+          } else {
+            // 5.4.4.2) Otherwise:
+            // 5.4.4.2.1) If issuer copy has not issued an identifier for
+            // related, append related to recursion list.
+            if(!issuerCopy.hasId(related)) {
+              recursionList.push(related);
+            }
+            // 5.4.4.2.2) Use the Issue Identifier algorithm, passing
+            // issuer copy and related and append the result to path.
+            path += '_:' + issuerCopy.getId(related);
+          }
+
+          // 5.4.4.3) If chosen path is not empty and the length of path
+          // is greater than or equal to the length of chosen path and
+          // path is lexicographically greater than chosen path, then
+          // skip to the next permutation.
+          // Note: Comparing path length to chosen path length can be optimized
+          // away; only compare lexicographically.
+          if(chosenPath.length !== 0 && path > chosenPath) {
+            nextPermutation = true;
+            break;
+          }
+        }
+
+        if(nextPermutation) {
+          continue;
+        }
+
+        // 5.4.5) For each related in recursion list:
+        for(const related of recursionList) {
+          // 5.4.5.1) Set result to the result of recursively executing
+          // the Hash N-Degree Quads algorithm, passing related for
+          // identifier and issuer copy for path identifier issuer.
+          const result = await this.hashNDegreeQuads(related, issuerCopy);
+
+          // 5.4.5.2) Use the Issue Identifier algorithm, passing issuer
+          // copy and related and append the result to path.
+          path += '_:' + issuerCopy.getId(related);
+
+          // 5.4.5.3) Append <, the hash in result, and > to path.
+          path += `<${result.hash}>`;
+
+          // 5.4.5.4) Set issuer copy to the identifier issuer in
+          // result.
+          issuerCopy = result.issuer;
+
+          // 5.4.5.5) If chosen path is not empty and the length of path
+          // is greater than or equal to the length of chosen path and
+          // path is lexicographically greater than chosen path, then
+          // skip to the next permutation.
+          // Note: Comparing path length to chosen path length can be optimized
+          // away; only compare lexicographically.
+          if(chosenPath.length !== 0 && path > chosenPath) {
+            nextPermutation = true;
+            break;
+          }
+        }
+
+        if(nextPermutation) {
+          continue;
+        }
+
+        // 5.4.6) If chosen path is empty or path is lexicographically
+        // less than chosen path, set chosen path to path and chosen
+        // issuer to issuer copy.
+        if(chosenPath.length === 0 || path < chosenPath) {
+          chosenPath = path;
+          chosenIssuer = issuerCopy;
+        }
+      }
+
+      // 5.5) Append chosen path to data to hash.
+      md.update(chosenPath);
+
+      // 5.6) Replace issuer, by reference, with chosen issuer.
+      issuer = chosenIssuer;
+    }
+
+    // 6) Return issuer and the hash that results from passing data to hash
+    // through the hash algorithm.
+    return {hash: await md.digest(), issuer};
+  }
+
+  // helper for modifying component during Hash First Degree Quads
+  modifyFirstDegreeComponent(id, component) {
+    if(component.termType !== 'BlankNode') {
+      return component;
+    }
+    /* Note: A mistake in the RDFC-1.0 spec that made its way into
+    implementations (and therefore must stay to avoid interop breakage)
+    resulted in an assigned canonical ID, if available for
+    `component.value`, not being used in place of `_:a`/`_:z`, so
+    we don't use it here. */
+    return {
+      termType: 'BlankNode',
+      value: component.value === id ? 'a' : 'z'
+    };
+  }
+
+  // helper for getting a related predicate
+  getRelatedPredicate(quad) {
+    return `<${quad.predicate.value}>`;
+  }
+
+  // helper for creating hash to related blank nodes map
+  async createHashToRelated(id, issuer) {
+    // 1) Create a hash to related blank nodes map for storing hashes that
+    // identify related blank nodes.
+    const hashToRelated = new Map();
+
+    // 2) Get a reference, quads, to the list of quads in the blank node to
+    // quads map for the key identifier.
+    const quads = this.blankNodeInfo.get(id).quads;
+
+    // 3) For each quad in quads:
+    let i = 0;
+    for(const quad of quads) {
+      // Note: batch hashing related blank node quads 100 at a time
+      if(++i % 100 === 0) {
+        await this._yield();
+      }
+      // 3.1) For each component in quad, if component is the subject, object,
+      // or graph name and it is a blank node that is not identified by
+      // identifier:
+      // steps 3.1.1 and 3.1.2 occur in helpers:
+      await Promise.all([
+        this._addRelatedBlankNodeHash({
+          quad, component: quad.subject, position: 's',
+          id, issuer, hashToRelated
+        }),
+        this._addRelatedBlankNodeHash({
+          quad, component: quad.object, position: 'o',
+          id, issuer, hashToRelated
+        }),
+        this._addRelatedBlankNodeHash({
+          quad, component: quad.graph, position: 'g',
+          id, issuer, hashToRelated
+        })
+      ]);
+    }
+
+    return hashToRelated;
+  }
+
+  async _hashAndTrackBlankNode({id, hashToBlankNodes}) {
+    // 5.3.1) Create a hash, hash, according to the Hash First Degree
+    // Quads algorithm.
+    const hash = await this.hashFirstDegreeQuads(id);
+
+    // 5.3.2) Add hash and identifier to hash to blank nodes map,
+    // creating a new entry if necessary.
+    const idList = hashToBlankNodes.get(hash);
+    if(!idList) {
+      hashToBlankNodes.set(hash, [id]);
+    } else {
+      idList.push(id);
+    }
+  }
+
+  _addBlankNodeQuadInfo({quad, component}) {
+    if(component.termType !== 'BlankNode') {
+      return;
+    }
+    const id = component.value;
+    const info = this.blankNodeInfo.get(id);
+    if(info) {
+      info.quads.add(quad);
+    } else {
+      this.blankNodeInfo.set(id, {quads: new Set([quad]), hash: null});
+    }
+  }
+
+  async _addRelatedBlankNodeHash(
+    {quad, component, position, id, issuer, hashToRelated}) {
+    if(!(component.termType === 'BlankNode' && component.value !== id)) {
+      return;
+    }
+    // 3.1.1) Set hash to the result of the Hash Related Blank Node
+    // algorithm, passing the blank node identifier for component as
+    // related, quad, path identifier issuer as issuer, and position as
+    // either s, o, or g based on whether component is a subject, object,
+    // graph name, respectively.
+    const related = component.value;
+    const hash = await this.hashRelatedBlankNode(
+      related, quad, issuer, position);
+
+    // 3.1.2) Add a mapping of hash to the blank node identifier for
+    // component to hash to related blank nodes map, adding an entry as
+    // necessary.
+    const entries = hashToRelated.get(hash);
+    if(entries) {
+      entries.push(related);
+    } else {
+      hashToRelated.set(hash, [related]);
+    }
+  }
+
+  // canonical ids for 7.1
+  _componentWithCanonicalId(component) {
+    if(component.termType === 'BlankNode' &&
+      !component.value.startsWith(this.canonicalIssuer.prefix)) {
+      // create new BlankNode
+      return {
+        termType: 'BlankNode',
+        value: this.canonicalIssuer.getId(component.value)
+      };
+    }
+    return component;
+  }
+
+  async _yield() {
+    return new Promise(resolve => setImmediate(resolve));
+  }
+};
+
+function _stringHashCompare(a, b) {
+  return a.hash < b.hash ? -1 : a.hash > b.hash ? 1 : 0;
+}
+
+
+/***/ }),
+
 /***/ 4841:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
@@ -7949,7 +7864,8 @@ const _resolvedContextCache = new LRU({max: RESOLVED_CONTEXT_CACHE_MAX_SIZE});
  *            expansion, false not to, defaults to false. Some well-formed
  *            and safe-mode checks may be omitted.
  *          [documentLoader(url, options)] the document loader.
- *          [framing] true if compaction is occuring during a framing operation.
+ *          [framing] true if compaction is occurring during a framing
+ *            operation.
  *          [safe] true to use safe mode. (default: false)
  *          [contextResolver] internal use only.
  *
@@ -8351,7 +8267,7 @@ jsonld.link = async function(input, ctx, options) {
 /**
  * Performs RDF dataset normalization on the given input. The input is JSON-LD
  * unless the 'inputFormat' option is used. The output is an RDF dataset
- * unless the 'format' option is used.
+ * unless a non-null 'format' option is used.
  *
  * Note: Canonicalization sets `safe` to `true` and `base` to `null` by
  * default in order to produce safe outputs and "fail closed" by default. This
@@ -8359,25 +8275,31 @@ jsonld.link = async function(input, ctx, options) {
  * allow unsafe defaults (for cryptographic usage) in order to comply with the
  * JSON-LD 1.1 specification.
  *
- * @param input the input to normalize as JSON-LD or as a format specified by
- *          the 'inputFormat' option.
+ * @param input the input to normalize as JSON-LD given as an RDF dataset or as
+ *          a format specified by the 'inputFormat' option.
  * @param [options] the options to use:
- *          [algorithm] the normalization algorithm to use, `URDNA2015` or
- *            `URGNA2012` (default: `URDNA2015`).
  *          [base] the base IRI to use (default: `null`).
  *          [expandContext] a context to expand with.
  *          [skipExpansion] true to assume the input is expanded and skip
  *            expansion, false not to, defaults to false. Some well-formed
  *            and safe-mode checks may be omitted.
- *          [inputFormat] the format if input is not JSON-LD:
- *            'application/n-quads' for N-Quads.
- *          [format] the format if output is a string:
- *            'application/n-quads' for N-Quads.
+ *          [inputFormat] the input format. null for a JSON-LD object,
+ *            'application/n-quads' for N-Quads. (default: null)
+ *          [format] the output format. null for an RDF dataset,
+ *            'application/n-quads' for an N-Quads string. (default: N-Quads)
  *          [documentLoader(url, options)] the document loader.
- *          [useNative] true to use a native canonize algorithm
  *          [rdfDirection] null or 'i18n-datatype' to support RDF
  *             transformation of @direction (default: null).
  *          [safe] true to use safe mode. (default: true).
+ *          [canonizeOptions] options to pass to rdf-canonize canonize(). See
+ *            rdf-canonize for more details. Commonly used options, and their
+ *            defaults, are:
+ *            algorithm="RDFC-1.0",
+ *            messageDigestAlgorithm="sha256",
+ *            canonicalIdMap,
+ *            maxWorkFactor=1,
+ *            maxDeepIterations=-1,
+ *            and signal=null.
  *          [contextResolver] internal use only.
  *
  * @return a Promise that resolves to the normalized output.
@@ -8387,18 +8309,21 @@ jsonld.normalize = jsonld.canonize = async function(input, options) {
     throw new TypeError('Could not canonize, too few arguments.');
   }
 
-  // set default options
+  // set toRDF options
   options = _setDefaults(options, {
-    base: _isString(input) ? input : null,
-    algorithm: 'URDNA2015',
     skipExpansion: false,
     safe: true,
     contextResolver: new ContextResolver(
       {sharedCache: _resolvedContextCache})
   });
+
+  // set canonize options
+  const canonizeOptions = Object.assign({}, {
+    algorithm: 'RDFC-1.0'
+  }, options.canonizeOptions || null);
+
   if('inputFormat' in options) {
-    if(options.inputFormat !== 'application/n-quads' &&
-      options.inputFormat !== 'application/nquads') {
+    if(options.inputFormat !== 'application/n-quads') {
       throw new JsonLdError(
         'Unknown canonicalization input format.',
         'jsonld.CanonizeError');
@@ -8407,17 +8332,18 @@ jsonld.normalize = jsonld.canonize = async function(input, options) {
     const parsedInput = NQuads.parse(input);
 
     // do canonicalization
-    return canonize.canonize(parsedInput, options);
+    return canonize.canonize(parsedInput, canonizeOptions);
   }
 
   // convert to RDF dataset then do normalization
   const opts = {...options};
   delete opts.format;
+  delete opts.canonizeOptions;
   opts.produceGeneralizedRdf = false;
   const dataset = await jsonld.toRDF(input, opts);
 
   // do canonicalization
-  return canonize.canonize(dataset, options);
+  return canonize.canonize(dataset, canonizeOptions);
 };
 
 /**
@@ -8481,8 +8407,8 @@ jsonld.fromRDF = async function(dataset, options) {
  *          [skipExpansion] true to assume the input is expanded and skip
  *            expansion, false not to, defaults to false. Some well-formed
  *            and safe-mode checks may be omitted.
- *          [format] the format to use to output a string:
- *            'application/n-quads' for N-Quads.
+ *          [format] the output format. null for an RDF dataset,
+ *            'application/n-quads' for an N-Quads string. (default: null)
  *          [produceGeneralizedRdf] true to output generalized RDF, false
  *            to produce only standard RDF (default: false).
  *          [documentLoader(url, options)] the document loader.
@@ -8500,7 +8426,6 @@ jsonld.toRDF = async function(input, options) {
 
   // set default options
   options = _setDefaults(options, {
-    base: _isString(input) ? input : '',
     skipExpansion: false,
     contextResolver: new ContextResolver(
       {sharedCache: _resolvedContextCache})
@@ -8518,8 +8443,7 @@ jsonld.toRDF = async function(input, options) {
   // output RDF dataset
   const dataset = _toRDF(expanded, options);
   if(options.format) {
-    if(options.format === 'application/n-quads' ||
-      options.format === 'application/nquads') {
+    if(options.format === 'application/n-quads') {
       return NQuads.serialize(dataset);
     }
     throw new JsonLdError(
@@ -8825,7 +8749,6 @@ jsonld.unregisterRDFParser = function(contentType) {
 
 // register the N-Quads RDF parser
 jsonld.registerRDFParser('application/n-quads', NQuads.parse);
-jsonld.registerRDFParser('application/nquads', NQuads.parse);
 
 /* URL API */
 jsonld.url = __webpack_require__(470);
@@ -8843,7 +8766,7 @@ jsonld.util = util;
 // backwards compatibility
 Object.assign(jsonld, util);
 
-// reexpose API as jsonld.promises for backwards compatability
+// reexpose API as jsonld.promises for backwards compatibility
 jsonld.promises = jsonld;
 
 // backwards compatibility
@@ -8896,6 +8819,40 @@ const factory = function() {
 wrapper(factory);
 // export API
 module.exports = factory;
+
+
+/***/ }),
+
+/***/ 4991:
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+/*!
+ * Copyright (c) 2023 Digital Bazaar, Inc. All rights reserved.
+ */
+
+
+__webpack_require__(2791);
+
+exports.setImmediate = setImmediate;
+
+// WebCrypto
+exports.crypto = globalThis.crypto;
+
+// precompute byte to hex table
+const byteToHex = [];
+for(let n = 0; n <= 0xff; ++n) {
+  byteToHex.push(n.toString(16).padStart(2, '0'));
+}
+
+exports.bufferToHex = function bufferToHex(buffer) {
+  let hex = '';
+  const bytes = new Uint8Array(buffer);
+  for(let i = 0; i < bytes.length; ++i) {
+    hex += byteToHex[bytes[i]];
+  }
+  return hex;
+};
 
 
 /***/ }),
@@ -9974,6 +9931,62 @@ module.exports = class ResolvedContext {
 
 /***/ }),
 
+/***/ 7920:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+"use strict";
+/*!
+ * Copyright (c) 2016-2023 Digital Bazaar, Inc. All rights reserved.
+ */
+
+
+const {bufferToHex, crypto} = __webpack_require__(4991);
+
+const algorithmMap = new Map([
+  ['sha256', 'SHA-256'],
+  ['SHA256', 'SHA-256'],
+  ['SHA-256', 'SHA-256'],
+  ['sha384', 'SHA-384'],
+  ['SHA384', 'SHA-384'],
+  ['SHA-384', 'SHA-384'],
+  ['sha512', 'SHA-512'],
+  ['SHA512', 'SHA-512'],
+  ['SHA-512', 'SHA-512'],
+]);
+
+module.exports = class MessageDigest {
+  /**
+   * Creates a new WebCrypto API MessageDigest.
+   *
+   * @param {string} algorithm - The algorithm to use.
+   */
+  constructor(algorithm) {
+    // check if crypto.subtle is available
+    // check is here rather than top-level to only fail if class is used
+    if(!(crypto && crypto.subtle)) {
+      throw new Error('crypto.subtle not found.');
+    }
+    if(!algorithmMap.has(algorithm)) {
+      throw new Error(`Unsupported algorithm "${algorithm}".`);
+    }
+    this.algorithm = algorithmMap.get(algorithm);
+    this._content = '';
+  }
+
+  update(msg) {
+    this._content += msg;
+  }
+
+  async digest() {
+    const data = new TextEncoder().encode(this._content);
+    const buffer = await crypto.subtle.digest(this.algorithm, data);
+    return bufferToHex(buffer);
+  }
+};
+
+
+/***/ }),
+
 /***/ 7946:
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
@@ -10892,12 +10905,7 @@ api.toRDF = (input, options) => {
     if(graphName === '@default') {
       graphTerm = {termType: 'DefaultGraph', value: ''};
     } else if(_isAbsoluteIri(graphName)) {
-      if(graphName.startsWith('_:')) {
-        graphTerm = {termType: 'BlankNode'};
-      } else {
-        graphTerm = {termType: 'NamedNode'};
-      }
-      graphTerm.value = graphName;
+      graphTerm = _makeTerm(graphName);
     } else {
       // skip relative IRIs (not valid RDF)
       if(options.eventHandler) {
@@ -10948,10 +10956,7 @@ function _graphToRDF(dataset, graph, graphTerm, issuer, options) {
 
       for(const item of items) {
         // RDF subject
-        const subject = {
-          termType: id.startsWith('_:') ? 'BlankNode' : 'NamedNode',
-          value: id
-        };
+        const subject = _makeTerm(id);
 
         // skip relative IRI subjects (not valid RDF)
         if(!_isAbsoluteIri(id)) {
@@ -10973,10 +10978,7 @@ function _graphToRDF(dataset, graph, graphTerm, issuer, options) {
         }
 
         // RDF predicate
-        const predicate = {
-          termType: property.startsWith('_:') ? 'BlankNode' : 'NamedNode',
-          value: property
-        };
+        const predicate = _makeTerm(property);
 
         // skip relative IRI predicates (not valid RDF)
         if(!_isAbsoluteIri(property)) {
@@ -11055,13 +11057,16 @@ function _listToRDF(list, issuer, dataset, graphTerm, rdfDirection, options) {
 
   const last = list.pop();
   // Result is the head of the list
-  const result = last ? {termType: 'BlankNode', value: issuer.getId()} : nil;
+  const result = last ? {
+    termType: 'BlankNode',
+    value: issuer.getId().slice(2)
+  } : nil;
   let subject = result;
 
   for(const item of list) {
     const object = _objectToRDF(
       item, issuer, dataset, graphTerm, rdfDirection, options);
-    const next = {termType: 'BlankNode', value: issuer.getId()};
+    const next = {termType: 'BlankNode', value: issuer.getId().slice(2)};
     dataset.push({
       subject,
       predicate: first,
@@ -11113,14 +11118,16 @@ function _listToRDF(list, issuer, dataset, graphTerm, rdfDirection, options) {
 function _objectToRDF(
   item, issuer, dataset, graphTerm, rdfDirection, options
 ) {
-  const object = {};
+  let object;
 
   // convert value object to RDF
   if(graphTypes.isValue(item)) {
-    object.termType = 'Literal';
-    object.value = undefined;
-    object.datatype = {
-      termType: 'NamedNode'
+    object = {
+      termType: 'Literal',
+      value: undefined,
+      datatype: {
+        termType: 'NamedNode'
+      }
     };
     let value = item['@value'];
     const datatype = item['@type'] || null;
@@ -11203,13 +11210,14 @@ function _objectToRDF(
   } else if(graphTypes.isList(item)) {
     const _list = _listToRDF(
       item['@list'], issuer, dataset, graphTerm, rdfDirection, options);
-    object.termType = _list.termType;
-    object.value = _list.value;
+    object = {
+      termType: _list.termType,
+      value: _list.value
+    };
   } else {
     // convert string/node object to RDF
     const id = types.isObject(item) ? item['@id'] : item;
-    object.termType = id.startsWith('_:') ? 'BlankNode' : 'NamedNode';
-    object.value = id;
+    object = _makeTerm(id);
   }
 
   // skip relative IRIs, not valid RDF
@@ -11232,6 +11240,27 @@ function _objectToRDF(
   }
 
   return object;
+}
+
+/**
+ * Make a term from an id. Handles BlankNodes and NamedNodes based on a
+ * possible '_:' id prefix. The prefix is removed for BlankNodes.
+ *
+ * @param id a term id.
+ *
+ * @return a term object.
+ */
+function _makeTerm(id) {
+  if(id.startsWith('_:')) {
+    return {
+      termType: 'BlankNode',
+      value: id.slice(2)
+    };
+  }
+  return {
+    termType: 'NamedNode',
+    value: id
+  };
 }
 
 
@@ -12052,7 +12081,7 @@ module.exports = class Permuter {
    * A Permuter iterates over all possible permutations of the given array
    * of elements.
    *
-   * @param list the array of elements to iterate over.
+   * @param {Array} list - The array of elements to iterate over.
    */
   constructor(list) {
     // original array
@@ -12069,7 +12098,7 @@ module.exports = class Permuter {
   /**
    * Returns true if there is another permutation.
    *
-   * @return true if there is another permutation, false if not.
+   * @returns {boolean} - True if there is another permutation, false if not.
    */
   hasNext() {
     return !this.done;
@@ -12079,7 +12108,7 @@ module.exports = class Permuter {
    * Gets the next permutation. Call hasNext() to ensure there is another one
    * first.
    *
-   * @return the next permutation.
+   * @returns {any} - The next permutation.
    */
   next() {
     // copy current permutation to return it

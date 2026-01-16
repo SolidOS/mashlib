@@ -87,33 +87,51 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </head>
 <body>
+  <a href="#DummyUUID" class="skip-link">Skip to main content</a>
 
-  <div style="width:100%;" id="inputArea">
-    <div style="margin-bottom:0.6em">
-        The SolidOS Databrowser
+  <header id="PageHeader" role="banner" class="header-mash">
+    The SolidOS Databrowser
+  </header>
+  <main id="mainContent" tabindex="-1">
+    <div class="input-row" id="inputArea">
+        Viewing <input id="uriField" type="text" class="uri-field" placeholder="enter a pod address e.g. https://you.solidcommunity.net/"/> <input type="button" id="goButton" value="Go" />
     </div>
-    <div style="margin-left:1em">
-        Viewing <input id="uriField" type="text" style="font-size:100%; min-width:25em; padding:0.5em;" placeholder="enter a pod address e.g. https://you.solidcommunity.net/"/> <input type="button" id="goButton" value="Go" />
-    </div>                                                                  
-    <div style="margin-top:0.5em;margin-left:1em">
-      As user <span id="webId">&lt;public user></span> <span id="loginButtonArea"></span>
+    <div class="user-row">
+      As user <span id="webId">&lt;public user></span> 
+      <span id="loginButtonArea"></span>
     </div>
   </div>
 
-  <table style="width:100%;">
-    <tr>
-      <div class="TabulatorOutline" id="DummyUUID" role="main">
-          <table id="outline"></table>
-          <div id="GlobalDashboard"></div>
-      </div>
-    </tr>
-  </table>
+    <div class="TabulatorOutline" id="DummyUUID" role="main">
+      <table id="outline">
+        <thead>
+          <tr>
+            <th id="outlineHeader" scope="col"></th>
+            <!-- Add more <th> as needed for columns -->
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Table rows injected by JS -->
+        </tbody>
+      </table>
+      <div id="GlobalDashboard" aria-label="Global Dashboard"></div>
+    </div>
+  </main>
 
+  <footer id="PageFooter" role="contentinfo"></footer>
   <style>
-    #inputArea {
+    .header-mash {
       width:100%;
-      padding:0.5em;
-      background-color:#d0d0d0;
+      padding:1em;
+      background-color:#ccbbbb;
+      margin-bottom:0.6em;
+    }
+    .input-row {
+      margin-left:1em;
+    }
+    .user-row {
+      margin-top:0.5em;
+      margin-left:1em;
     }
     #loginButtonArea input {
       display:inline-block;
@@ -125,9 +143,38 @@ document.addEventListener('DOMContentLoaded', function() {
       padding-top:0.6em;
       padding-bottom:0.6em;
     }
-    #uriField {
+    #uriField, .uri-field {
+      font-size:100%;
+      min-width:25em;
+      padding:0.5em;
       width:70%;
       margin-top:0.6em !important;
+    }
+
+    /* Accessible focus styles for all interactive elements */
+    input:focus, button:focus, a:focus, [tabindex]:focus {
+      outline: 3px solid #005fcc;
+      outline-offset: 2px;
+      background-color: #e6f0fa;
+    }
+    /* Ensure skip link is visible when focused */
+    .skip-link {
+      position:absolute;
+      left:-999px;
+      top:auto;
+      width:1px;
+      height:1px;
+      overflow:hidden;
+    }
+    .skip-link:focus {
+      position: static;
+      width: auto;
+      height: auto;
+      padding: 0.5em 1em;
+      background: #005fcc;
+      color: #fff;
+      z-index: 1000;
+      outline: none;
     }
   </style>
 

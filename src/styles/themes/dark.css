@@ -133,11 +133,11 @@ html[data-theme="dark"] {
   /* Spacing and Sizing */
   --spacing-tiny: 0.05em;
   --spacing-small: 0.1em;
-  --spacing-xs: 0.2em;
-  --spacing-sm: 0.3em;
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 0.75em;
   --spacing-base: 0.5em;
-  --spacing-md: 0.8em;
-  --spacing-lg: 1em;
+  --spacing-md: 1em;
+  --spacing-lg: 1.5em;
   --spacing-xl: 2em;
   --spacing-2xl: 3em;
   --border-width-thin: 1px;
@@ -153,10 +153,14 @@ html[data-theme="dark"] {
   --color-accent: #FFE082;
   --color-error: #FF5252;
   --color-success: #69F0AE;
+  --color-primary-alpha: rgba(124, 77, 255, 0.35);
+  --color-primary-alpha-light: rgba(124, 77, 255, 0.15);
   
   /* Card/Section Backgrounds */
   --color-card-bg: #2a2a2a;
   --color-section-bg: #1a1a1a;
+  --color-zebra-stripe: rgba(255, 255, 255, 0.03);
+  --color-hover-bg: rgba(255, 255, 255, 0.08);
   
   /* Shadows */
   --box-shadow: 0 2px 8px rgba(0,0,0,0.3);
@@ -168,4 +172,25 @@ html[data-theme="dark"] {
   --focus-indicator-width: 3px;
   --animation-duration: 0.2s;
   --animation-duration-slow: 0.3s;
+  --min-font-size: 14px;
+  --min-line-height: 1.4;
+  --high-contrast-ratio: 7:1;
+  
+  /* Overlay and Modal */
+  --overlay-bg: rgba(0, 0, 0, 0.7);
+  --z-index-modal: 9999;
+  --z-index-skip-links: 1000;
+  
+  /* Opacity */
+  --opacity-disabled: 0.6;
+  
+  /* Layout Values */
+  --max-width-readable: 65ch;
+  --max-width-readable-wide: 70ch;
+  
+  /* Outline Offsets */
+  --outline-offset-sm: 2px;
+  
+  /* Success Alpha */
+  --color-success-alpha: rgba(105, 240, 174, 0.15);
 }

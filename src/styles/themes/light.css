@@ -6,7 +6,7 @@
 :root {
   /* Background and Text */
   --color-background: white;
-  --color-text: #333;
+  --color-text: ##1A1A1A;
   --color-text-secondary: #666;
   --color-text-light: #aaa;
   --color-text-link: #3B5998;
@@ -24,7 +24,7 @@
   --color-border-dark: #777;
   --color-border-darker: #444;
   --color-border-light: #aaa;
-  --color-border-pale: #ddd;
+  --color-border-pale: #eee;
   
   /* Status Colors */
   --color-selected-bg: #8F3;
@@ -134,11 +134,11 @@
   /* Spacing and Sizing */
   --spacing-tiny: 0.05em;
   --spacing-small: 0.1em;
-  --spacing-xs: 0.2em;
-  --spacing-sm: 0.3em;
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 0.75em;
   --spacing-base: 0.5em;
-  --spacing-md: 0.8em;
-  --spacing-lg: 1em;
+  --spacing-md: 1em;
+  --spacing-lg: 1.5em;
   --spacing-xl: 2em;
   --spacing-2xl: 3em;
   --border-width-thin: 1px;
@@ -150,6 +150,8 @@
   
   /* Primary/Accent Colors */
   --color-primary: #7C4DFF;
+  --color-primary-alpha: rgba(124, 77, 255, 0.25);
+  --color-primary-alpha-light: rgba(124, 77, 255, 0.1);
   --color-secondary: #0077B6;
   --color-accent: #FFD600;
   --color-error: #B00020;
@@ -158,6 +160,8 @@
   /* Card/Section Backgrounds */
   --color-card-bg: #FFFFFF;
   --color-section-bg: #F5F5F5;
+  --color-zebra-stripe: rgba(0, 0, 0, 0.02);
+  --color-hover-bg: rgba(0, 0, 0, 0.05);
   
   /* Shadows */
   --box-shadow: 0 2px 8px rgba(124,77,255,0.08);
@@ -169,4 +173,25 @@
   --focus-indicator-width: 3px;
   --animation-duration: 0.2s;
   --animation-duration-slow: 0.3s;
+  --min-font-size: 14px;
+  --min-line-height: 1.4;
+  --high-contrast-ratio: 7:1; /* WCAG AAA standard */
+  
+  /* Overlay and Modal */
+  --overlay-bg: rgba(0, 0, 0, 0.5);
+  --z-index-modal: 9999;
+  --z-index-skip-links: 1000;
+  
+  /* Opacity */
+  --opacity-disabled: 0.6;
+  
+  /* Layout Values */
+  --max-width-readable: 65ch;
+  --max-width-readable-wide: 70ch;
+  
+  /* Outline Offsets */
+  --outline-offset-sm: 2px;
+  
+  /* Success Alpha */
+  --color-success-alpha: rgba(0, 200, 83, 0.1);
 }

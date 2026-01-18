@@ -2,10 +2,38 @@ import * as $rdf from 'rdflib'
 import * as panes from 'solid-panes'
 import { authn, solidLogicSingleton, authSession, store } from 'solid-logic'
 import versionInfo from './versionInfo'
-import { mashStyle } from './styles/mashlib-style'
 import './styles/mash.css'
 
 const global: any = window
+
+// Theme Management
+const initializeTheme = () => {
+  const savedTheme = localStorage.getItem('mashlib-theme')
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+  const theme = savedTheme || (prefersDark ? 'dark' : 'light')
+  
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark')
+  } else {
+    document.documentElement.removeAttribute('data-theme')
+  }
+}
+
+const setTheme = (theme: 'light' | 'dark') => {
+  if (theme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark')
+  } else {
+    document.documentElement.removeAttribute('data-theme')
+  }
+  localStorage.setItem('mashlib-theme', theme)
+}
+
+const getTheme = (): 'light' | 'dark' => {
+  return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'
+}
+
+// Initialize theme on load
+initializeTheme()
 
 global.$rdf = $rdf
 global.panes = panes
@@ -16,15 +44,15 @@ global.SolidLogic = {
   solidLogicSingleton
 }
 global.mashlib = {
-  versionInfo
+  versionInfo,
+  theme: {
+    set: setTheme,
+    get: getTheme,
+    init: initializeTheme
+  }
 }
 
 global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
-  document.getElementById('PageBody')?.setAttribute('style', mashStyle.dbLayout)
-  document.getElementById('PageHeader')?.setAttribute('style', mashStyle.dbLayoutHeader)
-  document.getElementById('PageFooter')?.setAttribute('style', mashStyle.dbLayoutFooter)
-  document.getElementById('DummyUUID')?.setAttribute('style', mashStyle.dbLayoutContent)
-
   // Set up cross-site proxy
   const fetcher: any = $rdf.Fetcher
   fetcher.crossSiteProxyTemplate = window.origin + '/xss/?uri={uri}'

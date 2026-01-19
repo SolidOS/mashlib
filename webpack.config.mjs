@@ -99,7 +99,13 @@ const common = {
       new NodePolyfillPlugin(),
       new CopyPlugin({
         patterns: [
-          { from: 'static', to: '.' }
+          { from: 'static', to: '.' },
+          // Copy flattened theme CSS files from solid-ui package
+          { 
+            from: path.resolve(process.cwd(), 'node_modules/solid-ui/dist/theme-*.css'),
+            to: '[name][ext]',
+            noErrorOnMissing: true
+          }
         ]
       })
     ],

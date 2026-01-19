@@ -3,11 +3,6 @@
   <head>
     <meta charset="utf-8"/>
     <title><%= htmlWebpackPlugin.options.title %></title>
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        panes.runDataBrowser()
-      })
-    </script>
   </head>
   <body id="PageBody">
     <!-- solid-panes' OutlineManager injects into this element -->
@@ -17,5 +12,17 @@
         <div id="GlobalDashboard"></div>
     </div>
     <footer id="PageFooter"></footer>
+    <script>
+      // Call runDataBrowser after all scripts load
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('📄 DOMContentLoaded fired, checking for panes...')
+        if (window.panes && window.panes.runDataBrowser) {
+          console.log('✅ panes.runDataBrowser found, calling it...')
+          window.panes.runDataBrowser()
+        } else {
+          console.error('❌ panes.runDataBrowser not found on window')
+        }
+      })
+    </script>
   </body>
 </html>

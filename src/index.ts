@@ -4,8 +4,12 @@ import { authn, solidLogicSingleton, authSession, store } from 'solid-logic'
 import versionInfo from './versionInfo'
 import { mashStyle } from './styles/mashlib-style'
 import './styles/mash.css'
+import * as UI from 'solid-ui'
 
 const global: any = window
+
+// Make UI available globally for solid-ui header theme selector
+global.UI = UI
 
 global.$rdf = $rdf
 global.panes = panes
@@ -20,6 +24,8 @@ global.mashlib = {
 }
 
 global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
+  console.log('🚀 runDataBrowser called', { uri })
+  
   document.getElementById('PageBody')?.setAttribute('style', mashStyle.dbLayout)
   document.getElementById('PageHeader')?.setAttribute('style', mashStyle.dbLayoutHeader)
   document.getElementById('PageFooter')?.setAttribute('style', mashStyle.dbLayoutFooter)
@@ -39,9 +45,18 @@ global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
     console.error('Failed to add web monetization tag to page header')
   }
 
+  // Initialize theme system before header is created
+  const themeLoader = (UI as any).themeLoader
+  if (themeLoader && typeof themeLoader.init === 'function') {
+    themeLoader.init().catch((err: Error) => {
+      console.error('Theme loader init failed:', err)
+    })
+  }
+
   // Authenticate the user
   authn.checkUser().then(function (_profile: any) {
     const mainPage = panes.initMainPage(solidLogicSingleton.store, uri)
+    
     return mainPage
   })
 }

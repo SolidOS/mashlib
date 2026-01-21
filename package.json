@@ -27,7 +27,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/solidos/mashlib.git"
+    "url": "git+https://github.com/SolidOS/mashlib.git"
   },
   "keywords": [
     "solid",

@@ -11,6 +11,38 @@ const global: any = window
 // Make UI available globally for solid-ui header theme selector
 global.UI = UI
 
+// Auto-detect and set base path for theme loading
+if (!global.solid) global.solid = {}
+// Find mashlib script tag to determine base path for shared themes
+const scripts = Array.from(document.getElementsByTagName('script'))
+for (const script of scripts) {
+  if (script.src && script.src.includes('mashlib')) {
+    global.solid.basePath = script.src.substring(0, script.src.lastIndexOf('/') + 1)
+    // eslint-disable-next-line no-console
+    console.log('🎨 Theme basePath set from mashlib script:', global.solid.basePath)
+    break
+  }
+}
+// Fallback to current location if mashlib script not found
+if (!global.solid.basePath) {
+  const pathname = window.location.pathname
+  const basePath = pathname.endsWith('/') ? pathname : pathname.substring(0, pathname.lastIndexOf('/') + 1)
+  global.solid.basePath = window.location.origin + basePath
+  // eslint-disable-next-line no-console
+  console.log('🎨 Theme basePath set from current location (fallback):', global.solid.basePath)
+}
+
+// Initialize theme system now that basePath is set
+const themeLoader = (UI as any).themeLoader
+if (themeLoader && typeof themeLoader.init === 'function') {
+  // eslint-disable-next-line no-console
+  console.log('🎨 Initializing themeLoader with basePath:', global.solid.basePath)
+  themeLoader.init().catch((err: Error) => {
+    // eslint-disable-next-line no-console
+    console.error('Theme loader init failed:', err)
+  })
+}
+
 global.$rdf = $rdf
 global.panes = panes
 global.SolidLogic = {
@@ -43,14 +75,6 @@ global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
     document.head.appendChild(webMonetizationTag)
   } catch (e) {
     console.error('Failed to add web monetization tag to page header')
-  }
-
-  // Initialize theme system before header is created
-  const themeLoader = (UI as any).themeLoader
-  if (themeLoader && typeof themeLoader.init === 'function') {
-    themeLoader.init().catch((err: Error) => {
-      console.error('Theme loader init failed:', err)
-    })
   }
 
   // Authenticate the user

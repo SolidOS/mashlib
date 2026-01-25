@@ -55,10 +55,10 @@
     "solid-ui": "^3.0.3"
   },
   "overrides": {
-    "rdflib": "^2.3.5",
-    "solid-logic": "^4.0.2",
-    "solid-panes": "4.0.0-newStyle-4f86f460",
-    "solid-ui": "^3.0.3"
+    "rdflib": "$rdflib",
+    "solid-logic": "$solid-logic",
+    "solid-panes": "$solid-panes",
+    "solid-ui": "$solid-ui"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.6",

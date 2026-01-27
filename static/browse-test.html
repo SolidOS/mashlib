@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const goButton = dom.getElementById('goButton')
     const loginButtonArea = document.getElementById("loginButtonArea");
     const webIdArea = dom.getElementById('webId')
-    const inputArea = dom.getElementById('inputArea')
+    const banner = dom.getElementById('inputArea')
  
     uriField.addEventListener('keyup', function (e) {
       if (e.keyCode === 13) {
@@ -59,8 +59,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const logoutButton = loginButtonArea.querySelector('input');         
         logoutButton.value = "Logout";           
         let displayId = `&lt;${me.value}>`;
-        webIdArea.innerHTML = displayId;                                                                  
-      }                                                                      
+        webIdArea.innerHTML = displayId;
+        banner.style.backgroundColor="#bbccbb";                                                                           
+      } else {                                                                  
+        banner.style.backgroundColor="#ccbbbb";                              
+      }                                                                
       loginButtonArea.style.display="inline-block";                           
     }      
 
@@ -100,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 
-    <div class="TabulatorOutline" id="DummyUUID" role="main">
+    <div class="TabulatorOutline" id="DummyUUID">
       <table id="outline">
         <thead>
           <tr>

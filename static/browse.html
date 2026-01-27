@@ -2,15 +2,27 @@
 <html id="docHTML">
 <head>
   <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+  <script>
+    // Suppress harmless ResizeObserver loop errors that block the UI
+    window.addEventListener('error', function(e) {
+      if (e.message && e.message.includes('ResizeObserver loop')) {
+        e.stopImmediatePropagation();
+        e.stopPropagation();
+        e.preventDefault();
+        return false;
+      }
+    }, true);
+  </script>
   <link type="text/css" rel="stylesheet" href="mash.css" />
-  <script type="text/javascript" src="mashlib.min.js"></script>
+  <script type="text/javascript" src="mashlib.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const authn = SolidLogic.authn
-    const authSession = SolidLogic.authn.authSession
+    const authSession = SolidLogic.authSession
     const store = SolidLogic.store
     const dom = document
-    $rdf.Fetcher.crossSiteProxyTemplate = self.origin + '/xss?uri={uri}'
+    // Disable cross-site proxy - modern Solid servers support CORS
+    // $rdf.Fetcher.crossSiteProxyTemplate = self.origin + '/xss?uri={uri}'
     const uri = window.location.href
     window.document.title = 'SolidOS Web App: ' + uri
     const outliner = panes.getOutliner(dom) //function from solid-panes
@@ -59,11 +71,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const logoutButton = loginButtonArea.querySelector('input');         
         logoutButton.value = "Logout";           
         let displayId = `&lt;${me.value}>`;
-        webIdArea.innerHTML = displayId;                                     
-        banner.style.backgroundColor="#bbccbb";                              
+        webIdArea.innerHTML = displayId;
+        banner.style.backgroundColor="#bbccbb";                                                                           
       } else {                                                                  
         banner.style.backgroundColor="#ccbbbb";                              
-      }                                                                       
+      }                                                                
       loginButtonArea.style.display="inline-block";                           
     }      
 
@@ -81,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
         mungeLoginArea();
         go()
       })
-    }    
+    }
     mungeLoginArea();
 });
 </script>
@@ -93,6 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
     The SolidOS Databrowser
   </header>
   <main id="mainContent" tabindex="-1">
+
     <div class="input-row" id="inputArea">
         Viewing <input id="uriField" type="text" class="uri-field" placeholder="enter a pod address e.g. https://you.solidcommunity.net/"/> <input type="button" id="goButton" value="Go" />
     </div>
@@ -124,10 +137,10 @@ document.addEventListener('DOMContentLoaded', function() {
       width:100%;
       padding:1em;
       background-color:#ccbbbb;
-      margin-bottom:0.6em;
     }
     .input-row {
-      margin-left:1em;
+      padding-left:1em;
+      padding-bottom:1em;
     }
     .user-row {
       margin-top:0.5em;

@@ -2,6 +2,17 @@
 <html id="docHTML">
 <head>
   <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+  <script>
+    // Suppress harmless ResizeObserver loop errors that block the UI
+    window.addEventListener('error', function(e) {
+      if (e.message && e.message.includes('ResizeObserver loop')) {
+        e.stopImmediatePropagation();
+        e.stopPropagation();
+        e.preventDefault();
+        return false;
+      }
+    }, true);
+  </script>
   <link type="text/css" rel="stylesheet" href="mash.css" />
   <script type="text/javascript" src="mashlib.js"></script>
 <script>

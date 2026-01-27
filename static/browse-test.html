@@ -10,7 +10,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const authSession = SolidLogic.authSession
     const store = SolidLogic.store
     const dom = document
-    $rdf.Fetcher.crossSiteProxyTemplate = self.origin + '/xss?uri={uri}'
+    // Disable cross-site proxy - modern Solid servers support CORS
+    // $rdf.Fetcher.crossSiteProxyTemplate = self.origin + '/xss?uri={uri}'
     const uri = window.location.href
     window.document.title = 'SolidOS Web App: ' + uri
     const outliner = panes.getOutliner(dom) //function from solid-panes
@@ -125,10 +126,10 @@ document.addEventListener('DOMContentLoaded', function() {
       width:100%;
       padding:1em;
       background-color:#ccbbbb;
-      margin-bottom:0.6em;
     }
     .input-row {
-      margin-left:1em;
+      padding-left:1em;
+      padding-bottom:1em;
     }
     .user-row {
       margin-top:0.5em;
@@ -150,26 +151,6 @@ document.addEventListener('DOMContentLoaded', function() {
       padding:0.5em;
       width:70%;
       margin-top:0.6em !important;
-    }
-
-    /* Ensure skip link is visible when focused */
-    .skip-link {
-      position:absolute;
-      left:-999px;
-      top:auto;
-      width:1px;
-      height:1px;
-      overflow:hidden;
-    }
-    .skip-link:focus {
-      position: static;
-      width: auto;
-      height: auto;
-      padding: 0.5em 1em;
-      background: #005fcc;
-      color: #fff;
-      z-index: 1000;
-      outline: none;
     }
   </style>
 

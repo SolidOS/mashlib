@@ -77,26 +77,24 @@
 }
 
 /* Skip links for keyboard navigation */
-.skip-links {
+ .skip-link {
   position: absolute;
-  top: -100px;
-  left: 0;
+  left: -999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.skip-link:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0.5em 1em;
+  background: #005fcc;
+  color: #fff;
   z-index: var(--z-index-skip-links);
-}
-
-.skip-links a {
-  position: absolute;
-  left: var(--spacing-xs);
-  top: var(--spacing-xs);
-  padding: var(--spacing-sm);
-  background: var(--color-primary);
-  color: var(--color-background);
-  text-decoration: none;
-  border-radius: var(--border-radius-base);
-}
-
-.skip-links a:focus {
-  top: var(--spacing-xs);
+  outline: none;
 }
 
 /* ===========================================

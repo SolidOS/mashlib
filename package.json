@@ -49,10 +49,10 @@
   },
   "homepage": "https://github.com/solidos/mashlib",
   "dependencies": {
-    "profile-pane": "^2.0.0-newStyle-35bb91b7",
+    "profile-pane": "^2.0.0-newStyle-8c5be814",
     "rdflib": "^2.3.5",
     "solid-logic": "^4.0.2",
-    "solid-panes": "^4.0.0-newStyle-2173cd4e",
+    "solid-panes": "^4.0.0-newStyle-de201d79",
     "solid-ui": "^3.0.3-e1671a6"
   },
   "overrides": {

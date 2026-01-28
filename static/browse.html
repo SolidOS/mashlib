@@ -2,15 +2,27 @@
 <html id="docHTML">
 <head>
   <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+  <script>
+    // Suppress harmless ResizeObserver loop errors that block the UI
+    window.addEventListener('error', function(e) {
+      if (e.message && e.message.includes('ResizeObserver loop')) {
+        e.stopImmediatePropagation();
+        e.stopPropagation();
+        e.preventDefault();
+        return false;
+      }
+    }, true);
+  </script>
   <link type="text/css" rel="stylesheet" href="mash.css" />
-  <script type="text/javascript" src="mashlib.min.js"></script>
+  <script type="text/javascript" src="mashlib.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const authn = SolidLogic.authn
-    const authSession = SolidLogic.authn.authSession
+    const authSession = SolidLogic.authSession
     const store = SolidLogic.store
     const dom = document
-    $rdf.Fetcher.crossSiteProxyTemplate = self.origin + '/xss?uri={uri}'
+    // Disable cross-site proxy - modern Solid servers support CORS
+    // $rdf.Fetcher.crossSiteProxyTemplate = self.origin + '/xss?uri={uri}'
     const uri = window.location.href
     window.document.title = 'SolidOS Web App: ' + uri
     const outliner = panes.getOutliner(dom) //function from solid-panes
@@ -59,11 +71,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const logoutButton = loginButtonArea.querySelector('input');         
         logoutButton.value = "Logout";           
         let displayId = `&lt;${me.value}>`;
-        webIdArea.innerHTML = displayId;                                     
-        banner.style.backgroundColor="#bbccbb";                              
+        webIdArea.innerHTML = displayId;
+        banner.style.backgroundColor="#bbccbb";                                                                           
       } else {                                                                  
         banner.style.backgroundColor="#ccbbbb";                              
-      }                                                                       
+      }                                                                
       loginButtonArea.style.display="inline-block";                           
     }      
 
@@ -81,39 +93,58 @@ document.addEventListener('DOMContentLoaded', function() {
         mungeLoginArea();
         go()
       })
-    }    
+    }
     mungeLoginArea();
 });
 </script>
 </head>
 <body>
+  <a href="#DummyUUID" class="skip-link">Skip to main content</a>
 
-  <div style="width:100%;" id="inputArea">
-    <div style="margin-bottom:0.6em">
-        The SolidOS Databrowser
+  <header id="PageHeader" role="banner" class="header-mash">
+    The SolidOS Databrowser
+  </header>
+  <main id="mainContent" tabindex="-1">
+
+    <div class="input-row" id="inputArea">
+        Viewing <input id="uriField" type="text" class="uri-field" placeholder="enter a pod address e.g. https://you.solidcommunity.net/"/> <input type="button" id="goButton" value="Go" />
     </div>
-    <div style="margin-left:1em">
-        Viewing <input id="uriField" type="text" style="font-size:100%; min-width:25em; padding:0.5em;" placeholder="enter a pod address e.g. https://you.solidcommunity.net/"/> <input type="button" id="goButton" value="Go" />
-    </div>                                                                  
-    <div style="margin-top:0.5em;margin-left:1em">
-      As user <span id="webId">&lt;public user></span> <span id="loginButtonArea"></span>
+    <div class="user-row">
+      As user <span id="webId">&lt;public user></span> 
+      <span id="loginButtonArea"></span>
     </div>
   </div>
 
-  <table style="width:100%;">
-    <tr>
-      <div class="TabulatorOutline" id="DummyUUID" role="main">
-          <table id="outline"></table>
-          <div id="GlobalDashboard"></div>
-      </div>
-    </tr>
-  </table>
+    <div class="TabulatorOutline" id="DummyUUID">
+      <table id="outline">
+        <thead>
+          <tr>
+            <th id="outlineHeader" scope="col"></th>
+            <!-- Add more <th> as needed for columns -->
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Table rows injected by JS -->
+        </tbody>
+      </table>
+      <div id="GlobalDashboard" aria-label="Global Dashboard"></div>
+    </div>
+  </main>
 
+  <footer id="PageFooter" role="contentinfo"></footer>
   <style>
-    #inputArea {
+    .header-mash {
       width:100%;
-      padding:0.5em;
-      background-color:#d0d0d0;
+      padding:1em;
+      background-color:#ccbbbb;
+    }
+    .input-row {
+      padding-left:1em;
+      padding-bottom:1em;
+    }
+    .user-row {
+      margin-top:0.5em;
+      margin-left:1em;
     }
     #loginButtonArea input {
       display:inline-block;
@@ -125,7 +156,10 @@ document.addEventListener('DOMContentLoaded', function() {
       padding-top:0.6em;
       padding-bottom:0.6em;
     }
-    #uriField {
+    #uriField, .uri-field {
+      font-size:100%;
+      min-width:25em;
+      padding:0.5em;
       width:70%;
       margin-top:0.6em !important;
     }

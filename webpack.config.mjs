@@ -113,14 +113,23 @@ const common = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
         'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization',
-        'Access-Control-Allow-Credentials': 'true'
+        'Access-Control-Allow-Credentials': 'true',
+        'Content-Security-Policy': "default-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https: http:; img-src 'self' data: blob: https: http:; connect-src 'self' https: http: ws: wss:;"
       },
       static: [
         {
           directory: path.resolve(process.cwd(), 'static'),
           publicPath: '/'
+        },
+        {
+          directory: path.resolve(process.cwd(), 'dist'),
+          publicPath: '/'
         }
-      ]
+      ],
+      devMiddleware: {
+        publicPath: '/',
+        writeToDisk: false
+      }
     },
     devtool: 'source-map',
     performance: { hints: false }

@@ -9,13 +9,26 @@
       })
     </script>
   </head>
-  <body id="PageBody">
-    <!-- solid-panes' OutlineManager injects into this element -->
-    <header id="PageHeader"></header>
-    <div class="TabulatorOutline" id="DummyUUID" role="main">
-        <table id="outline"></table>
-        <div id="GlobalDashboard"></div>
-    </div>
-    <footer id="PageFooter"></footer>
+    <body id="PageBody">
+      <a href="#DummyUUID" class="skip-link">Skip to main content</a>
+      <!-- solid-panes' OutlineManager injects into this element -->
+      <header id="PageHeader" role="banner"></header>
+      <main id="mainContent" tabindex="-1">
+        <div class="TabulatorOutline" id="DummyUUID">
+          <table id="outline">
+            <thead>
+              <tr>
+                <th id="outlineHeader" scope="col"></th>
+                <!-- Add more <th> as needed for columns -->
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Table rows injected by JS -->
+            </tbody>
+          </table>
+          <div id="GlobalDashboard" aria-label="Global Dashboard"></div>
+        </div>
+      </main>
+      <footer id="PageFooter" role="contentinfo"></footer>
   </body>
 </html>

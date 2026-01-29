@@ -146,8 +146,11 @@ export default (env, args) => {
     mergeDuplicateChunks: true
   }
 
-  // For dev server, return only unminified config
-  if (process.env.WEBPACK_SERVE || args.mode === 'development') {
+  // Check if running in watch mode
+  const isWatchMode = process.argv.includes('--watch')
+
+  // For dev server or watch mode, return only unminified config (preserves console.log)
+  if (process.env.WEBPACK_SERVE || args.mode === 'development' || isWatchMode) {
     return {
       ...common,
       mode: 'development',

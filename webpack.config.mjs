@@ -113,14 +113,23 @@ const common = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
         'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization',
-        'Access-Control-Allow-Credentials': 'true'
+        'Access-Control-Allow-Credentials': 'true',
+        'Content-Security-Policy': "default-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https: http:; img-src 'self' data: blob: https: http:; connect-src 'self' https: http: ws: wss:;"
       },
       static: [
         {
           directory: path.resolve(process.cwd(), 'static'),
           publicPath: '/'
+        },
+        {
+          directory: path.resolve(process.cwd(), 'dist'),
+          publicPath: '/'
         }
-      ]
+      ],
+      devMiddleware: {
+        publicPath: '/',
+        writeToDisk: false
+      }
     },
     devtool: 'source-map',
     performance: { hints: false }
@@ -137,8 +146,11 @@ export default (env, args) => {
     mergeDuplicateChunks: true
   }
 
-  // For dev server, return only unminified config
-  if (process.env.WEBPACK_SERVE || args.mode === 'development') {
+  // Check if running in watch mode
+  const isWatchMode = process.argv.includes('--watch')
+
+  // For dev server or watch mode, return only unminified config (preserves console.log)
+  if (process.env.WEBPACK_SERVE || args.mode === 'development' || isWatchMode) {
     return {
       ...common,
       mode: 'development',

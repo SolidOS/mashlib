@@ -91,7 +91,7 @@
   width: auto;
   height: auto;
   padding: 0.5em 1em;
-  background: #005fcc;
+  background: var(--color-primary);
   color: #fff;
   z-index: var(--z-index-skip-links);
   outline: none;

@@ -23,7 +23,9 @@ const common = {
     target: 'web',
     output: {
       path: path.resolve(process.cwd(), 'dist'),
-      publicPath: '/',
+      // Use PUBLIC_PATH env var for deployment (e.g., '/mashlib/dist/' for GitHub Pages)
+      // Defaults to '/' for local development and production
+      publicPath: process.env.PUBLIC_PATH || '/',
       library: {
         name: 'Mashlib',
         type: 'umd'

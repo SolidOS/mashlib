@@ -23,9 +23,8 @@ const common = {
     target: 'web',
     output: {
       path: path.resolve(process.cwd(), 'dist'),
-      // 'auto' determines the public path at runtime based on the script's location
-      // This works for both the HTML file and dynamically loaded chunks
-      publicPath: 'auto',
+      // Use /mashlib/dist/ for GitHub Pages, / for localhost
+      publicPath: process.env.PUBLIC_PATH || '/',
       library: {
         name: 'Mashlib',
         type: 'umd'

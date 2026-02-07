@@ -22,10 +22,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
-      - name: Build with GitHub Pages publicPath
-        run: npm run build
-        env:
-          PUBLIC_PATH: /mashlib/dist/
+      - run: npm run build
       - run: npm run bundlesize
       - name: Save build
         if: matrix.node-version == 20
@@ -42,13 +39,16 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/download-artifact@v7
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
-          name: build
+          node-version: 20
+      - run: npm ci
+      - run: npm run build:ghpages
       - uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
+          publish_dir: dist
 
   dependabot:
     name: 'Dependabot'

@@ -23,8 +23,7 @@ const common = {
     target: 'web',
     output: {
       path: path.resolve(process.cwd(), 'dist'),
-      // Use PUBLIC_PATH env var for deployment (e.g., '/mashlib/dist/' for GitHub Pages)
-      // Defaults to '/' for local development and production
+      // Use /mashlib/dist/ for GitHub Pages, / for localhost
       publicPath: process.env.PUBLIC_PATH || '/',
       library: {
         name: 'Mashlib',

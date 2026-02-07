@@ -11,6 +11,7 @@
   "scripts": {
     "clean": "rm -rf dist ./src/versionInfo.ts",
     "build": "npm run clean && npm run build-version && npm run typecheck && npm run build-dist && npm run postbuild-js",
+    "build:ghpages": "npm run clean && npm run build-version && npm run typecheck && PUBLIC_PATH=/mashlib/ npm run build-dist && npm run postbuild-js",
     "build-version": "./timestamp.sh > src/versionInfo.ts && eslint 'src/versionInfo.ts' --fix",
     "build-dist": "webpack --progress --mode=production",
     "postbuild-js": "rm -f dist/versionInfo.d.ts dist/versionInfo.d.ts.map",

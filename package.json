@@ -50,6 +50,7 @@
   },
   "homepage": "https://github.com/solidos/mashlib",
   "dependencies": {
+    "profile-pane": "^3.0.0-aedb226d",
     "rdflib": "^2.3.5",
     "solid-logic": "^4.0.2",
     "solid-panes": "^4.1.0-60aeb4f4",

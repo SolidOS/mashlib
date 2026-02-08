@@ -60,7 +60,8 @@
     "rdflib": "$rdflib",
     "solid-logic": "$solid-logic",
     "solid-panes": "$solid-panes",
-    "solid-ui": "$solid-ui"
+    "solid-ui": "$solid-ui",
+    "profile-pane": "$profile-pane"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.6",

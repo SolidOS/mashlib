@@ -1,551 +1,416 @@
 (self["webpackChunkMashlib"] = self["webpackChunkMashlib"] || []).push([[841],{
 
-/***/ 202
+/***/ 2341
+(module) {
+
+"use strict";
+/* jshint esversion: 6 */
+/* jslint node: true */
+
+
+module.exports = function serialize (object) {
+  if (typeof object === 'number' && isNaN(object)) {
+    throw new Error('NaN is not allowed');
+  }
+
+  if (typeof object === 'number' && !isFinite(object)) {
+    throw new Error('Infinity is not allowed');
+  }
+
+  if (object === null || typeof object !== 'object') {
+    return JSON.stringify(object);
+  }
+
+  if (object.toJSON instanceof Function) {
+    return serialize(object.toJSON());
+  }
+
+  if (Array.isArray(object)) {
+    const values = object.reduce((t, cv, ci) => {
+      const comma = ci === 0 ? '' : ',';
+      const value = cv === undefined || typeof cv === 'symbol' ? null : cv;
+      return `${t}${comma}${serialize(value)}`;
+    }, '');
+    return `[${values}]`;
+  }
+
+  const values = Object.keys(object).sort().reduce((t, cv) => {
+    if (object[cv] === undefined ||
+        typeof object[cv] === 'symbol') {
+      return t;
+    }
+    const comma = t.length === 0 ? '' : ',';
+    return `${t}${comma}${serialize(cv)}:${serialize(object[cv])}`;
+  }, '');
+  return `{${values}}`;
+};
+
+
+/***/ },
+
+/***/ 7034
 (module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
-/*!
- * Copyright (c) 2016-2023 Digital Bazaar, Inc. All rights reserved.
+/*
+ * Copyright (c) 2019 Digital Bazaar, Inc. All rights reserved.
  */
 
 
-const IdentifierIssuer = __webpack_require__(2985);
-// FIXME: do not import; convert to requiring a
-// hash factory
-const MessageDigest = __webpack_require__(7920);
-const Permuter = __webpack_require__(9925);
-const NQuads = __webpack_require__(1227);
+const {
+  isArray: _isArray,
+  isObject: _isObject,
+  isString: _isString,
+} = __webpack_require__(7382);
+const {
+  asArray: _asArray
+} = __webpack_require__(9263);
+const {prependBase} = __webpack_require__(470);
+const JsonLdError = __webpack_require__(2207);
+const ResolvedContext = __webpack_require__(7532);
 
-module.exports = class RDFC10Sync {
-  constructor({
-    createMessageDigest = null,
-    messageDigestAlgorithm = 'sha256',
-    canonicalIdMap = new Map(),
-    maxWorkFactor = 1,
-    maxDeepIterations = -1,
-    timeout = 0
-  } = {}) {
-    this.name = 'RDFC-1.0';
-    this.blankNodeInfo = new Map();
-    this.canonicalIssuer = new IdentifierIssuer('c14n', canonicalIdMap);
-    this.createMessageDigest = createMessageDigest ||
-      (() => new MessageDigest(messageDigestAlgorithm));
-    this.maxWorkFactor = maxWorkFactor;
-    this.maxDeepIterations = maxDeepIterations;
-    this.remainingDeepIterations = 0;
-    this.timeout = timeout;
-    if(timeout > 0) {
-      this.startTime = Date.now();
-    }
-    this.quads = null;
+const MAX_CONTEXT_URLS = 10;
+
+module.exports = class ContextResolver {
+  /**
+   * Creates a ContextResolver.
+   *
+   * @param sharedCache a shared LRU cache with `get` and `set` APIs.
+   */
+  constructor({sharedCache}) {
+    this.perOpCache = new Map();
+    this.sharedCache = sharedCache;
   }
 
-  // 4.4) Normalization Algorithm
-  main(dataset) {
-    this.quads = dataset;
-
-    // 1) Create the normalization state.
-    // 2) For every quad in input dataset:
-    for(const quad of dataset) {
-      // 2.1) For each blank node that occurs in the quad, add a reference
-      // to the quad using the blank node identifier in the blank node to
-      // quads map, creating a new entry if necessary.
-      this._addBlankNodeQuadInfo({quad, component: quad.subject});
-      this._addBlankNodeQuadInfo({quad, component: quad.object});
-      this._addBlankNodeQuadInfo({quad, component: quad.graph});
+  async resolve({
+    activeCtx, context, documentLoader, base, cycles = new Set()
+  }) {
+    // process `@context`
+    if(context && _isObject(context) && context['@context']) {
+      context = context['@context'];
     }
 
-    // 3) Create a list of non-normalized blank node identifiers
-    // non-normalized identifiers and populate it using the keys from the
-    // blank node to quads map.
-    // Note: We use a map here and it was generated during step 2.
+    // context is one or more contexts
+    context = _asArray(context);
 
-    // 4) `simple` flag is skipped -- loop is optimized away. This optimization
-    // is permitted because there was a typo in the hash first degree quads
-    // algorithm in the RDFC-1.0 spec that was implemented widely making it
-    // such that it could not be fixed; the result was that the loop only
-    // needs to be run once and the first degree quad hashes will never change.
-    // 5.1-5.2 are skipped; first degree quad hashes are generated just once
-    // for all non-normalized blank nodes.
+    // resolve each context in the array
+    const allResolved = [];
+    for(const ctx of context) {
+      if(_isString(ctx)) {
+        // see if `ctx` has been resolved before...
+        let resolved = this._get(ctx);
+        if(!resolved) {
+          // not resolved yet, resolve
+          resolved = await this._resolveRemoteContext(
+            {activeCtx, url: ctx, documentLoader, base, cycles});
+        }
 
-    // 5.3) For each blank node identifier identifier in non-normalized
-    // identifiers:
-    const hashToBlankNodes = new Map();
-    const nonNormalized = [...this.blankNodeInfo.keys()];
-    for(const id of nonNormalized) {
-      // steps 5.3.1 and 5.3.2:
-      this._hashAndTrackBlankNode({id, hashToBlankNodes});
-    }
-
-    // 5.4) For each hash to identifier list mapping in hash to blank
-    // nodes map, lexicographically-sorted by hash:
-    const hashes = [...hashToBlankNodes.keys()].sort();
-    // optimize away second sort, gather non-unique hashes in order as we go
-    const nonUnique = [];
-    for(const hash of hashes) {
-      // 5.4.1) If the length of identifier list is greater than 1,
-      // continue to the next mapping.
-      const idList = hashToBlankNodes.get(hash);
-      if(idList.length > 1) {
-        nonUnique.push(idList);
+        // add to output and continue
+        if(_isArray(resolved)) {
+          allResolved.push(...resolved);
+        } else {
+          allResolved.push(resolved);
+        }
         continue;
       }
-
-      // 5.4.2) Use the Issue Identifier algorithm, passing canonical
-      // issuer and the single blank node identifier in identifier
-      // list, identifier, to issue a canonical replacement identifier
-      // for identifier.
-      const id = idList[0];
-      this.canonicalIssuer.getId(id);
-
-      // Note: These steps are skipped, optimized away since the loop
-      // only needs to be run once.
-      // 5.4.3) Remove identifier from non-normalized identifiers.
-      // 5.4.4) Remove hash from the hash to blank nodes map.
-      // 5.4.5) Set simple to true.
-    }
-
-    if(this.maxDeepIterations < 0) {
-      // calculate maxDeepIterations if not explicit
-      if(this.maxWorkFactor === 0) {
-        this.maxDeepIterations = 0;
-      } else if(this.maxWorkFactor === Infinity) {
-        this.maxDeepIterations = Infinity;
-      } else {
-        const nonUniqueCount =
-          nonUnique.reduce((count, v) => count + v.length, 0);
-        this.maxDeepIterations = nonUniqueCount ** this.maxWorkFactor;
+      if(ctx === null) {
+        // handle `null` context, nothing to cache
+        allResolved.push(new ResolvedContext({document: null}));
+        continue;
       }
-    }
-    // handle any large inputs as Infinity
-    if(this.maxDeepIterations > Number.MAX_SAFE_INTEGER) {
-      this.maxDeepIterations = Infinity;
-    }
-    this.remainingDeepIterations = this.maxDeepIterations;
-
-    // 6) For each hash to identifier list mapping in hash to blank nodes map,
-    // lexicographically-sorted by hash:
-    // Note: sort optimized away, use `nonUnique`.
-    for(const idList of nonUnique) {
-      // 6.1) Create hash path list where each item will be a result of
-      // running the Hash N-Degree Quads algorithm.
-      const hashPathList = [];
-
-      // 6.2) For each blank node identifier identifier in identifier list:
-      for(const id of idList) {
-        // 6.2.1) If a canonical identifier has already been issued for
-        // identifier, continue to the next identifier.
-        if(this.canonicalIssuer.hasId(id)) {
-          continue;
-        }
-
-        // 6.2.2) Create temporary issuer, an identifier issuer
-        // initialized with the prefix _:b.
-        const issuer = new IdentifierIssuer('b');
-
-        // 6.2.3) Use the Issue Identifier algorithm, passing temporary
-        // issuer and identifier, to issue a new temporary blank node
-        // identifier for identifier.
-        issuer.getId(id);
-
-        // 6.2.4) Run the Hash N-Degree Quads algorithm, passing
-        // temporary issuer, and append the result to the hash path list.
-        const result = this.hashNDegreeQuads(id, issuer);
-        hashPathList.push(result);
+      if(!_isObject(ctx)) {
+        _throwInvalidLocalContext(context);
       }
+      // context is an object, get/create `ResolvedContext` for it
+      const key = JSON.stringify(ctx);
+      let resolved = this._get(key);
+      if(!resolved) {
+        // create a new static `ResolvedContext` and cache it
+        resolved = new ResolvedContext({document: ctx});
+        this._cacheResolvedContext({key, resolved, tag: 'static'});
+      }
+      allResolved.push(resolved);
+    }
 
-      // 6.3) For each result in the hash path list,
-      // lexicographically-sorted by the hash in result:
-      hashPathList.sort(_stringHashCompare);
-      for(const result of hashPathList) {
-        // 6.3.1) For each blank node identifier, existing identifier,
-        // that was issued a temporary identifier by identifier issuer
-        // in result, issue a canonical identifier, in the same order,
-        // using the Issue Identifier algorithm, passing canonical
-        // issuer and existing identifier.
-        const oldIds = result.issuer.getOldIds();
-        for(const id of oldIds) {
-          this.canonicalIssuer.getId(id);
+    return allResolved;
+  }
+
+  _get(key) {
+    // get key from per operation cache; no `tag` is used with this cache so
+    // any retrieved context will always be the same during a single operation
+    let resolved = this.perOpCache.get(key);
+    if(!resolved) {
+      // see if the shared cache has a `static` entry for this URL
+      const tagMap = this.sharedCache.get(key);
+      if(tagMap) {
+        resolved = tagMap.get('static');
+        if(resolved) {
+          this.perOpCache.set(key, resolved);
         }
       }
     }
-
-    /* Note: At this point all blank nodes in the set of RDF quads have been
-    assigned canonical identifiers, which have been stored in the canonical
-    issuer. Here each quad is updated by assigning each of its blank nodes
-    its new identifier. */
-
-    // 7) For each quad, quad, in input dataset:
-    const normalized = [];
-    for(const quad of this.quads) {
-      // 7.1) Create a copy, quad copy, of quad and replace any existing
-      // blank node identifiers using the canonical identifiers
-      // previously issued by canonical issuer.
-      // Note: We optimize away the copy here.
-      const nQuad = NQuads.serializeQuadComponents(
-        this._componentWithCanonicalId(quad.subject),
-        quad.predicate,
-        this._componentWithCanonicalId(quad.object),
-        this._componentWithCanonicalId(quad.graph)
-      );
-      // 7.2) Add quad copy to the normalized dataset.
-      normalized.push(nQuad);
-    }
-
-    // sort normalized output
-    normalized.sort();
-
-    // 8) Return the normalized dataset.
-    return normalized.join('');
+    return resolved;
   }
 
-  // 4.6) Hash First Degree Quads
-  hashFirstDegreeQuads(id) {
-    // 1) Initialize nquads to an empty list. It will be used to store quads in
-    // N-Quads format.
-    const nquads = [];
-
-    // 2) Get the list of quads `quads` associated with the reference blank node
-    // identifier in the blank node to quads map.
-    const info = this.blankNodeInfo.get(id);
-    const quads = info.quads;
-
-    // 3) For each quad `quad` in `quads`:
-    for(const quad of quads) {
-      // 3.1) Serialize the quad in N-Quads format with the following special
-      // rule:
-
-      // 3.1.1) If any component in quad is an blank node, then serialize it
-      // using a special identifier as follows:
-      // 3.1.2) If the blank node's existing blank node identifier matches
-      // the reference blank node identifier then use the blank node
-      // identifier _:a, otherwise, use the blank node identifier _:z.
-      nquads.push(NQuads.serializeQuadComponents(
-        this.modifyFirstDegreeComponent(id, quad.subject, 'subject'),
-        quad.predicate,
-        this.modifyFirstDegreeComponent(id, quad.object, 'object'),
-        this.modifyFirstDegreeComponent(id, quad.graph, 'graph')
-      ));
-    }
-
-    // 4) Sort nquads in lexicographical order.
-    nquads.sort();
-
-    // 5) Return the hash that results from passing the sorted, joined nquads
-    // through the hash algorithm.
-    const md = this.createMessageDigest();
-    for(const nquad of nquads) {
-      md.update(nquad);
-    }
-    info.hash = md.digest();
-    return info.hash;
-  }
-
-  // 4.7) Hash Related Blank Node
-  hashRelatedBlankNode(related, quad, issuer, position) {
-    // 1) Initialize a string input to the value of position.
-    // Note: We use a hash object instead.
-    const md = this.createMessageDigest();
-    md.update(position);
-
-    // 2) If position is not g, append <, the value of the predicate in quad,
-    // and > to input.
-    if(position !== 'g') {
-      md.update(this.getRelatedPredicate(quad));
-    }
-
-    // 3) Set the identifier to use for related, preferring first the canonical
-    // identifier for related if issued, second the identifier issued by issuer
-    // if issued, and last, if necessary, the result of the Hash First Degree
-    // Quads algorithm, passing related.
-    let id;
-    if(this.canonicalIssuer.hasId(related)) {
-      id = '_:' + this.canonicalIssuer.getId(related);
-    } else if(issuer.hasId(related)) {
-      id = '_:' + issuer.getId(related);
-    } else {
-      id = this.blankNodeInfo.get(related).hash;
-    }
-
-    // 4) Append identifier to input.
-    md.update(id);
-
-    // 5) Return the hash that results from passing input through the hash
-    // algorithm.
-    return md.digest();
-  }
-
-  // 4.8) Hash N-Degree Quads
-  hashNDegreeQuads(id, issuer) {
-    if(this.remainingDeepIterations === 0) {
-      throw new Error(
-        `Maximum deep iterations exceeded (${this.maxDeepIterations}).`);
-    }
-    this.remainingDeepIterations--;
-
-    // 1) Create a hash to related blank nodes map for storing hashes that
-    // identify related blank nodes.
-    // Note: 2) and 3) handled within `createHashToRelated`
-    const md = this.createMessageDigest();
-    const hashToRelated = this.createHashToRelated(id, issuer);
-
-    // 4) Create an empty string, data to hash.
-    // Note: We created a hash object `md` above instead.
-
-    // 5) For each related hash to blank node list mapping in hash to related
-    // blank nodes map, sorted lexicographically by related hash:
-    const hashes = [...hashToRelated.keys()].sort();
-    for(const hash of hashes) {
-      // 5.1) Append the related hash to the data to hash.
-      md.update(hash);
-
-      // 5.2) Create a string chosen path.
-      let chosenPath = '';
-
-      // 5.3) Create an unset chosen issuer variable.
-      let chosenIssuer;
-
-      // 5.4) For each permutation of blank node list:
-      const permuter = new Permuter(hashToRelated.get(hash));
-      let i = 0;
-      while(permuter.hasNext()) {
-        const permutation = permuter.next();
-        // Note: batch permutations 3 at a time
-        if(++i % 3 === 0) {
-          if(this.timeout > 0 && Date.now() - this.startTime > this.timeout) {
-            throw new Error('Canonize timeout.');
-          }
-        }
-
-        // 5.4.1) Create a copy of issuer, issuer copy.
-        let issuerCopy = issuer.clone();
-
-        // 5.4.2) Create a string path.
-        let path = '';
-
-        // 5.4.3) Create a recursion list, to store blank node identifiers
-        // that must be recursively processed by this algorithm.
-        const recursionList = [];
-
-        // 5.4.4) For each related in permutation:
-        let nextPermutation = false;
-        for(const related of permutation) {
-          // 5.4.4.1) If a canonical identifier has been issued for
-          // related, append it to path.
-          if(this.canonicalIssuer.hasId(related)) {
-            path += '_:' + this.canonicalIssuer.getId(related);
-          } else {
-            // 5.4.4.2) Otherwise:
-            // 5.4.4.2.1) If issuer copy has not issued an identifier for
-            // related, append related to recursion list.
-            if(!issuerCopy.hasId(related)) {
-              recursionList.push(related);
-            }
-            // 5.4.4.2.2) Use the Issue Identifier algorithm, passing
-            // issuer copy and related and append the result to path.
-            path += '_:' + issuerCopy.getId(related);
-          }
-
-          // 5.4.4.3) If chosen path is not empty and the length of path
-          // is greater than or equal to the length of chosen path and
-          // path is lexicographically greater than chosen path, then
-          // skip to the next permutation.
-          // Note: Comparing path length to chosen path length can be optimized
-          // away; only compare lexicographically.
-          if(chosenPath.length !== 0 && path > chosenPath) {
-            nextPermutation = true;
-            break;
-          }
-        }
-
-        if(nextPermutation) {
-          continue;
-        }
-
-        // 5.4.5) For each related in recursion list:
-        for(const related of recursionList) {
-          // 5.4.5.1) Set result to the result of recursively executing
-          // the Hash N-Degree Quads algorithm, passing related for
-          // identifier and issuer copy for path identifier issuer.
-          const result = this.hashNDegreeQuads(related, issuerCopy);
-
-          // 5.4.5.2) Use the Issue Identifier algorithm, passing issuer
-          // copy and related and append the result to path.
-          path += '_:' + issuerCopy.getId(related);
-
-          // 5.4.5.3) Append <, the hash in result, and > to path.
-          path += `<${result.hash}>`;
-
-          // 5.4.5.4) Set issuer copy to the identifier issuer in
-          // result.
-          issuerCopy = result.issuer;
-
-          // 5.4.5.5) If chosen path is not empty and the length of path
-          // is greater than or equal to the length of chosen path and
-          // path is lexicographically greater than chosen path, then
-          // skip to the next permutation.
-          // Note: Comparing path length to chosen path length can be optimized
-          // away; only compare lexicographically.
-          if(chosenPath.length !== 0 && path > chosenPath) {
-            nextPermutation = true;
-            break;
-          }
-        }
-
-        if(nextPermutation) {
-          continue;
-        }
-
-        // 5.4.6) If chosen path is empty or path is lexicographically
-        // less than chosen path, set chosen path to path and chosen
-        // issuer to issuer copy.
-        if(chosenPath.length === 0 || path < chosenPath) {
-          chosenPath = path;
-          chosenIssuer = issuerCopy;
-        }
+  _cacheResolvedContext({key, resolved, tag}) {
+    this.perOpCache.set(key, resolved);
+    if(tag !== undefined) {
+      let tagMap = this.sharedCache.get(key);
+      if(!tagMap) {
+        tagMap = new Map();
+        this.sharedCache.set(key, tagMap);
       }
+      tagMap.set(tag, resolved);
+    }
+    return resolved;
+  }
 
-      // 5.5) Append chosen path to data to hash.
-      md.update(chosenPath);
+  async _resolveRemoteContext({activeCtx, url, documentLoader, base, cycles}) {
+    // resolve relative URL and fetch context
+    url = prependBase(base, url);
+    const {context, remoteDoc} = await this._fetchContext(
+      {activeCtx, url, documentLoader, cycles});
 
-      // 5.6) Replace issuer, by reference, with chosen issuer.
-      issuer = chosenIssuer;
+    // update base according to remote document and resolve any relative URLs
+    base = remoteDoc.documentUrl || url;
+    _resolveContextUrls({context, base});
+
+    // resolve, cache, and return context
+    const resolved = await this.resolve(
+      {activeCtx, context, documentLoader, base, cycles});
+    this._cacheResolvedContext({key: url, resolved, tag: remoteDoc.tag});
+    return resolved;
+  }
+
+  async _fetchContext({activeCtx, url, documentLoader, cycles}) {
+    // check for max context URLs fetched during a resolve operation
+    if(cycles.size > MAX_CONTEXT_URLS) {
+      throw new JsonLdError(
+        'Maximum number of @context URLs exceeded.',
+        'jsonld.ContextUrlError',
+        {
+          code: activeCtx.processingMode === 'json-ld-1.0' ?
+            'loading remote context failed' :
+            'context overflow',
+          max: MAX_CONTEXT_URLS
+        });
     }
 
-    // 6) Return issuer and the hash that results from passing data to hash
-    // through the hash algorithm.
-    return {hash: md.digest(), issuer};
-  }
-
-  // helper for modifying component during Hash First Degree Quads
-  modifyFirstDegreeComponent(id, component) {
-    if(component.termType !== 'BlankNode') {
-      return component;
-    }
-    /* Note: A mistake in the RDFC-1.0 spec that made its way into
-    implementations (and therefore must stay to avoid interop breakage)
-    resulted in an assigned canonical ID, if available for
-    `component.value`, not being used in place of `_:a`/`_:z`, so
-    we don't use it here. */
-    return {
-      termType: 'BlankNode',
-      value: component.value === id ? 'a' : 'z'
-    };
-  }
-
-  // helper for getting a related predicate
-  getRelatedPredicate(quad) {
-    return `<${quad.predicate.value}>`;
-  }
-
-  // helper for creating hash to related blank nodes map
-  createHashToRelated(id, issuer) {
-    // 1) Create a hash to related blank nodes map for storing hashes that
-    // identify related blank nodes.
-    const hashToRelated = new Map();
-
-    // 2) Get a reference, quads, to the list of quads in the blank node to
-    // quads map for the key identifier.
-    const quads = this.blankNodeInfo.get(id).quads;
-
-    // 3) For each quad in quads:
-    for(const quad of quads) {
-      // 3.1) For each component in quad, if component is the subject, object,
-      // or graph name and it is a blank node that is not identified by
-      // identifier:
-      // steps 3.1.1 and 3.1.2 occur in helpers:
-      this._addRelatedBlankNodeHash({
-        quad, component: quad.subject, position: 's',
-        id, issuer, hashToRelated
-      });
-      this._addRelatedBlankNodeHash({
-        quad, component: quad.object, position: 'o',
-        id, issuer, hashToRelated
-      });
-      this._addRelatedBlankNodeHash({
-        quad, component: quad.graph, position: 'g',
-        id, issuer, hashToRelated
-      });
+    // check for context URL cycle
+    // shortcut to avoid extra work that would eventually hit the max above
+    if(cycles.has(url)) {
+      throw new JsonLdError(
+        'Cyclical @context URLs detected.',
+        'jsonld.ContextUrlError',
+        {
+          code: activeCtx.processingMode === 'json-ld-1.0' ?
+            'recursive context inclusion' :
+            'context overflow',
+          url
+        });
     }
 
-    return hashToRelated;
-  }
+    // track cycles
+    cycles.add(url);
 
-  _hashAndTrackBlankNode({id, hashToBlankNodes}) {
-    // 5.3.1) Create a hash, hash, according to the Hash First Degree
-    // Quads algorithm.
-    const hash = this.hashFirstDegreeQuads(id);
+    let context;
+    let remoteDoc;
 
-    // 5.3.2) Add hash and identifier to hash to blank nodes map,
-    // creating a new entry if necessary.
-    const idList = hashToBlankNodes.get(hash);
-    if(!idList) {
-      hashToBlankNodes.set(hash, [id]);
+    try {
+      remoteDoc = await documentLoader(url);
+      context = remoteDoc.document || null;
+      // parse string context as JSON
+      if(_isString(context)) {
+        context = JSON.parse(context);
+      }
+    } catch(e) {
+      throw new JsonLdError(
+        'Dereferencing a URL did not result in a valid JSON-LD object. ' +
+        'Possible causes are an inaccessible URL perhaps due to ' +
+        'a same-origin policy (ensure the server uses CORS if you are ' +
+        'using client-side JavaScript), too many redirects, a ' +
+        'non-JSON response, or more than one HTTP Link Header was ' +
+        'provided for a remote context. ' +
+        `URL: "${url}".`,
+        'jsonld.InvalidUrl',
+        {code: 'loading remote context failed', url, cause: e});
+    }
+
+    // ensure ctx is an object
+    if(!_isObject(context)) {
+      throw new JsonLdError(
+        'Dereferencing a URL did not result in a JSON object. The ' +
+        'response was valid JSON, but it was not a JSON object. ' +
+        `URL: "${url}".`,
+        'jsonld.InvalidUrl', {code: 'invalid remote context', url});
+    }
+
+    // use empty context if no @context key is present
+    if(!('@context' in context)) {
+      context = {'@context': {}};
     } else {
-      idList.push(id);
+      context = {'@context': context['@context']};
     }
-  }
 
-  _addBlankNodeQuadInfo({quad, component}) {
-    if(component.termType !== 'BlankNode') {
-      return;
+    // append @context URL to context if given
+    if(remoteDoc.contextUrl) {
+      if(!_isArray(context['@context'])) {
+        context['@context'] = [context['@context']];
+      }
+      context['@context'].push(remoteDoc.contextUrl);
     }
-    const id = component.value;
-    const info = this.blankNodeInfo.get(id);
-    if(info) {
-      info.quads.add(quad);
-    } else {
-      this.blankNodeInfo.set(id, {quads: new Set([quad]), hash: null});
-    }
-  }
 
-  _addRelatedBlankNodeHash(
-    {quad, component, position, id, issuer, hashToRelated}) {
-    if(!(component.termType === 'BlankNode' && component.value !== id)) {
-      return;
-    }
-    // 3.1.1) Set hash to the result of the Hash Related Blank Node
-    // algorithm, passing the blank node identifier for component as
-    // related, quad, path identifier issuer as issuer, and position as
-    // either s, o, or g based on whether component is a subject, object,
-    // graph name, respectively.
-    const related = component.value;
-    const hash = this.hashRelatedBlankNode(
-      related, quad, issuer, position);
-
-    // 3.1.2) Add a mapping of hash to the blank node identifier for
-    // component to hash to related blank nodes map, adding an entry as
-    // necessary.
-    const entries = hashToRelated.get(hash);
-    if(entries) {
-      entries.push(related);
-    } else {
-      hashToRelated.set(hash, [related]);
-    }
-  }
-
-  // canonical ids for 7.1
-  _componentWithCanonicalId(component) {
-    if(component.termType === 'BlankNode' &&
-      !component.value.startsWith(this.canonicalIssuer.prefix)) {
-      // create new BlankNode
-      return {
-        termType: 'BlankNode',
-        value: this.canonicalIssuer.getId(component.value)
-      };
-    }
-    return component;
+    return {context, remoteDoc};
   }
 };
 
-function _stringHashCompare(a, b) {
-  return a.hash < b.hash ? -1 : a.hash > b.hash ? 1 : 0;
+function _throwInvalidLocalContext(ctx) {
+  throw new JsonLdError(
+    'Invalid JSON-LD syntax; @context must be an object.',
+    'jsonld.SyntaxError', {
+      code: 'invalid local context', context: ctx
+    });
+}
+
+/**
+ * Resolve all relative `@context` URLs in the given context by inline
+ * replacing them with absolute URLs.
+ *
+ * @param context the context.
+ * @param base the base IRI to use to resolve relative IRIs.
+ */
+function _resolveContextUrls({context, base}) {
+  if(!context) {
+    return;
+  }
+
+  const ctx = context['@context'];
+
+  if(_isString(ctx)) {
+    context['@context'] = prependBase(base, ctx);
+    return;
+  }
+
+  if(_isArray(ctx)) {
+    for(let i = 0; i < ctx.length; ++i) {
+      const element = ctx[i];
+      if(_isString(element)) {
+        ctx[i] = prependBase(base, element);
+        continue;
+      }
+      if(_isObject(element)) {
+        _resolveContextUrls({context: {'@context': element}, base});
+      }
+    }
+    return;
+  }
+
+  if(!_isObject(ctx)) {
+    // no @context URLs can be found in non-object
+    return;
+  }
+
+  // ctx is an object, resolve any context URLs in terms
+  for(const term in ctx) {
+    _resolveContextUrls({context: ctx[term], base});
+  }
 }
 
 
 /***/ },
 
-/***/ 470
+/***/ 2207
+(module) {
+
+"use strict";
+/*
+ * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
+ */
+
+
+module.exports = class JsonLdError extends Error {
+  /**
+   * Creates a JSON-LD Error.
+   *
+   * @param msg the error message.
+   * @param type the error type.
+   * @param details the error details.
+   */
+  constructor(
+    message = 'An unspecified JSON-LD error occurred.',
+    name = 'jsonld.Error',
+    details = {}) {
+    super(message);
+    this.name = name;
+    this.message = message;
+    this.details = details;
+  }
+};
+
+
+/***/ },
+
+/***/ 5445
+(module) {
+
+"use strict";
+/*
+ * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
+ */
+
+
+module.exports = jsonld => {
+  class JsonLdProcessor {
+    toString() {
+      return '[object JsonLdProcessor]';
+    }
+  }
+  Object.defineProperty(JsonLdProcessor, 'prototype', {
+    writable: false,
+    enumerable: false
+  });
+  Object.defineProperty(JsonLdProcessor.prototype, 'constructor', {
+    writable: true,
+    enumerable: false,
+    configurable: true,
+    value: JsonLdProcessor
+  });
+
+  // The Web IDL test harness will check the number of parameters defined in
+  // the functions below. The number of parameters must exactly match the
+  // required (non-optional) parameters of the JsonLdProcessor interface as
+  // defined here:
+  // https://www.w3.org/TR/json-ld-api/#the-jsonldprocessor-interface
+
+  JsonLdProcessor.compact = function(input, ctx) {
+    if(arguments.length < 2) {
+      return Promise.reject(
+        new TypeError('Could not compact, too few arguments.'));
+    }
+    return jsonld.compact(input, ctx);
+  };
+  JsonLdProcessor.expand = function(input) {
+    if(arguments.length < 1) {
+      return Promise.reject(
+        new TypeError('Could not expand, too few arguments.'));
+    }
+    return jsonld.expand(input);
+  };
+  JsonLdProcessor.flatten = function(input) {
+    if(arguments.length < 1) {
+      return Promise.reject(
+        new TypeError('Could not flatten, too few arguments.'));
+    }
+    return jsonld.flatten(input);
+  };
+
+  return JsonLdProcessor;
+};
+
+
+/***/ },
+
+/***/ 8229
 (module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
@@ -554,317 +419,92 @@ function _stringHashCompare(a, b) {
  */
 
 
-const types = __webpack_require__(7382);
-
-const api = {};
-module.exports = api;
-
-// define URL parser
-// parseUri 1.2.2
-// (c) Steven Levithan <stevenlevithan.com>
-// MIT License
-// with local jsonld.js modifications
-api.parsers = {
-  simple: {
-    // RFC 3986 basic parts
-    keys: [
-      'href', 'scheme', 'authority', 'path', 'query', 'fragment'
-    ],
-    /* eslint-disable-next-line max-len */
-    regex: /^(?:([^:\/?#]+):)?(?:\/\/([^\/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?/
-  },
-  full: {
-    keys: [
-      'href', 'protocol', 'scheme', 'authority', 'auth', 'user', 'password',
-      'hostname', 'port', 'path', 'directory', 'file', 'query', 'fragment'
-    ],
-    /* eslint-disable-next-line max-len */
-    regex: /^(([a-zA-Z][a-zA-Z0-9+-.]*):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?(?:(((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/
-  }
-};
-api.parse = (str, parser) => {
-  const parsed = {};
-  const o = api.parsers[parser || 'full'];
-  const m = o.regex.exec(str);
-  let i = o.keys.length;
-  while(i--) {
-    parsed[o.keys[i]] = (m[i] === undefined) ? null : m[i];
-  }
-
-  // remove default ports in found in URLs
-  if((parsed.scheme === 'https' && parsed.port === '443') ||
-    (parsed.scheme === 'http' && parsed.port === '80')) {
-    parsed.href = parsed.href.replace(':' + parsed.port, '');
-    parsed.authority = parsed.authority.replace(':' + parsed.port, '');
-    parsed.port = null;
-  }
-
-  parsed.normalizedPath = api.removeDotSegments(parsed.path);
-  return parsed;
-};
-
-/**
- * Prepends a base IRI to the given relative IRI.
- *
- * @param base the base IRI.
- * @param iri the relative IRI.
- *
- * @return the absolute IRI.
- */
-api.prependBase = (base, iri) => {
-  // skip IRI processing
-  if(base === null) {
-    return iri;
-  }
-  // already an absolute IRI
-  if(api.isAbsolute(iri)) {
-    return iri;
-  }
-
-  // parse base if it is a string
-  if(!base || types.isString(base)) {
-    base = api.parse(base || '');
-  }
-
-  // parse given IRI
-  const rel = api.parse(iri);
-
-  // per RFC3986 5.2.2
-  const transform = {
-    protocol: base.protocol || ''
-  };
-
-  if(rel.authority !== null) {
-    transform.authority = rel.authority;
-    transform.path = rel.path;
-    transform.query = rel.query;
-  } else {
-    transform.authority = base.authority;
-
-    if(rel.path === '') {
-      transform.path = base.path;
-      if(rel.query !== null) {
-        transform.query = rel.query;
-      } else {
-        transform.query = base.query;
-      }
-    } else {
-      if(rel.path.indexOf('/') === 0) {
-        // IRI represents an absolute path
-        transform.path = rel.path;
-      } else {
-        // merge paths
-        let path = base.path;
-
-        // append relative path to the end of the last directory from base
-        path = path.substr(0, path.lastIndexOf('/') + 1);
-        if((path.length > 0 || base.authority) && path.substr(-1) !== '/') {
-          path += '/';
-        }
-        path += rel.path;
-
-        transform.path = path;
-      }
-      transform.query = rel.query;
-    }
-  }
-
-  if(rel.path !== '') {
-    // remove slashes and dots in path
-    transform.path = api.removeDotSegments(transform.path);
-  }
-
-  // construct URL
-  let rval = transform.protocol;
-  if(transform.authority !== null) {
-    rval += '//' + transform.authority;
-  }
-  rval += transform.path;
-  if(transform.query !== null) {
-    rval += '?' + transform.query;
-  }
-  if(rel.fragment !== null) {
-    rval += '#' + rel.fragment;
-  }
-
-  // handle empty base
-  if(rval === '') {
-    rval = './';
-  }
-
-  return rval;
-};
-
-/**
- * Removes a base IRI from the given absolute IRI.
- *
- * @param base the base IRI.
- * @param iri the absolute IRI.
- *
- * @return the relative IRI if relative to base, otherwise the absolute IRI.
- */
-api.removeBase = (base, iri) => {
-  // skip IRI processing
-  if(base === null) {
-    return iri;
-  }
-
-  if(!base || types.isString(base)) {
-    base = api.parse(base || '');
-  }
-
-  // establish base root
-  let root = '';
-  if(base.href !== '') {
-    root += (base.protocol || '') + '//' + (base.authority || '');
-  } else if(iri.indexOf('//')) {
-    // support network-path reference with empty base
-    root += '//';
-  }
-
-  // IRI not relative to base
-  if(iri.indexOf(root) !== 0) {
-    return iri;
-  }
-
-  // remove root from IRI and parse remainder
-  const rel = api.parse(iri.substr(root.length));
-
-  // remove path segments that match (do not remove last segment unless there
-  // is a hash or query)
-  const baseSegments = base.normalizedPath.split('/');
-  const iriSegments = rel.normalizedPath.split('/');
-  const last = (rel.fragment || rel.query) ? 0 : 1;
-  while(baseSegments.length > 0 && iriSegments.length > last) {
-    if(baseSegments[0] !== iriSegments[0]) {
-      break;
-    }
-    baseSegments.shift();
-    iriSegments.shift();
-  }
-
-  // use '../' for each non-matching base segment
-  let rval = '';
-  if(baseSegments.length > 0) {
-    // don't count the last segment (if it ends with '/' last path doesn't
-    // count and if it doesn't end with '/' it isn't a path)
-    baseSegments.pop();
-    for(let i = 0; i < baseSegments.length; ++i) {
-      rval += '../';
-    }
-  }
-
-  // prepend remaining segments
-  rval += iriSegments.join('/');
-
-  // add query and hash
-  if(rel.query !== null) {
-    rval += '?' + rel.query;
-  }
-  if(rel.fragment !== null) {
-    rval += '#' + rel.fragment;
-  }
-
-  // handle empty base
-  if(rval === '') {
-    rval = './';
-  }
-
-  return rval;
-};
-
-/**
- * Removes dot segments from a URL path.
- *
- * @param path the path to remove dot segments from.
- */
-api.removeDotSegments = path => {
-  // RFC 3986 5.2.4 (reworked)
-
-  // empty path shortcut
-  if(path.length === 0) {
-    return '';
-  }
-
-  const input = path.split('/');
-  const output = [];
-
-  while(input.length > 0) {
-    const next = input.shift();
-    const done = input.length === 0;
-
-    if(next === '.') {
-      if(done) {
-        // ensure output has trailing /
-        output.push('');
-      }
-      continue;
-    }
-
-    if(next === '..') {
-      output.pop();
-      if(done) {
-        // ensure output has trailing /
-        output.push('');
-      }
-      continue;
-    }
-
-    output.push(next);
-  }
-
-  // if path was absolute, ensure output has leading /
-  if(path[0] === '/' && output.length > 0 && output[0] !== '') {
-    output.unshift('');
-  }
-  if(output.length === 1 && output[0] === '') {
-    return '/';
-  }
-
-  return output.join('/');
-};
-
-// TODO: time better isAbsolute/isRelative checks using full regexes:
-// http://jmrware.com/articles/2009/uri_regexp/URI_regex.html
-
-// regex to check for absolute IRI (starting scheme and ':') or blank node IRI
-const isAbsoluteRegex = /^([A-Za-z][A-Za-z0-9+-.]*|_):[^\s]*$/;
-
-/**
- * Returns true if the given value is an absolute IRI or blank node IRI, false
- * if not.
- * Note: This weak check only checks for a correct starting scheme.
- *
- * @param v the value to check.
- *
- * @return true if the value is an absolute IRI, false if not.
- */
-api.isAbsolute = v => types.isString(v) && isAbsoluteRegex.test(v);
-
-/**
- * Returns true if the given value is a relative IRI, false if not.
- * Note: this is a weak check.
- *
- * @param v the value to check.
- *
- * @return true if the value is a relative IRI, false if not.
- */
-api.isRelative = v => types.isString(v);
+// TODO: move `NQuads` to its own package
+module.exports = __webpack_require__(989).NQuads;
 
 
 /***/ },
 
-/***/ 989
+/***/ 3743
+(module) {
+
+"use strict";
+/*
+ * Copyright (c) 2017-2019 Digital Bazaar, Inc. All rights reserved.
+ */
+
+
+module.exports = class RequestQueue {
+  /**
+   * Creates a simple queue for requesting documents.
+   */
+  constructor() {
+    this._requests = {};
+  }
+
+  wrapLoader(loader) {
+    const self = this;
+    self._loader = loader;
+    return function(/* url */) {
+      return self.add.apply(self, arguments);
+    };
+  }
+
+  async add(url) {
+    let promise = this._requests[url];
+    if(promise) {
+      // URL already queued, wait for it to load
+      return Promise.resolve(promise);
+    }
+
+    // queue URL and load it
+    promise = this._requests[url] = this._loader(url);
+
+    try {
+      return await promise;
+    } finally {
+      delete this._requests[url];
+    }
+  }
+};
+
+
+/***/ },
+
+/***/ 7532
 (module, __unused_webpack_exports, __webpack_require__) {
 
-/**
- * An implementation of the RDF Dataset Normalization specification.
- *
- * @author Dave Longley
- *
- * Copyright 2010-2021 Digital Bazaar, Inc.
+"use strict";
+/*
+ * Copyright (c) 2019 Digital Bazaar, Inc. All rights reserved.
  */
-module.exports = __webpack_require__(4005);
+
+
+const LRU = __webpack_require__(1235);
+
+const MAX_ACTIVE_CONTEXTS = 10;
+
+module.exports = class ResolvedContext {
+  /**
+   * Creates a ResolvedContext.
+   *
+   * @param document the context document.
+   */
+  constructor({document}) {
+    this.document = document;
+    // TODO: enable customization of processed context cache
+    // TODO: limit based on size of processed contexts vs. number of them
+    this.cache = new LRU({max: MAX_ACTIVE_CONTEXTS});
+  }
+
+  getProcessed(activeCtx) {
+    return this.cache.get(activeCtx);
+  }
+
+  setProcessed(activeCtx, processedCtx) {
+    this.cache.set(activeCtx, processedCtx);
+  }
+};
 
 
 /***/ },
@@ -2039,796 +1679,42 @@ function _checkNestProperty(activeCtx, nestProperty, options) {
 
 /***/ },
 
-/***/ 1227
+/***/ 9378
 (module) {
 
 "use strict";
-/*!
- * Copyright (c) 2016-2022 Digital Bazaar, Inc. All rights reserved.
+/*
+ * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
 
 
-// eslint-disable-next-line no-unused-vars
-const TERMS = (/* unused pure expression or super */ null && (['subject', 'predicate', 'object', 'graph']));
 const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
-const RDF_LANGSTRING = RDF + 'langString';
-const XSD_STRING = 'http://www.w3.org/2001/XMLSchema#string';
+const XSD = 'http://www.w3.org/2001/XMLSchema#';
 
-const TYPE_NAMED_NODE = 'NamedNode';
-const TYPE_BLANK_NODE = 'BlankNode';
-const TYPE_LITERAL = 'Literal';
-const TYPE_DEFAULT_GRAPH = 'DefaultGraph';
+module.exports = {
+  // TODO: Deprecated and will be removed later. Use LINK_HEADER_CONTEXT.
+  LINK_HEADER_REL: 'http://www.w3.org/ns/json-ld#context',
 
-// build regexes
-const REGEX = {};
-(() => {
-  // https://www.w3.org/TR/n-quads/#sec-grammar
-  // https://www.w3.org/TR/turtle/#grammar-production-BLANK_NODE_LABEL
-  const PN_CHARS_BASE =
-    'A-Z' + 'a-z' +
-    '\u00C0-\u00D6' +
-    '\u00D8-\u00F6' +
-    '\u00F8-\u02FF' +
-    '\u0370-\u037D' +
-    '\u037F-\u1FFF' +
-    '\u200C-\u200D' +
-    '\u2070-\u218F' +
-    '\u2C00-\u2FEF' +
-    '\u3001-\uD7FF' +
-    '\uF900-\uFDCF' +
-    '\uFDF0-\uFFFD';
-    // TODO:
-    //'\u10000-\uEFFFF';
-  const PN_CHARS_U =
-    PN_CHARS_BASE +
-    '_';
-  const PN_CHARS =
-    PN_CHARS_U +
-    '0-9' +
-    '-' +
-    '\u00B7' +
-    '\u0300-\u036F' +
-    '\u203F-\u2040';
-  const BLANK_NODE_LABEL =
-    '_:(' +
-      '(?:[' + PN_CHARS_U + '0-9])' +
-      '(?:(?:[' + PN_CHARS + '.])*(?:[' + PN_CHARS + ']))?' +
-    ')';
-  // Older simple regex: const IRI = '(?:<([^:]+:[^>]*)>)';
-  const UCHAR4 = '\\\\u[0-9A-Fa-f]{4}';
-  const UCHAR8 = '\\\\U[0-9A-Fa-f]{8}';
-  const IRI = '(?:<((?:' +
-    '[^\u0000-\u0020<>"{}|^`\\\\]' + '|' +
-    UCHAR4 + '|' +
-    UCHAR8 +
-    ')*)>)';
-  const bnode = BLANK_NODE_LABEL;
-  const plain = '"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"';
-  const datatype = '(?:\\^\\^' + IRI + ')';
-  const language = '(?:@([a-zA-Z]+(?:-[a-zA-Z0-9]+)*))';
-  const literal = '(?:' + plain + '(?:' + datatype + '|' + language + ')?)';
-  const ws = '[ \\t]+';
-  const wso = '[ \\t]*';
+  LINK_HEADER_CONTEXT: 'http://www.w3.org/ns/json-ld#context',
 
-  // define quad part regexes
-  const subject = '(?:' + IRI + '|' + bnode + ')' + ws;
-  const property = IRI + ws;
-  const object = '(?:' + IRI + '|' + bnode + '|' + literal + ')' + wso;
-  const graphName = '(?:\\.|(?:(?:' + IRI + '|' + bnode + ')' + wso + '\\.))';
+  RDF,
+  RDF_LIST: RDF + 'List',
+  RDF_FIRST: RDF + 'first',
+  RDF_REST: RDF + 'rest',
+  RDF_NIL: RDF + 'nil',
+  RDF_TYPE: RDF + 'type',
+  RDF_PLAIN_LITERAL: RDF + 'PlainLiteral',
+  RDF_XML_LITERAL: RDF + 'XMLLiteral',
+  RDF_JSON_LITERAL: RDF + 'JSON',
+  RDF_OBJECT: RDF + 'object',
+  RDF_LANGSTRING: RDF + 'langString',
 
-  // end of line and empty regexes
-  REGEX.eoln = /(?:\r\n)|(?:\n)|(?:\r)/g;
-  REGEX.empty = new RegExp('^' + wso + '$');
-
-  // full quad regex
-  REGEX.quad = new RegExp(
-    '^' + wso + subject + property + object + graphName + wso + '$');
-})();
-
-module.exports = class NQuads {
-  /**
-   * Parses RDF in the form of N-Quads.
-   *
-   * @param {string} input - The N-Quads input to parse.
-   *
-   * @returns {Array} - An RDF dataset (an array of quads per
-   *   https://rdf.js.org/).
-   */
-  static parse(input) {
-    // build RDF dataset
-    const dataset = [];
-
-    const graphs = {};
-
-    // split N-Quad input into lines
-    const lines = input.split(REGEX.eoln);
-    let lineNumber = 0;
-    for(const line of lines) {
-      lineNumber++;
-
-      // skip empty lines
-      if(REGEX.empty.test(line)) {
-        continue;
-      }
-
-      // parse quad
-      const match = line.match(REGEX.quad);
-      if(match === null) {
-        throw new Error('N-Quads parse error on line ' + lineNumber + '.');
-      }
-
-      // create RDF quad
-      const quad = {subject: null, predicate: null, object: null, graph: null};
-
-      // get subject
-      if(match[1] !== undefined) {
-        quad.subject = {
-          termType: TYPE_NAMED_NODE,
-          value: _iriUnescape(match[1])
-        };
-      } else {
-        quad.subject = {
-          termType: TYPE_BLANK_NODE,
-          value: match[2]
-        };
-      }
-
-      // get predicate
-      quad.predicate = {
-        termType: TYPE_NAMED_NODE,
-        value: _iriUnescape(match[3])
-      };
-
-      // get object
-      if(match[4] !== undefined) {
-        quad.object = {
-          termType: TYPE_NAMED_NODE,
-          value: _iriUnescape(match[4])
-        };
-      } else if(match[5] !== undefined) {
-        quad.object = {
-          termType: TYPE_BLANK_NODE,
-          value: match[5]
-        };
-      } else {
-        quad.object = {
-          termType: TYPE_LITERAL,
-          value: undefined,
-          datatype: {
-            termType: TYPE_NAMED_NODE
-          }
-        };
-        if(match[7] !== undefined) {
-          quad.object.datatype.value = _iriUnescape(match[7]);
-        } else if(match[8] !== undefined) {
-          quad.object.datatype.value = RDF_LANGSTRING;
-          quad.object.language = match[8];
-        } else {
-          quad.object.datatype.value = XSD_STRING;
-        }
-        quad.object.value = _stringLiteralUnescape(match[6]);
-      }
-
-      // get graph
-      if(match[9] !== undefined) {
-        quad.graph = {
-          termType: TYPE_NAMED_NODE,
-          value: _iriUnescape(match[9])
-        };
-      } else if(match[10] !== undefined) {
-        quad.graph = {
-          termType: TYPE_BLANK_NODE,
-          value: match[10]
-        };
-      } else {
-        quad.graph = {
-          termType: TYPE_DEFAULT_GRAPH,
-          value: ''
-        };
-      }
-
-      // only add quad if it is unique in its graph
-      if(!(quad.graph.value in graphs)) {
-        graphs[quad.graph.value] = [quad];
-        dataset.push(quad);
-      } else {
-        let unique = true;
-        const quads = graphs[quad.graph.value];
-        for(const q of quads) {
-          if(_compareTriples(q, quad)) {
-            unique = false;
-            break;
-          }
-        }
-        if(unique) {
-          quads.push(quad);
-          dataset.push(quad);
-        }
-      }
-    }
-
-    return dataset;
-  }
-
-  /**
-   * Converts an RDF dataset to N-Quads.
-   *
-   * @param {Array} dataset - The Array of quads RDF dataset to convert.
-   *
-   * @returns {string} - The N-Quads string.
-   */
-  static serialize(dataset) {
-    const quads = [];
-    for(const quad of dataset) {
-      quads.push(NQuads.serializeQuad(quad));
-    }
-    return quads.sort().join('');
-  }
-
-  /**
-   * Converts RDF quad components to an N-Quad string (a single quad).
-   *
-   * @param {object} s - N-Quad subject component.
-   * @param {object} p - N-Quad predicate component.
-   * @param {object} o - N-Quad object component.
-   * @param {object} g - N-Quad graph component.
-   *
-   * @returns {string} - The N-Quad.
-   */
-  static serializeQuadComponents(s, p, o, g) {
-    let nquad = '';
-
-    // subject can only be NamedNode or BlankNode
-    if(s.termType === TYPE_NAMED_NODE) {
-      nquad += `<${_iriEscape(s.value)}>`;
-    } else {
-      nquad += `_:${s.value}`;
-    }
-
-    // predicate normally a NamedNode, can be a BlankNode in generalized RDF
-    if(p.termType === TYPE_NAMED_NODE) {
-      nquad += ` <${_iriEscape(p.value)}> `;
-    } else {
-      nquad += ` _:${p.value} `;
-    }
-
-    // object is NamedNode, BlankNode, or Literal
-    if(o.termType === TYPE_NAMED_NODE) {
-      nquad += `<${_iriEscape(o.value)}>`;
-    } else if(o.termType === TYPE_BLANK_NODE) {
-      nquad += `_:${o.value}`;
-    } else {
-      nquad += `"${_stringLiteralEscape(o.value)}"`;
-      if(o.datatype.value === RDF_LANGSTRING) {
-        if(o.language) {
-          nquad += `@${o.language}`;
-        }
-      } else if(o.datatype.value !== XSD_STRING) {
-        nquad += `^^<${_iriEscape(o.datatype.value)}>`;
-      }
-    }
-
-    // graph can only be NamedNode or BlankNode (or DefaultGraph, but that
-    // does not add to `nquad`)
-    if(g.termType === TYPE_NAMED_NODE) {
-      nquad += ` <${_iriEscape(g.value)}>`;
-    } else if(g.termType === TYPE_BLANK_NODE) {
-      nquad += ` _:${g.value}`;
-    }
-
-    nquad += ' .\n';
-    return nquad;
-  }
-
-  /**
-   * Converts an RDF quad to an N-Quad string (a single quad).
-   *
-   * @param {object} quad - The RDF quad convert.
-   *
-   * @returns {string} - The N-Quad string.
-   */
-  static serializeQuad(quad) {
-    return NQuads.serializeQuadComponents(
-      quad.subject, quad.predicate, quad.object, quad.graph);
-  }
+  XSD,
+  XSD_BOOLEAN: XSD + 'boolean',
+  XSD_DOUBLE: XSD + 'double',
+  XSD_INTEGER: XSD + 'integer',
+  XSD_STRING: XSD + 'string',
 };
-
-/**
- * Compares two RDF triples for equality.
- *
- * @param {object} t1 - The first triple.
- * @param {object} t2 - The second triple.
- *
- * @returns {boolean} - True if the triples are the same, false if not.
- */
-function _compareTriples(t1, t2) {
-  // compare subject and object types first as it is the quickest check
-  if(!(t1.subject.termType === t2.subject.termType &&
-    t1.object.termType === t2.object.termType)) {
-    return false;
-  }
-  // compare values
-  if(!(t1.subject.value === t2.subject.value &&
-    t1.predicate.value === t2.predicate.value &&
-    t1.object.value === t2.object.value)) {
-    return false;
-  }
-  if(t1.object.termType !== TYPE_LITERAL) {
-    // no `datatype` or `language` to check
-    return true;
-  }
-  return (
-    (t1.object.datatype.termType === t2.object.datatype.termType) &&
-    (t1.object.language === t2.object.language) &&
-    (t1.object.datatype.value === t2.object.datatype.value)
-  );
-}
-
-const _stringLiteralEscapeRegex = /[\u0000-\u001F\u007F"\\]/g;
-const _stringLiteralEscapeMap = [];
-for(let n = 0; n <= 0x7f; ++n) {
-  if(_stringLiteralEscapeRegex.test(String.fromCharCode(n))) {
-    // default UCHAR mapping
-    _stringLiteralEscapeMap[n] =
-      '\\u' + n.toString(16).toUpperCase().padStart(4, '0');
-    // reset regex
-    _stringLiteralEscapeRegex.lastIndex = 0;
-  }
-}
-// special ECHAR mappings
-_stringLiteralEscapeMap['\b'.codePointAt(0)] = '\\b';
-_stringLiteralEscapeMap['\t'.codePointAt(0)] = '\\t';
-_stringLiteralEscapeMap['\n'.codePointAt(0)] = '\\n';
-_stringLiteralEscapeMap['\f'.codePointAt(0)] = '\\f';
-_stringLiteralEscapeMap['\r'.codePointAt(0)] = '\\r';
-_stringLiteralEscapeMap['"' .codePointAt(0)] = '\\"';
-_stringLiteralEscapeMap['\\'.codePointAt(0)] = '\\\\';
-
-/**
- * Escape string to N-Quads literal.
- *
- * @param {string} s - String to escape.
- *
- * @returns {string} - Escaped N-Quads literal.
- */
-function _stringLiteralEscape(s) {
-  if(!_stringLiteralEscapeRegex.test(s)) {
-    return s;
-  }
-  return s.replace(_stringLiteralEscapeRegex, function(match) {
-    return _stringLiteralEscapeMap[match.codePointAt(0)];
-  });
-}
-
-const _stringLiteralUnescapeRegex =
-  /(?:\\([btnfr"'\\]))|(?:\\u([0-9A-Fa-f]{4}))|(?:\\U([0-9A-Fa-f]{8}))/g;
-
-/**
- * Unescape N-Quads literal to string.
- *
- * @param {string} s - String to unescape.
- *
- * @returns {string} - Unescaped N-Quads literal.
- */
-function _stringLiteralUnescape(s) {
-  if(!_stringLiteralUnescapeRegex.test(s)) {
-    return s;
-  }
-  return s.replace(_stringLiteralUnescapeRegex, function(match, code, u, U) {
-    if(code) {
-      switch(code) {
-        case 'b': return '\b';
-        case 't': return '\t';
-        case 'n': return '\n';
-        case 'f': return '\f';
-        case 'r': return '\r';
-        case '"': return '"';
-        case '\'': return '\'';
-        case '\\': return '\\';
-      }
-    }
-    if(u) {
-      return String.fromCharCode(parseInt(u, 16));
-    }
-    if(U) {
-      return String.fromCodePoint(parseInt(U, 16));
-    }
-  });
-}
-
-const _iriEscapeRegex = /[\u0000-\u0020<>"{}|^`\\]/g;
-const _iriEscapeRegexMap = [];
-for(let n = 0; n <= 0x7f; ++n) {
-  if(_iriEscapeRegex.test(String.fromCharCode(n))) {
-    // UCHAR mapping
-    _iriEscapeRegexMap[n] =
-      '\\u' + n.toString(16).toUpperCase().padStart(4, '0');
-    // reset regex
-    _iriEscapeRegex.lastIndex = 0;
-  }
-}
-
-/**
- * Escape IRI to N-Quads IRI.
- *
- * @param {string} s - IRI to escape.
- *
- * @returns {string} - Escaped N-Quads IRI.
- */
-function _iriEscape(s) {
-  if(!_iriEscapeRegex.test(s)) {
-    return s;
-  }
-  return s.replace(_iriEscapeRegex, function(match) {
-    return _iriEscapeRegexMap[match.codePointAt(0)];
-  });
-}
-
-const _iriUnescapeRegex =
-  /(?:\\u([0-9A-Fa-f]{4}))|(?:\\U([0-9A-Fa-f]{8}))/g;
-
-/**
- * Unescape N-Quads IRI to IRI.
- *
- * @param {string} s - IRI to unescape.
- *
- * @returns {string} - Unescaped N-Quads IRI.
- */
-function _iriUnescape(s) {
-  if(!_iriUnescapeRegex.test(s)) {
-    return s;
-  }
-  return s.replace(_iriUnescapeRegex, function(match, u, U) {
-    if(u) {
-      return String.fromCharCode(parseInt(u, 16));
-    }
-    if(U) {
-      return String.fromCodePoint(parseInt(U, 16));
-    }
-  });
-}
-
-
-/***/ },
-
-/***/ 1235
-(module, __unused_webpack_exports, __webpack_require__) {
-
-"use strict";
-
-
-// A linked list to keep track of recently-used-ness
-const Yallist = __webpack_require__(6717)
-
-const MAX = Symbol('max')
-const LENGTH = Symbol('length')
-const LENGTH_CALCULATOR = Symbol('lengthCalculator')
-const ALLOW_STALE = Symbol('allowStale')
-const MAX_AGE = Symbol('maxAge')
-const DISPOSE = Symbol('dispose')
-const NO_DISPOSE_ON_SET = Symbol('noDisposeOnSet')
-const LRU_LIST = Symbol('lruList')
-const CACHE = Symbol('cache')
-const UPDATE_AGE_ON_GET = Symbol('updateAgeOnGet')
-
-const naiveLength = () => 1
-
-// lruList is a yallist where the head is the youngest
-// item, and the tail is the oldest.  the list contains the Hit
-// objects as the entries.
-// Each Hit object has a reference to its Yallist.Node.  This
-// never changes.
-//
-// cache is a Map (or PseudoMap) that matches the keys to
-// the Yallist.Node object.
-class LRUCache {
-  constructor (options) {
-    if (typeof options === 'number')
-      options = { max: options }
-
-    if (!options)
-      options = {}
-
-    if (options.max && (typeof options.max !== 'number' || options.max < 0))
-      throw new TypeError('max must be a non-negative number')
-    // Kind of weird to have a default max of Infinity, but oh well.
-    const max = this[MAX] = options.max || Infinity
-
-    const lc = options.length || naiveLength
-    this[LENGTH_CALCULATOR] = (typeof lc !== 'function') ? naiveLength : lc
-    this[ALLOW_STALE] = options.stale || false
-    if (options.maxAge && typeof options.maxAge !== 'number')
-      throw new TypeError('maxAge must be a number')
-    this[MAX_AGE] = options.maxAge || 0
-    this[DISPOSE] = options.dispose
-    this[NO_DISPOSE_ON_SET] = options.noDisposeOnSet || false
-    this[UPDATE_AGE_ON_GET] = options.updateAgeOnGet || false
-    this.reset()
-  }
-
-  // resize the cache when the max changes.
-  set max (mL) {
-    if (typeof mL !== 'number' || mL < 0)
-      throw new TypeError('max must be a non-negative number')
-
-    this[MAX] = mL || Infinity
-    trim(this)
-  }
-  get max () {
-    return this[MAX]
-  }
-
-  set allowStale (allowStale) {
-    this[ALLOW_STALE] = !!allowStale
-  }
-  get allowStale () {
-    return this[ALLOW_STALE]
-  }
-
-  set maxAge (mA) {
-    if (typeof mA !== 'number')
-      throw new TypeError('maxAge must be a non-negative number')
-
-    this[MAX_AGE] = mA
-    trim(this)
-  }
-  get maxAge () {
-    return this[MAX_AGE]
-  }
-
-  // resize the cache when the lengthCalculator changes.
-  set lengthCalculator (lC) {
-    if (typeof lC !== 'function')
-      lC = naiveLength
-
-    if (lC !== this[LENGTH_CALCULATOR]) {
-      this[LENGTH_CALCULATOR] = lC
-      this[LENGTH] = 0
-      this[LRU_LIST].forEach(hit => {
-        hit.length = this[LENGTH_CALCULATOR](hit.value, hit.key)
-        this[LENGTH] += hit.length
-      })
-    }
-    trim(this)
-  }
-  get lengthCalculator () { return this[LENGTH_CALCULATOR] }
-
-  get length () { return this[LENGTH] }
-  get itemCount () { return this[LRU_LIST].length }
-
-  rforEach (fn, thisp) {
-    thisp = thisp || this
-    for (let walker = this[LRU_LIST].tail; walker !== null;) {
-      const prev = walker.prev
-      forEachStep(this, fn, walker, thisp)
-      walker = prev
-    }
-  }
-
-  forEach (fn, thisp) {
-    thisp = thisp || this
-    for (let walker = this[LRU_LIST].head; walker !== null;) {
-      const next = walker.next
-      forEachStep(this, fn, walker, thisp)
-      walker = next
-    }
-  }
-
-  keys () {
-    return this[LRU_LIST].toArray().map(k => k.key)
-  }
-
-  values () {
-    return this[LRU_LIST].toArray().map(k => k.value)
-  }
-
-  reset () {
-    if (this[DISPOSE] &&
-        this[LRU_LIST] &&
-        this[LRU_LIST].length) {
-      this[LRU_LIST].forEach(hit => this[DISPOSE](hit.key, hit.value))
-    }
-
-    this[CACHE] = new Map() // hash of items by key
-    this[LRU_LIST] = new Yallist() // list of items in order of use recency
-    this[LENGTH] = 0 // length of items in the list
-  }
-
-  dump () {
-    return this[LRU_LIST].map(hit =>
-      isStale(this, hit) ? false : {
-        k: hit.key,
-        v: hit.value,
-        e: hit.now + (hit.maxAge || 0)
-      }).toArray().filter(h => h)
-  }
-
-  dumpLru () {
-    return this[LRU_LIST]
-  }
-
-  set (key, value, maxAge) {
-    maxAge = maxAge || this[MAX_AGE]
-
-    if (maxAge && typeof maxAge !== 'number')
-      throw new TypeError('maxAge must be a number')
-
-    const now = maxAge ? Date.now() : 0
-    const len = this[LENGTH_CALCULATOR](value, key)
-
-    if (this[CACHE].has(key)) {
-      if (len > this[MAX]) {
-        del(this, this[CACHE].get(key))
-        return false
-      }
-
-      const node = this[CACHE].get(key)
-      const item = node.value
-
-      // dispose of the old one before overwriting
-      // split out into 2 ifs for better coverage tracking
-      if (this[DISPOSE]) {
-        if (!this[NO_DISPOSE_ON_SET])
-          this[DISPOSE](key, item.value)
-      }
-
-      item.now = now
-      item.maxAge = maxAge
-      item.value = value
-      this[LENGTH] += len - item.length
-      item.length = len
-      this.get(key)
-      trim(this)
-      return true
-    }
-
-    const hit = new Entry(key, value, len, now, maxAge)
-
-    // oversized objects fall out of cache automatically.
-    if (hit.length > this[MAX]) {
-      if (this[DISPOSE])
-        this[DISPOSE](key, value)
-
-      return false
-    }
-
-    this[LENGTH] += hit.length
-    this[LRU_LIST].unshift(hit)
-    this[CACHE].set(key, this[LRU_LIST].head)
-    trim(this)
-    return true
-  }
-
-  has (key) {
-    if (!this[CACHE].has(key)) return false
-    const hit = this[CACHE].get(key).value
-    return !isStale(this, hit)
-  }
-
-  get (key) {
-    return get(this, key, true)
-  }
-
-  peek (key) {
-    return get(this, key, false)
-  }
-
-  pop () {
-    const node = this[LRU_LIST].tail
-    if (!node)
-      return null
-
-    del(this, node)
-    return node.value
-  }
-
-  del (key) {
-    del(this, this[CACHE].get(key))
-  }
-
-  load (arr) {
-    // reset the cache
-    this.reset()
-
-    const now = Date.now()
-    // A previous serialized cache has the most recent items first
-    for (let l = arr.length - 1; l >= 0; l--) {
-      const hit = arr[l]
-      const expiresAt = hit.e || 0
-      if (expiresAt === 0)
-        // the item was created without expiration in a non aged cache
-        this.set(hit.k, hit.v)
-      else {
-        const maxAge = expiresAt - now
-        // dont add already expired items
-        if (maxAge > 0) {
-          this.set(hit.k, hit.v, maxAge)
-        }
-      }
-    }
-  }
-
-  prune () {
-    this[CACHE].forEach((value, key) => get(this, key, false))
-  }
-}
-
-const get = (self, key, doUse) => {
-  const node = self[CACHE].get(key)
-  if (node) {
-    const hit = node.value
-    if (isStale(self, hit)) {
-      del(self, node)
-      if (!self[ALLOW_STALE])
-        return undefined
-    } else {
-      if (doUse) {
-        if (self[UPDATE_AGE_ON_GET])
-          node.value.now = Date.now()
-        self[LRU_LIST].unshiftNode(node)
-      }
-    }
-    return hit.value
-  }
-}
-
-const isStale = (self, hit) => {
-  if (!hit || (!hit.maxAge && !self[MAX_AGE]))
-    return false
-
-  const diff = Date.now() - hit.now
-  return hit.maxAge ? diff > hit.maxAge
-    : self[MAX_AGE] && (diff > self[MAX_AGE])
-}
-
-const trim = self => {
-  if (self[LENGTH] > self[MAX]) {
-    for (let walker = self[LRU_LIST].tail;
-      self[LENGTH] > self[MAX] && walker !== null;) {
-      // We know that we're about to delete this one, and also
-      // what the next least recently used key will be, so just
-      // go ahead and set it now.
-      const prev = walker.prev
-      del(self, walker)
-      walker = prev
-    }
-  }
-}
-
-const del = (self, node) => {
-  if (node) {
-    const hit = node.value
-    if (self[DISPOSE])
-      self[DISPOSE](hit.key, hit.value)
-
-    self[LENGTH] -= hit.length
-    self[CACHE].delete(hit.key)
-    self[LRU_LIST].removeNode(node)
-  }
-}
-
-class Entry {
-  constructor (key, value, length, now, maxAge) {
-    this.key = key
-    this.value = value
-    this.length = length
-    this.now = now
-    this.maxAge = maxAge || 0
-  }
-}
-
-const forEachStep = (self, fn, node, thisp) => {
-  let hit = node.value
-  if (isStale(self, hit)) {
-    del(self, node)
-    if (!self[ALLOW_STALE])
-      hit = undefined
-  }
-  if (hit)
-    fn.call(thisp, hit.value, hit.key, self)
-}
-
-module.exports = LRUCache
 
 
 /***/ },
@@ -4448,8 +3334,8 @@ function _deepCompare(x1, x2) {
 
 /***/ },
 
-/***/ 2207
-(module) {
+/***/ 6957
+(module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 /*
@@ -4457,24 +3343,118 @@ function _deepCompare(x1, x2) {
  */
 
 
-module.exports = class JsonLdError extends Error {
-  /**
-   * Creates a JSON-LD Error.
-   *
-   * @param msg the error message.
-   * @param type the error type.
-   * @param details the error details.
-   */
-  constructor(
-    message = 'An unspecified JSON-LD error occurred.',
-    name = 'jsonld.Error',
-    details = {}) {
-    super(message);
-    this.name = name;
-    this.message = message;
-    this.details = details;
+const {parseLinkHeader, buildHeaders} = __webpack_require__(9263);
+const {LINK_HEADER_CONTEXT} = __webpack_require__(9378);
+const JsonLdError = __webpack_require__(2207);
+const RequestQueue = __webpack_require__(3743);
+const {prependBase} = __webpack_require__(470);
+
+const REGEX_LINK_HEADER = /(^|(\r\n))link:/i;
+
+/**
+ * Creates a built-in XMLHttpRequest document loader.
+ *
+ * @param options the options to use:
+ *          secure: require all URLs to use HTTPS.
+ *          headers: an object (map) of headers which will be passed as request
+ *            headers for the requested document. Accept is not allowed.
+ *          [xhr]: the XMLHttpRequest API to use.
+ *
+ * @return the XMLHttpRequest document loader.
+ */
+module.exports = ({
+  secure,
+  headers = {},
+  xhr
+} = {headers: {}}) => {
+  headers = buildHeaders(headers);
+  const queue = new RequestQueue();
+  return queue.wrapLoader(loader);
+
+  async function loader(url) {
+    if(url.indexOf('http:') !== 0 && url.indexOf('https:') !== 0) {
+      throw new JsonLdError(
+        'URL could not be dereferenced; only "http" and "https" URLs are ' +
+        'supported.',
+        'jsonld.InvalidUrl', {code: 'loading document failed', url});
+    }
+    if(secure && url.indexOf('https') !== 0) {
+      throw new JsonLdError(
+        'URL could not be dereferenced; secure mode is enabled and ' +
+        'the URL\'s scheme is not "https".',
+        'jsonld.InvalidUrl', {code: 'loading document failed', url});
+    }
+
+    let req;
+    try {
+      req = await _get(xhr, url, headers);
+    } catch(e) {
+      throw new JsonLdError(
+        'URL could not be dereferenced, an error occurred.',
+        'jsonld.LoadDocumentError',
+        {code: 'loading document failed', url, cause: e});
+    }
+
+    if(req.status >= 400) {
+      throw new JsonLdError(
+        'URL could not be dereferenced: ' + req.statusText,
+        'jsonld.LoadDocumentError', {
+          code: 'loading document failed',
+          url,
+          httpStatusCode: req.status
+        });
+    }
+
+    let doc = {contextUrl: null, documentUrl: url, document: req.response};
+    let alternate = null;
+
+    // handle Link Header (avoid unsafe header warning by existence testing)
+    const contentType = req.getResponseHeader('Content-Type');
+    let linkHeader;
+    if(REGEX_LINK_HEADER.test(req.getAllResponseHeaders())) {
+      linkHeader = req.getResponseHeader('Link');
+    }
+    if(linkHeader && contentType !== 'application/ld+json') {
+      // only 1 related link header permitted
+      const linkHeaders = parseLinkHeader(linkHeader);
+      const linkedContext = linkHeaders[LINK_HEADER_CONTEXT];
+      if(Array.isArray(linkedContext)) {
+        throw new JsonLdError(
+          'URL could not be dereferenced, it has more than one ' +
+          'associated HTTP Link Header.',
+          'jsonld.InvalidUrl',
+          {code: 'multiple context link headers', url});
+      }
+      if(linkedContext) {
+        doc.contextUrl = linkedContext.target;
+      }
+
+      // "alternate" link header is a redirect
+      alternate = linkHeaders.alternate;
+      if(alternate &&
+        alternate.type == 'application/ld+json' &&
+        !(contentType || '').match(/^application\/(\w*\+)?json$/)) {
+        doc = await loader(prependBase(url, alternate.target));
+      }
+    }
+
+    return doc;
   }
 };
+
+function _get(xhr, url, headers) {
+  xhr = xhr || XMLHttpRequest;
+  const req = new xhr();
+  return new Promise((resolve, reject) => {
+    req.onload = () => resolve(req);
+    req.onerror = err => reject(err);
+    req.open('GET', url, true);
+    for(const k in headers) {
+      req.setRequestHeader(k, headers[k]);
+    }
+    req.send();
+  });
+}
 
 
 /***/ },
@@ -4662,1230 +3642,6 @@ api.unhandledEventHandler = function unhandledEventHandler({event}) {
  */
 api.setDefaultEventHandler = function({eventHandler} = {}) {
   api.defaultEventHandler = eventHandler ? _asArray(eventHandler) : null;
-};
-
-
-/***/ },
-
-/***/ 2341
-(module) {
-
-"use strict";
-/* jshint esversion: 6 */
-/* jslint node: true */
-
-
-module.exports = function serialize (object) {
-  if (typeof object === 'number' && isNaN(object)) {
-    throw new Error('NaN is not allowed');
-  }
-
-  if (typeof object === 'number' && !isFinite(object)) {
-    throw new Error('Infinity is not allowed');
-  }
-
-  if (object === null || typeof object !== 'object') {
-    return JSON.stringify(object);
-  }
-
-  if (object.toJSON instanceof Function) {
-    return serialize(object.toJSON());
-  }
-
-  if (Array.isArray(object)) {
-    const values = object.reduce((t, cv, ci) => {
-      const comma = ci === 0 ? '' : ',';
-      const value = cv === undefined || typeof cv === 'symbol' ? null : cv;
-      return `${t}${comma}${serialize(value)}`;
-    }, '');
-    return `[${values}]`;
-  }
-
-  const values = Object.keys(object).sort().reduce((t, cv) => {
-    if (object[cv] === undefined ||
-        typeof object[cv] === 'symbol') {
-      return t;
-    }
-    const comma = t.length === 0 ? '' : ',';
-    return `${t}${comma}${serialize(cv)}:${serialize(object[cv])}`;
-  }, '');
-  return `{${values}}`;
-};
-
-
-/***/ },
-
-/***/ 2791
-(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
-
-(function (global, undefined) {
-    "use strict";
-
-    if (global.setImmediate) {
-        return;
-    }
-
-    var nextHandle = 1; // Spec says greater than zero
-    var tasksByHandle = {};
-    var currentlyRunningATask = false;
-    var doc = global.document;
-    var registerImmediate;
-
-    function setImmediate(callback) {
-      // Callback can either be a function or a string
-      if (typeof callback !== "function") {
-        callback = new Function("" + callback);
-      }
-      // Copy function arguments
-      var args = new Array(arguments.length - 1);
-      for (var i = 0; i < args.length; i++) {
-          args[i] = arguments[i + 1];
-      }
-      // Store and register the task
-      var task = { callback: callback, args: args };
-      tasksByHandle[nextHandle] = task;
-      registerImmediate(nextHandle);
-      return nextHandle++;
-    }
-
-    function clearImmediate(handle) {
-        delete tasksByHandle[handle];
-    }
-
-    function run(task) {
-        var callback = task.callback;
-        var args = task.args;
-        switch (args.length) {
-        case 0:
-            callback();
-            break;
-        case 1:
-            callback(args[0]);
-            break;
-        case 2:
-            callback(args[0], args[1]);
-            break;
-        case 3:
-            callback(args[0], args[1], args[2]);
-            break;
-        default:
-            callback.apply(undefined, args);
-            break;
-        }
-    }
-
-    function runIfPresent(handle) {
-        // From the spec: "Wait until any invocations of this algorithm started before this one have completed."
-        // So if we're currently running a task, we'll need to delay this invocation.
-        if (currentlyRunningATask) {
-            // Delay by doing a setTimeout. setImmediate was tried instead, but in Firefox 7 it generated a
-            // "too much recursion" error.
-            setTimeout(runIfPresent, 0, handle);
-        } else {
-            var task = tasksByHandle[handle];
-            if (task) {
-                currentlyRunningATask = true;
-                try {
-                    run(task);
-                } finally {
-                    clearImmediate(handle);
-                    currentlyRunningATask = false;
-                }
-            }
-        }
-    }
-
-    function installNextTickImplementation() {
-        registerImmediate = function(handle) {
-            process.nextTick(function () { runIfPresent(handle); });
-        };
-    }
-
-    function canUsePostMessage() {
-        // The test against `importScripts` prevents this implementation from being installed inside a web worker,
-        // where `global.postMessage` means something completely different and can't be used for this purpose.
-        if (global.postMessage && !global.importScripts) {
-            var postMessageIsAsynchronous = true;
-            var oldOnMessage = global.onmessage;
-            global.onmessage = function() {
-                postMessageIsAsynchronous = false;
-            };
-            global.postMessage("", "*");
-            global.onmessage = oldOnMessage;
-            return postMessageIsAsynchronous;
-        }
-    }
-
-    function installPostMessageImplementation() {
-        // Installs an event handler on `global` for the `message` event: see
-        // * https://developer.mozilla.org/en/DOM/window.postMessage
-        // * http://www.whatwg.org/specs/web-apps/current-work/multipage/comms.html#crossDocumentMessages
-
-        var messagePrefix = "setImmediate$" + Math.random() + "$";
-        var onGlobalMessage = function(event) {
-            if (event.source === global &&
-                typeof event.data === "string" &&
-                event.data.indexOf(messagePrefix) === 0) {
-                runIfPresent(+event.data.slice(messagePrefix.length));
-            }
-        };
-
-        if (global.addEventListener) {
-            global.addEventListener("message", onGlobalMessage, false);
-        } else {
-            global.attachEvent("onmessage", onGlobalMessage);
-        }
-
-        registerImmediate = function(handle) {
-            global.postMessage(messagePrefix + handle, "*");
-        };
-    }
-
-    function installMessageChannelImplementation() {
-        var channel = new MessageChannel();
-        channel.port1.onmessage = function(event) {
-            var handle = event.data;
-            runIfPresent(handle);
-        };
-
-        registerImmediate = function(handle) {
-            channel.port2.postMessage(handle);
-        };
-    }
-
-    function installReadyStateChangeImplementation() {
-        var html = doc.documentElement;
-        registerImmediate = function(handle) {
-            // Create a <script> element; its readystatechange event will be fired asynchronously once it is inserted
-            // into the document. Do so, thus queuing up the task. Remember to clean up once it's been called.
-            var script = doc.createElement("script");
-            script.onreadystatechange = function () {
-                runIfPresent(handle);
-                script.onreadystatechange = null;
-                html.removeChild(script);
-                script = null;
-            };
-            html.appendChild(script);
-        };
-    }
-
-    function installSetTimeoutImplementation() {
-        registerImmediate = function(handle) {
-            setTimeout(runIfPresent, 0, handle);
-        };
-    }
-
-    // If supported, we should attach to the prototype of global, since that is where setTimeout et al. live.
-    var attachTo = Object.getPrototypeOf && Object.getPrototypeOf(global);
-    attachTo = attachTo && attachTo.setTimeout ? attachTo : global;
-
-    // Don't get fooled by e.g. browserify environments.
-    if ({}.toString.call(global.process) === "[object process]") {
-        // For Node.js before 0.9
-        installNextTickImplementation();
-
-    } else if (canUsePostMessage()) {
-        // For non-IE10 modern browsers
-        installPostMessageImplementation();
-
-    } else if (global.MessageChannel) {
-        // For web workers, where supported
-        installMessageChannelImplementation();
-
-    } else if (doc && "onreadystatechange" in doc.createElement("script")) {
-        // For IE 6–8
-        installReadyStateChangeImplementation();
-
-    } else {
-        // For older browsers
-        installSetTimeoutImplementation();
-    }
-
-    attachTo.setImmediate = setImmediate;
-    attachTo.clearImmediate = clearImmediate;
-}(typeof self === "undefined" ? typeof __webpack_require__.g === "undefined" ? this : __webpack_require__.g : self));
-
-
-/***/ },
-
-/***/ 2985
-(module) {
-
-"use strict";
-/*
- * Copyright (c) 2016-2021 Digital Bazaar, Inc. All rights reserved.
- */
-
-
-module.exports = class IdentifierIssuer {
-  /**
-   * Creates a new IdentifierIssuer. A IdentifierIssuer issues unique
-   * identifiers, keeping track of any previously issued identifiers.
-   *
-   * @param {string} prefix - The prefix to use ('<prefix><counter>').
-   * @param {Map} [existing] - An existing Map to use.
-   * @param {number} [counter] - The counter to use.
-   */
-  constructor(prefix, existing = new Map(), counter = 0) {
-    this.prefix = prefix;
-    this._existing = existing;
-    this.counter = counter;
-  }
-
-  /**
-   * Copies this IdentifierIssuer.
-   *
-   * @returns {object} - A copy of this IdentifierIssuer.
-   */
-  clone() {
-    const {prefix, _existing, counter} = this;
-    return new IdentifierIssuer(prefix, new Map(_existing), counter);
-  }
-
-  /**
-   * Gets the new identifier for the given old identifier, where if no old
-   * identifier is given a new identifier will be generated.
-   *
-   * @param {string} [old] - The old identifier to get the new identifier for.
-   *
-   * @returns {string} - The new identifier.
-   */
-  getId(old) {
-    // return existing old identifier
-    const existing = old && this._existing.get(old);
-    if(existing) {
-      return existing;
-    }
-
-    // get next identifier
-    const identifier = this.prefix + this.counter;
-    this.counter++;
-
-    // save mapping
-    if(old) {
-      this._existing.set(old, identifier);
-    }
-
-    return identifier;
-  }
-
-  /**
-   * Returns true if the given old identifer has already been assigned a new
-   * identifier.
-   *
-   * @param {string} old - The old identifier to check.
-   *
-   * @returns {boolean} - True if the old identifier has been assigned a new
-   *   identifier, false if not.
-   */
-  hasId(old) {
-    return this._existing.has(old);
-  }
-
-  /**
-   * Returns all of the IDs that have been issued new IDs in the order in
-   * which they were issued new IDs.
-   *
-   * @returns {Array} - The list of old IDs that has been issued new IDs in
-   *   order.
-   */
-  getOldIds() {
-    return [...this._existing.keys()];
-  }
-};
-
-
-/***/ },
-
-/***/ 3082
-(module, __unused_webpack_exports, __webpack_require__) {
-
-"use strict";
-/*
- * Copyright (c) 2021 Digital Bazaar, Inc. All rights reserved.
- */
-
-
-const xhrLoader = __webpack_require__(6957);
-
-const api = {};
-module.exports = api;
-
-/**
- * Setup browser document loaders.
- *
- * @param jsonld the jsonld api.
- */
-api.setupDocumentLoaders = function(jsonld) {
-  if(typeof XMLHttpRequest !== 'undefined') {
-    jsonld.documentLoaders.xhr = xhrLoader;
-    // use xhr document loader by default
-    jsonld.useDocumentLoader('xhr');
-  }
-};
-
-/**
- * Setup browser globals.
- *
- * @param jsonld the jsonld api.
- */
-api.setupGlobals = function(jsonld) {
-  // setup browser global JsonLdProcessor
-  if(typeof globalThis.JsonLdProcessor === 'undefined') {
-    Object.defineProperty(globalThis, 'JsonLdProcessor', {
-      writable: true,
-      enumerable: false,
-      configurable: true,
-      value: jsonld.JsonLdProcessor
-    });
-  }
-};
-
-
-/***/ },
-
-/***/ 3269
-(module) {
-
-"use strict";
-
-module.exports = function (Yallist) {
-  Yallist.prototype[Symbol.iterator] = function* () {
-    for (let walker = this.head; walker; walker = walker.next) {
-      yield walker.value
-    }
-  }
-}
-
-
-/***/ },
-
-/***/ 3743
-(module) {
-
-"use strict";
-/*
- * Copyright (c) 2017-2019 Digital Bazaar, Inc. All rights reserved.
- */
-
-
-module.exports = class RequestQueue {
-  /**
-   * Creates a simple queue for requesting documents.
-   */
-  constructor() {
-    this._requests = {};
-  }
-
-  wrapLoader(loader) {
-    const self = this;
-    self._loader = loader;
-    return function(/* url */) {
-      return self.add.apply(self, arguments);
-    };
-  }
-
-  async add(url) {
-    let promise = this._requests[url];
-    if(promise) {
-      // URL already queued, wait for it to load
-      return Promise.resolve(promise);
-    }
-
-    // queue URL and load it
-    promise = this._requests[url] = this._loader(url);
-
-    try {
-      return await promise;
-    } finally {
-      delete this._requests[url];
-    }
-  }
-};
-
-
-/***/ },
-
-/***/ 3947
-(module, __unused_webpack_exports, __webpack_require__) {
-
-"use strict";
-/*
- * Copyright (c) 2017-2023 Digital Bazaar, Inc. All rights reserved.
- */
-
-
-const JsonLdError = __webpack_require__(2207);
-const graphTypes = __webpack_require__(3978);
-const types = __webpack_require__(7382);
-
-const {
-  REGEX_BCP47,
-  addValue: _addValue
-} = __webpack_require__(9263);
-
-const {
-  handleEvent: _handleEvent
-} = __webpack_require__(2246);
-
-// constants
-const {
-  // RDF,
-  RDF_LIST,
-  RDF_FIRST,
-  RDF_REST,
-  RDF_NIL,
-  RDF_TYPE,
-  // RDF_PLAIN_LITERAL,
-  // RDF_XML_LITERAL,
-  RDF_JSON_LITERAL,
-  // RDF_OBJECT,
-  // RDF_LANGSTRING,
-
-  // XSD,
-  XSD_BOOLEAN,
-  XSD_DOUBLE,
-  XSD_INTEGER,
-  XSD_STRING,
-} = __webpack_require__(9378);
-
-const api = {};
-module.exports = api;
-
-/**
- * Converts an RDF dataset to JSON-LD.
- *
- * @param dataset the RDF dataset.
- * @param options the RDF serialization options.
- *
- * @return a Promise that resolves to the JSON-LD output.
- */
-api.fromRDF = async (
-  dataset,
-  options
-) => {
-  const {
-    useRdfType = false,
-    useNativeTypes = false,
-    rdfDirection = null
-  } = options;
-  // FIXME: use Maps?
-  const defaultGraph = {};
-  const graphMap = {'@default': defaultGraph};
-  const referencedOnce = {};
-  if(rdfDirection) {
-    if(rdfDirection === 'compound-literal') {
-      throw new JsonLdError(
-        'Unsupported rdfDirection value.',
-        'jsonld.InvalidRdfDirection',
-        {value: rdfDirection});
-    } else if(rdfDirection !== 'i18n-datatype') {
-      throw new JsonLdError(
-        'Unknown rdfDirection value.',
-        'jsonld.InvalidRdfDirection',
-        {value: rdfDirection});
-    }
-  }
-
-  for(const quad of dataset) {
-    // TODO: change 'name' to 'graph'
-    const name = (quad.graph.termType === 'DefaultGraph') ?
-      '@default' : quad.graph.value;
-    if(!(name in graphMap)) {
-      graphMap[name] = {};
-    }
-    if(name !== '@default' && !(name in defaultGraph)) {
-      defaultGraph[name] = {'@id': name};
-    }
-
-    const nodeMap = graphMap[name];
-
-    // get subject, predicate, object
-    const s = _nodeId(quad.subject);
-    const p = quad.predicate.value;
-    const o = quad.object;
-
-    if(!(s in nodeMap)) {
-      nodeMap[s] = {'@id': s};
-    }
-    const node = nodeMap[s];
-
-    const objectNodeId = _nodeId(o);
-    const objectIsNode = !!objectNodeId;
-    if(objectIsNode && !(objectNodeId in nodeMap)) {
-      nodeMap[objectNodeId] = {'@id': objectNodeId};
-    }
-
-    if(p === RDF_TYPE && !useRdfType && objectIsNode) {
-      _addValue(node, '@type', objectNodeId, {propertyIsArray: true});
-      continue;
-    }
-
-    const value = _RDFToObject(o, useNativeTypes, rdfDirection, options);
-    _addValue(node, p, value, {propertyIsArray: true});
-
-    // object may be an RDF list/partial list node but we can't know easily
-    // until all triples are read
-    if(objectIsNode) {
-      if(objectNodeId === RDF_NIL) {
-        // track rdf:nil uniquely per graph
-        const object = nodeMap[objectNodeId];
-        if(!('usages' in object)) {
-          object.usages = [];
-        }
-        object.usages.push({
-          node,
-          property: p,
-          value
-        });
-      } else if(objectNodeId in referencedOnce) {
-        // object referenced more than once
-        referencedOnce[objectNodeId] = false;
-      } else {
-        // keep track of single reference
-        referencedOnce[objectNodeId] = {
-          node,
-          property: p,
-          value
-        };
-      }
-    }
-  }
-
-  /*
-  for(let name in dataset) {
-    const graph = dataset[name];
-    if(!(name in graphMap)) {
-      graphMap[name] = {};
-    }
-    if(name !== '@default' && !(name in defaultGraph)) {
-      defaultGraph[name] = {'@id': name};
-    }
-    const nodeMap = graphMap[name];
-    for(let ti = 0; ti < graph.length; ++ti) {
-      const triple = graph[ti];
-
-      // get subject, predicate, object
-      const s = triple.subject.value;
-      const p = triple.predicate.value;
-      const o = triple.object;
-
-      if(!(s in nodeMap)) {
-        nodeMap[s] = {'@id': s};
-      }
-      const node = nodeMap[s];
-
-      const objectIsId = (o.type === 'IRI' || o.type === 'blank node');
-      if(objectIsId && !(o.value in nodeMap)) {
-        nodeMap[o.value] = {'@id': o.value};
-      }
-
-      if(p === RDF_TYPE && !useRdfType && objectIsId) {
-        _addValue(node, '@type', o.value, {propertyIsArray: true});
-        continue;
-      }
-
-      const value = _RDFToObject(o, useNativeTypes);
-      _addValue(node, p, value, {propertyIsArray: true});
-
-      // object may be an RDF list/partial list node but we can't know easily
-      // until all triples are read
-      if(objectIsId) {
-        if(o.value === RDF_NIL) {
-          // track rdf:nil uniquely per graph
-          const object = nodeMap[o.value];
-          if(!('usages' in object)) {
-            object.usages = [];
-          }
-          object.usages.push({
-            node: node,
-            property: p,
-            value: value
-          });
-        } else if(o.value in referencedOnce) {
-          // object referenced more than once
-          referencedOnce[o.value] = false;
-        } else {
-          // keep track of single reference
-          referencedOnce[o.value] = {
-            node: node,
-            property: p,
-            value: value
-          };
-        }
-      }
-    }
-  }*/
-
-  // convert linked lists to @list arrays
-  for(const name in graphMap) {
-    const graphObject = graphMap[name];
-
-    // no @lists to be converted, continue
-    if(!(RDF_NIL in graphObject)) {
-      continue;
-    }
-
-    // iterate backwards through each RDF list
-    const nil = graphObject[RDF_NIL];
-    if(!nil.usages) {
-      continue;
-    }
-    for(let usage of nil.usages) {
-      let node = usage.node;
-      let property = usage.property;
-      let head = usage.value;
-      const list = [];
-      const listNodes = [];
-
-      // ensure node is a well-formed list node; it must:
-      // 1. Be referenced only once.
-      // 2. Have an array for rdf:first that has 1 item.
-      // 3. Have an array for rdf:rest that has 1 item.
-      // 4. Have no keys other than: @id, rdf:first, rdf:rest, and,
-      //   optionally, @type where the value is rdf:List.
-      let nodeKeyCount = Object.keys(node).length;
-      while(property === RDF_REST &&
-        types.isObject(referencedOnce[node['@id']]) &&
-        types.isArray(node[RDF_FIRST]) && node[RDF_FIRST].length === 1 &&
-        types.isArray(node[RDF_REST]) && node[RDF_REST].length === 1 &&
-        (nodeKeyCount === 3 ||
-          (nodeKeyCount === 4 && types.isArray(node['@type']) &&
-          node['@type'].length === 1 && node['@type'][0] === RDF_LIST))) {
-        list.push(node[RDF_FIRST][0]);
-        listNodes.push(node['@id']);
-
-        // get next node, moving backwards through list
-        usage = referencedOnce[node['@id']];
-        node = usage.node;
-        property = usage.property;
-        head = usage.value;
-        nodeKeyCount = Object.keys(node).length;
-
-        // if node is not a blank node, then list head found
-        if(!graphTypes.isBlankNode(node)) {
-          break;
-        }
-      }
-
-      // transform list into @list object
-      delete head['@id'];
-      head['@list'] = list.reverse();
-      for(const listNode of listNodes) {
-        delete graphObject[listNode];
-      }
-    }
-
-    delete nil.usages;
-  }
-
-  const result = [];
-  const subjects = Object.keys(defaultGraph).sort();
-  for(const subject of subjects) {
-    const node = defaultGraph[subject];
-    if(subject in graphMap) {
-      const graph = node['@graph'] = [];
-      const graphObject = graphMap[subject];
-      const graphSubjects = Object.keys(graphObject).sort();
-      for(const graphSubject of graphSubjects) {
-        const node = graphObject[graphSubject];
-        // only add full subjects to top-level
-        if(!graphTypes.isSubjectReference(node)) {
-          graph.push(node);
-        }
-      }
-    }
-    // only add full subjects to top-level
-    if(!graphTypes.isSubjectReference(node)) {
-      result.push(node);
-    }
-  }
-
-  return result;
-};
-
-/**
- * Converts an RDF triple object to a JSON-LD object.
- *
- * @param o the RDF triple object to convert.
- * @param useNativeTypes true to output native types, false not to.
- * @param rdfDirection text direction mode [null, i18n-datatype]
- * @param options top level API options
- *
- * @return the JSON-LD object.
- */
-function _RDFToObject(o, useNativeTypes, rdfDirection, options) {
-  // convert NamedNode/BlankNode object to JSON-LD
-  const nodeId = _nodeId(o);
-  if(nodeId) {
-    return {'@id': nodeId};
-  }
-
-  // convert literal to JSON-LD
-  const rval = {'@value': o.value};
-
-  // add language
-  if(o.language) {
-    if(!o.language.match(REGEX_BCP47)) {
-      if(options.eventHandler) {
-        _handleEvent({
-          event: {
-            type: ['JsonLdEvent'],
-            code: 'invalid @language value',
-            level: 'warning',
-            message: '@language value must be valid BCP47.',
-            details: {
-              language: o.language
-            }
-          },
-          options
-        });
-      }
-    }
-    rval['@language'] = o.language;
-  } else {
-    let type = o.datatype.value;
-    if(!type) {
-      type = XSD_STRING;
-    }
-    if(type === RDF_JSON_LITERAL) {
-      type = '@json';
-      try {
-        rval['@value'] = JSON.parse(rval['@value']);
-      } catch(e) {
-        throw new JsonLdError(
-          'JSON literal could not be parsed.',
-          'jsonld.InvalidJsonLiteral',
-          {code: 'invalid JSON literal', value: rval['@value'], cause: e});
-      }
-    }
-    // use native types for certain xsd types
-    if(useNativeTypes) {
-      if(type === XSD_BOOLEAN) {
-        if(rval['@value'] === 'true' || rval['@value'] === '1') {
-          rval['@value'] = true;
-        } else if(rval['@value'] === 'false' || rval['@value'] === '0') {
-          rval['@value'] = false;
-        } else {
-          rval['@type'] = type;
-        }
-      } else if(type === XSD_INTEGER) {
-        if(types.isNumeric(rval['@value'])) {
-          const i = parseInt(rval['@value'], 10);
-          if(i.toFixed(0) === rval['@value']) {
-            rval['@value'] = i;
-          }
-        } else {
-          rval['@type'] = type;
-        }
-      } else if(type === XSD_DOUBLE) {
-        if(types.isNumeric(rval['@value'])) {
-          rval['@value'] = parseFloat(rval['@value']);
-        } else {
-          rval['@type'] = type;
-        }
-      } else {
-        rval['@type'] = type;
-      }
-    } else if(rdfDirection === 'i18n-datatype' &&
-      type.startsWith('https://www.w3.org/ns/i18n#')) {
-      const [, language, direction] = type.split(/[#_]/);
-      if(language.length > 0) {
-        rval['@language'] = language;
-        if(!language.match(REGEX_BCP47)) {
-          if(options.eventHandler) {
-            _handleEvent({
-              event: {
-                type: ['JsonLdEvent'],
-                code: 'invalid @language value',
-                level: 'warning',
-                message: '@language value must be valid BCP47.',
-                details: {
-                  language
-                }
-              },
-              options
-            });
-          }
-        }
-      }
-      rval['@direction'] = direction;
-    } else if(type !== XSD_STRING) {
-      rval['@type'] = type;
-    }
-  }
-
-  return rval;
-}
-
-/**
- * Return id for a term. Handles BlankNodes and NamedNodes. Adds a '_:' prefix
- * for BlanksNodes.
- *
- * @param term a term object.
- *
- * @return the Node term id or null.
- */
-function _nodeId(term) {
-  if(term.termType === 'NamedNode') {
-    return term.value;
-  } else if(term.termType === 'BlankNode') {
-    return '_:' + term.value;
-  }
-  return null;
-}
-
-
-/***/ },
-
-/***/ 3978
-(module, __unused_webpack_exports, __webpack_require__) {
-
-"use strict";
-/*
- * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
- */
-
-
-const types = __webpack_require__(7382);
-
-const api = {};
-module.exports = api;
-
-/**
- * Returns true if the given value is a subject with properties.
- *
- * @param v the value to check.
- *
- * @return true if the value is a subject with properties, false if not.
- */
-api.isSubject = v => {
-  // Note: A value is a subject if all of these hold true:
-  // 1. It is an Object.
-  // 2. It is not a @value, @set, or @list.
-  // 3. It has more than 1 key OR any existing key is not @id.
-  if(types.isObject(v) &&
-    !(('@value' in v) || ('@set' in v) || ('@list' in v))) {
-    const keyCount = Object.keys(v).length;
-    return (keyCount > 1 || !('@id' in v));
-  }
-  return false;
-};
-
-/**
- * Returns true if the given value is a subject reference.
- *
- * @param v the value to check.
- *
- * @return true if the value is a subject reference, false if not.
- */
-api.isSubjectReference = v =>
-  // Note: A value is a subject reference if all of these hold true:
-  // 1. It is an Object.
-  // 2. It has a single key: @id.
-  (types.isObject(v) && Object.keys(v).length === 1 && ('@id' in v));
-
-/**
- * Returns true if the given value is a @value.
- *
- * @param v the value to check.
- *
- * @return true if the value is a @value, false if not.
- */
-api.isValue = v =>
-  // Note: A value is a @value if all of these hold true:
-  // 1. It is an Object.
-  // 2. It has the @value property.
-  types.isObject(v) && ('@value' in v);
-
-/**
- * Returns true if the given value is a @list.
- *
- * @param v the value to check.
- *
- * @return true if the value is a @list, false if not.
- */
-api.isList = v =>
-  // Note: A value is a @list if all of these hold true:
-  // 1. It is an Object.
-  // 2. It has the @list property.
-  types.isObject(v) && ('@list' in v);
-
-/**
- * Returns true if the given value is a @graph.
- *
- * @return true if the value is a @graph, false if not.
- */
-api.isGraph = v => {
-  // Note: A value is a graph if all of these hold true:
-  // 1. It is an object.
-  // 2. It has an `@graph` key.
-  // 3. It may have '@id' or '@index'
-  return types.isObject(v) &&
-    '@graph' in v &&
-    Object.keys(v)
-      .filter(key => key !== '@id' && key !== '@index').length === 1;
-};
-
-/**
- * Returns true if the given value is a simple @graph.
- *
- * @return true if the value is a simple @graph, false if not.
- */
-api.isSimpleGraph = v => {
-  // Note: A value is a simple graph if all of these hold true:
-  // 1. It is an object.
-  // 2. It has an `@graph` key.
-  // 3. It has only 1 key or 2 keys where one of them is `@index`.
-  return api.isGraph(v) && !('@id' in v);
-};
-
-/**
- * Returns true if the given value is a blank node.
- *
- * @param v the value to check.
- *
- * @return true if the value is a blank node, false if not.
- */
-api.isBlankNode = v => {
-  // Note: A value is a blank node if all of these hold true:
-  // 1. It is an Object.
-  // 2. If it has an @id key that is not a string OR begins with '_:'.
-  // 3. It has no keys OR is not a @value, @set, or @list.
-  if(types.isObject(v)) {
-    if('@id' in v) {
-      const id = v['@id'];
-      return !types.isString(id) || id.indexOf('_:') === 0;
-    }
-    return (Object.keys(v).length === 0 ||
-      !(('@value' in v) || ('@set' in v) || ('@list' in v)));
-  }
-  return false;
-};
-
-
-/***/ },
-
-/***/ 4005
-(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * An implementation of the RDF Dataset Normalization specification.
- * This library works in the browser and node.js.
- *
- * BSD 3-Clause License
- * Copyright (c) 2016-2023 Digital Bazaar, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright
- * notice, this list of conditions and the following disclaimer in the
- * documentation and/or other materials provided with the distribution.
- *
- * Neither the name of the Digital Bazaar, Inc. nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
- * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
- * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
- * PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
- * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-
-const RDFC10 = __webpack_require__(4229);
-const RDFC10Sync = __webpack_require__(202);
-
-// return a dataset from input dataset or n-quads
-function _inputToDataset(input, options) {
-  if(options.inputFormat) {
-    if(options.inputFormat === 'application/n-quads') {
-      if(typeof input !== 'string') {
-        throw new Error('N-Quads input must be a string.');
-      }
-      return exports.NQuads.parse(input);
-    }
-    throw new Error(
-      `Unknown canonicalization input format: "${options.inputFormat}".`);
-  }
-  return input;
-}
-
-// check for valid output format
-function _checkOutputFormat(options) {
-  // only N-Quads supported
-  if(options.format) {
-    if(options.format !== 'application/n-quads') {
-      throw new Error(
-        `Unknown canonicalization output format: "${options.format}".`);
-    }
-  }
-}
-
-// helper to trace URDNA2015 usage
-function _traceURDNA2015() {
-  if(!!globalThis.RDF_CANONIZE_TRACE_URDNA2015) {
-    console.trace('[rdf-canonize] URDNA2015 is deprecated, use RDFC-1.0');
-  }
-}
-
-// expose helpers
-exports.NQuads = __webpack_require__(1227);
-exports.IdentifierIssuer = __webpack_require__(2985);
-
-/**
- * Asynchronously canonizes an RDF dataset.
- *
- * @param {Array|object|string} input - The input to canonize given as a
- *   dataset or format specified by 'inputFormat' option.
- * @param {object} options - The options to use:
- *   {string} algorithm - The canonicalization algorithm to use, `RDFC-1.0`.
- *   {Function} [createMessageDigest] - A factory function for creating a
- *     `MessageDigest` interface that overrides the built-in message digest
- *     implementation used by the canonize algorithm; note that using a hash
- *     algorithm (or HMAC algorithm) that differs from the one specified by
- *     the canonize algorithm will result in different output.
- *   {string} [messageDigestAlgorithm=sha256] - Message digest algorithm used
- *     by the default implementation of `createMessageDigest`. Supported
- *     algorithms are: 'sha256', 'sha384', 'sha512', and the 'SHA###' and
- *     'SHA-###' variations.
- *   {Map} [canonicalIdMap] - An optional Map to be populated by the canonical
- *     identifier issuer with the bnode identifier mapping generated by the
- *     canonicalization algorithm.
- *   {string} [inputFormat] - The format of the input. Use
- *     'application/n-quads' for a N-Quads string that will be parsed. Omit or
- *     falsy for a JSON dataset.
- *   {string} [format] - The format of the output. Omit or use
- *     'application/n-quads' for a N-Quads string.
- *   {number} [maxWorkFactor=1] - Control of the maximum number of times to run
- *     deep comparison algorithms (such as the N-Degree Hash Quads algorithm
- *     used in RDFC-1.0) before bailing out and throwing an error; this is a
- *     useful setting for preventing wasted CPU cycles or DoS when canonizing
- *     meaningless or potentially malicious datasets. This parameter sets the
- *     maximum number of iterations based on the number of non-unique blank
- *     nodes. `0` to disable iterations, `1` for a O(n) limit, `2` for a O(n^2)
- *     limit, `3` and higher may handle "poison" graphs but may take
- *     significant computational resources, `Infinity` for no limitation.
- *     Defaults to `1` which can handle many common inputs.
- *   {number} [maxDeepIterations=-1] - The maximum number of times to run
- *     deep comparison algorithms (such as the N-Degree Hash Quads algorithm
- *     used in RDFC-1.0) before bailing out and throwing an error; this is a
- *     useful setting for preventing wasted CPU cycles or DoS when canonizing
- *     meaningless or potentially malicious datasets. If set to a value other
- *     than `-1` it will explicitly set the number of iterations and override
- *     `maxWorkFactor`. It is recommended to use `maxWorkFactor`.
- *   {AbortSignal} [signal] - An AbortSignal used to abort the operation. The
- *     aborted status is only periodically checked for performance reasons.
- *   {boolean} [rejectURDNA2015=false] - Reject the "URDNA2015" algorithm name
- *     instead of treating it as an alias for "RDFC-1.0".
- *
- * @returns {Promise<object>} - A Promise that resolves to the canonicalized
- *   RDF Dataset.
- */
-exports.canonize = async function(input, options = {}) {
-  const dataset = _inputToDataset(input, options);
-  _checkOutputFormat(options);
-
-  if(!('algorithm' in options)) {
-    throw new Error('No RDF Dataset Canonicalization algorithm specified.');
-  }
-  if(options.algorithm === 'RDFC-1.0') {
-    return new RDFC10(options).main(dataset);
-  }
-  // URDNA2015 deprecated, handled as alias for RDFC-1.0 if allowed
-  if(options.algorithm === 'URDNA2015' && !options.rejectURDNA2015) {
-    _traceURDNA2015();
-    return new RDFC10(options).main(dataset);
-  }
-  throw new Error(
-    'Invalid RDF Dataset Canonicalization algorithm: ' + options.algorithm);
-};
-
-/**
- * This method is no longer available in the public API, it is for testing
- * only. It synchronously canonizes an RDF dataset and does not work in the
- * browser.
- *
- * @param {Array|object|string} input - The input to canonize given as a
- *   dataset or format specified by 'inputFormat' option.
- * @param {object} options - The options to use:
- *   {string} algorithm - The canonicalization algorithm to use, `RDFC-1.0`.
- *   {Function} [createMessageDigest] - A factory function for creating a
- *     `MessageDigest` interface that overrides the built-in message digest
- *     implementation used by the canonize algorithm; note that using a hash
- *     algorithm (or HMAC algorithm) that differs from the one specified by
- *     the canonize algorithm will result in different output.
- *   {string} [messageDigestAlgorithm=sha256] - Message digest algorithm used
- *     by the default implementation of `createMessageDigest`. Supported
- *     algorithms are: 'sha256', 'sha384', 'sha512', and the 'SHA###' and
- *     'SHA-###' variations.
- *   {Map} [canonicalIdMap] - An optional Map to be populated by the canonical
- *     identifier issuer with the bnode identifier mapping generated by the
- *     canonicalization algorithm.
- *   {string} [inputFormat] - The format of the input. Use
- *     'application/n-quads' for a N-Quads string that will be parsed. Omit or
- *     falsy for a JSON dataset.
- *   {string} [format] - The format of the output. Omit or use
- *     'application/n-quads' for a N-Quads string.
- *   {number} [maxWorkFactor=1] - Control of the maximum number of times to run
- *     deep comparison algorithms (such as the N-Degree Hash Quads algorithm
- *     used in RDFC-1.0) before bailing out and throwing an error; this is a
- *     useful setting for preventing wasted CPU cycles or DoS when canonizing
- *     meaningless or potentially malicious datasets. This parameter sets the
- *     maximum number of iterations based on the number of non-unique blank
- *     nodes. `0` to disable iterations, `1` for a O(n) limit, `2` for a O(n^2)
- *     limit, `3` and higher may handle "poison" graphs but may take
- *     significant computational resources, `Infinity` for no limitation.
- *     Defaults to `1` which can handle many common inputs.
- *   {number} [maxDeepIterations=-1] - The maximum number of times to run
- *     deep comparison algorithms (such as the N-Degree Hash Quads algorithm
- *     used in RDFC-1.0) before bailing out and throwing an error; this is a
- *     useful setting for preventing wasted CPU cycles or DoS when canonizing
- *     meaningless or potentially malicious datasets. If set to a value other
- *     than `-1` it will explicitly set the number of iterations and override
- *     `maxWorkFactor`. It is recommended to use `maxWorkFactor`.
- *   {number} [timeout=1000] - The maximum number of milliseconds before the
- *     operation will timeout. This is only periodically checked for
- *     performance reasons. Use 0 to disable. Note: This is a replacement for
- *     the async canonize `signal` option common timeout use case. If complex
- *     abort logic is required, use the async function and the `signal`
- *     parameter.
- *   {boolean} [rejectURDNA2015=false] - Reject the "URDNA2015" algorithm name
- *     instead of treating it as an alias for "RDFC-1.0".
- *
- * @returns {Promise<object>} - A Promise that resolves to the canonicalized
- *   RDF Dataset.
- */
-exports._canonizeSync = function(input, options = {}) {
-  const dataset = _inputToDataset(input, options);
-  _checkOutputFormat(options);
-
-  if(!('algorithm' in options)) {
-    throw new Error('No RDF Dataset Canonicalization algorithm specified.');
-  }
-  if(options.algorithm === 'RDFC-1.0') {
-    return new RDFC10Sync(options).main(dataset);
-  }
-  // URDNA2015 deprecated, handled as alias for RDFC-1.0 if allowed
-  if(options.algorithm === 'URDNA2015' && !options.rejectURDNA2015) {
-    _traceURDNA2015();
-    return new RDFC10Sync(options).main(dataset);
-  }
-  throw new Error(
-    'Invalid RDF Dataset Canonicalization algorithm: ' + options.algorithm);
 };
 
 
@@ -7180,560 +4936,1442 @@ async function _expandIndexMap({
 
 /***/ },
 
-/***/ 4229
+/***/ 5229
 (module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
-/*!
- * Copyright (c) 2016-2023 Digital Bazaar, Inc. All rights reserved.
+/*
+ * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
  */
 
 
-const IdentifierIssuer = __webpack_require__(2985);
-const MessageDigest = __webpack_require__(7920);
-const Permuter = __webpack_require__(9925);
-const NQuads = __webpack_require__(1227);
-const {setImmediate} = __webpack_require__(4991);
+const {
+  isSubjectReference: _isSubjectReference
+} = __webpack_require__(3978);
 
-module.exports = class RDFC10 {
-  constructor({
-    createMessageDigest = null,
-    messageDigestAlgorithm = 'sha256',
-    canonicalIdMap = new Map(),
-    maxWorkFactor = 1,
-    maxDeepIterations = -1,
-    signal = null
-  } = {}) {
-    this.name = 'RDFC-1.0';
-    this.blankNodeInfo = new Map();
-    this.canonicalIssuer = new IdentifierIssuer('c14n', canonicalIdMap);
-    this.createMessageDigest = createMessageDigest ||
-      (() => new MessageDigest(messageDigestAlgorithm));
-    this.maxWorkFactor = maxWorkFactor;
-    this.maxDeepIterations = maxDeepIterations;
-    this.remainingDeepIterations = 0;
-    this.signal = signal;
-    this.quads = null;
+const {
+  createMergedNodeMap: _createMergedNodeMap
+} = __webpack_require__(9233);
+
+const api = {};
+module.exports = api;
+
+/**
+ * Performs JSON-LD flattening.
+ *
+ * @param input the expanded JSON-LD to flatten.
+ *
+ * @return the flattened output.
+ */
+api.flatten = input => {
+  const defaultGraph = _createMergedNodeMap(input);
+
+  // produce flattened output
+  const flattened = [];
+  const keys = Object.keys(defaultGraph).sort();
+  for(let ki = 0; ki < keys.length; ++ki) {
+    const node = defaultGraph[keys[ki]];
+    // only add full subjects to top-level
+    if(!_isSubjectReference(node)) {
+      flattened.push(node);
+    }
+  }
+  return flattened;
+};
+
+
+/***/ },
+
+/***/ 7946
+(module, __unused_webpack_exports, __webpack_require__) {
+
+"use strict";
+/*
+ * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
+ */
+
+
+const {isKeyword} = __webpack_require__(1972);
+const graphTypes = __webpack_require__(3978);
+const types = __webpack_require__(7382);
+const util = __webpack_require__(9263);
+const url = __webpack_require__(470);
+const JsonLdError = __webpack_require__(2207);
+const {
+  createNodeMap: _createNodeMap,
+  mergeNodeMapGraphs: _mergeNodeMapGraphs
+} = __webpack_require__(9233);
+
+const api = {};
+module.exports = api;
+
+/**
+ * Performs JSON-LD `merged` framing.
+ *
+ * @param input the expanded JSON-LD to frame.
+ * @param frame the expanded JSON-LD frame to use.
+ * @param options the framing options.
+ *
+ * @return the framed output.
+ */
+api.frameMergedOrDefault = (input, frame, options) => {
+  // create framing state
+  const state = {
+    options,
+    embedded: false,
+    graph: '@default',
+    graphMap: {'@default': {}},
+    subjectStack: [],
+    link: {},
+    bnodeMap: {}
+  };
+
+  // produce a map of all graphs and name each bnode
+  // FIXME: currently uses subjects from @merged graph only
+  const issuer = new util.IdentifierIssuer('_:b');
+  _createNodeMap(input, state.graphMap, '@default', issuer);
+  if(options.merged) {
+    state.graphMap['@merged'] = _mergeNodeMapGraphs(state.graphMap);
+    state.graph = '@merged';
+  }
+  state.subjects = state.graphMap[state.graph];
+
+  // frame the subjects
+  const framed = [];
+  api.frame(state, Object.keys(state.subjects).sort(), frame, framed);
+
+  // If pruning blank nodes, find those to prune
+  if(options.pruneBlankNodeIdentifiers) {
+    // remove all blank nodes appearing only once, done in compaction
+    options.bnodesToClear =
+      Object.keys(state.bnodeMap).filter(id => state.bnodeMap[id].length === 1);
   }
 
-  // 4.4) Normalization Algorithm
-  async main(dataset) {
-    this.quads = dataset;
+  // remove @preserve from results
+  options.link = {};
+  return _cleanupPreserve(framed, options);
+};
 
-    // 1) Create the normalization state.
-    // 2) For every quad in input dataset:
-    for(const quad of dataset) {
-      // 2.1) For each blank node that occurs in the quad, add a reference
-      // to the quad using the blank node identifier in the blank node to
-      // quads map, creating a new entry if necessary.
-      this._addBlankNodeQuadInfo({quad, component: quad.subject});
-      this._addBlankNodeQuadInfo({quad, component: quad.object});
-      this._addBlankNodeQuadInfo({quad, component: quad.graph});
+/**
+ * Frames subjects according to the given frame.
+ *
+ * @param state the current framing state.
+ * @param subjects the subjects to filter.
+ * @param frame the frame.
+ * @param parent the parent subject or top-level array.
+ * @param property the parent property, initialized to null.
+ */
+api.frame = (state, subjects, frame, parent, property = null) => {
+  // validate the frame
+  _validateFrame(frame);
+  frame = frame[0];
+
+  // get flags for current frame
+  const options = state.options;
+  const flags = {
+    embed: _getFrameFlag(frame, options, 'embed'),
+    explicit: _getFrameFlag(frame, options, 'explicit'),
+    requireAll: _getFrameFlag(frame, options, 'requireAll')
+  };
+
+  // get link for current graph
+  if(!state.link.hasOwnProperty(state.graph)) {
+    state.link[state.graph] = {};
+  }
+  const link = state.link[state.graph];
+
+  // filter out subjects that match the frame
+  const matches = _filterSubjects(state, subjects, frame, flags);
+
+  // add matches to output
+  const ids = Object.keys(matches).sort();
+  for(const id of ids) {
+    const subject = matches[id];
+
+    /* Note: In order to treat each top-level match as a compartmentalized
+    result, clear the unique embedded subjects map when the property is null,
+    which only occurs at the top-level. */
+    if(property === null) {
+      state.uniqueEmbeds = {[state.graph]: {}};
+    } else {
+      state.uniqueEmbeds[state.graph] = state.uniqueEmbeds[state.graph] || {};
     }
 
-    // 3) Create a list of non-normalized blank node identifiers
-    // non-normalized identifiers and populate it using the keys from the
-    // blank node to quads map.
-    // Note: We use a map here and it was generated during step 2.
+    if(flags.embed === '@link' && id in link) {
+      // TODO: may want to also match an existing linked subject against
+      // the current frame ... so different frames could produce different
+      // subjects that are only shared in-memory when the frames are the same
 
-    // 4) `simple` flag is skipped -- loop is optimized away. This optimization
-    // is permitted because there was a typo in the hash first degree quads
-    // algorithm in the RDFC-1.0 spec that was implemented widely making it
-    // such that it could not be fixed; the result was that the loop only
-    // needs to be run once and the first degree quad hashes will never change.
-    // 5.1-5.2 are skipped; first degree quad hashes are generated just once
-    // for all non-normalized blank nodes.
+      // add existing linked subject
+      _addFrameOutput(parent, property, link[id]);
+      continue;
+    }
 
-    // 5.3) For each blank node identifier identifier in non-normalized
-    // identifiers:
-    const hashToBlankNodes = new Map();
-    const nonNormalized = [...this.blankNodeInfo.keys()];
-    let i = 0;
-    for(const id of nonNormalized) {
-      // Note: batch hashing first degree quads 100 at a time
-      if(++i % 100 === 0) {
-        await this._yield();
+    // start output for subject
+    const output = {'@id': id};
+    if(id.indexOf('_:') === 0) {
+      util.addValue(state.bnodeMap, id, output, {propertyIsArray: true});
+    }
+    link[id] = output;
+
+    // validate @embed
+    if((flags.embed === '@first' || flags.embed === '@last') && state.is11) {
+      throw new JsonLdError(
+        'Invalid JSON-LD syntax; invalid value of @embed.',
+        'jsonld.SyntaxError', {code: 'invalid @embed value', frame});
+    }
+
+    if(!state.embedded && state.uniqueEmbeds[state.graph].hasOwnProperty(id)) {
+      // skip adding this node object to the top level, as it was
+      // already included in another node object
+      continue;
+    }
+
+    // if embed is @never or if a circular reference would be created by an
+    // embed, the subject cannot be embedded, just add the reference;
+    // note that a circular reference won't occur when the embed flag is
+    // `@link` as the above check will short-circuit before reaching this point
+    if(state.embedded &&
+      (flags.embed === '@never' ||
+      _createsCircularReference(subject, state.graph, state.subjectStack))) {
+      _addFrameOutput(parent, property, output);
+      continue;
+    }
+
+    // if only the first (or once) should be embedded
+    if(state.embedded &&
+       (flags.embed == '@first' || flags.embed == '@once') &&
+       state.uniqueEmbeds[state.graph].hasOwnProperty(id)) {
+      _addFrameOutput(parent, property, output);
+      continue;
+    }
+
+    // if only the last match should be embedded
+    if(flags.embed === '@last') {
+      // remove any existing embed
+      if(id in state.uniqueEmbeds[state.graph]) {
+        _removeEmbed(state, id);
       }
-      // steps 5.3.1 and 5.3.2:
-      await this._hashAndTrackBlankNode({id, hashToBlankNodes});
     }
 
-    // 5.4) For each hash to identifier list mapping in hash to blank
-    // nodes map, lexicographically-sorted by hash:
-    const hashes = [...hashToBlankNodes.keys()].sort();
-    // optimize away second sort, gather non-unique hashes in order as we go
-    const nonUnique = [];
-    for(const hash of hashes) {
-      // 5.4.1) If the length of identifier list is greater than 1,
-      // continue to the next mapping.
-      const idList = hashToBlankNodes.get(hash);
-      if(idList.length > 1) {
-        nonUnique.push(idList);
+    state.uniqueEmbeds[state.graph][id] = {parent, property};
+
+    // push matching subject onto stack to enable circular embed checks
+    state.subjectStack.push({subject, graph: state.graph});
+
+    // subject is also the name of a graph
+    if(id in state.graphMap) {
+      let recurse = false;
+      let subframe = null;
+      if(!('@graph' in frame)) {
+        recurse = state.graph !== '@merged';
+        subframe = {};
+      } else {
+        subframe = frame['@graph'][0];
+        recurse = !(id === '@merged' || id === '@default');
+        if(!types.isObject(subframe)) {
+          subframe = {};
+        }
+      }
+
+      if(recurse) {
+        // recurse into graph
+        api.frame(
+          {...state, graph: id, embedded: false},
+          Object.keys(state.graphMap[id]).sort(), [subframe], output, '@graph');
+      }
+    }
+
+    // if frame has @included, recurse over its sub-frame
+    if('@included' in frame) {
+      api.frame(
+        {...state, embedded: false},
+        subjects, frame['@included'], output, '@included');
+    }
+
+    // iterate over subject properties
+    for(const prop of Object.keys(subject).sort()) {
+      // copy keywords to output
+      if(isKeyword(prop)) {
+        output[prop] = util.clone(subject[prop]);
+
+        if(prop === '@type') {
+          // count bnode values of @type
+          for(const type of subject['@type']) {
+            if(type.indexOf('_:') === 0) {
+              util.addValue(
+                state.bnodeMap, type, output, {propertyIsArray: true});
+            }
+          }
+        }
         continue;
       }
 
-      // 5.4.2) Use the Issue Identifier algorithm, passing canonical
-      // issuer and the single blank node identifier in identifier
-      // list, identifier, to issue a canonical replacement identifier
-      // for identifier.
-      const id = idList[0];
-      this.canonicalIssuer.getId(id);
-
-      // Note: These steps are skipped, optimized away since the loop
-      // only needs to be run once.
-      // 5.4.3) Remove identifier from non-normalized identifiers.
-      // 5.4.4) Remove hash from the hash to blank nodes map.
-      // 5.4.5) Set simple to true.
-    }
-
-    if(this.maxDeepIterations < 0) {
-      // calculate maxDeepIterations if not explicit
-      if(this.maxWorkFactor === 0) {
-        this.maxDeepIterations = 0;
-      } else if(this.maxWorkFactor === Infinity) {
-        this.maxDeepIterations = Infinity;
-      } else {
-        const nonUniqueCount =
-          nonUnique.reduce((count, v) => count + v.length, 0);
-        this.maxDeepIterations = nonUniqueCount ** this.maxWorkFactor;
-      }
-    }
-    // handle any large inputs as Infinity
-    if(this.maxDeepIterations > Number.MAX_SAFE_INTEGER) {
-      this.maxDeepIterations = Infinity;
-    }
-    this.remainingDeepIterations = this.maxDeepIterations;
-
-    // 6) For each hash to identifier list mapping in hash to blank nodes map,
-    // lexicographically-sorted by hash:
-    // Note: sort optimized away, use `nonUnique`.
-    for(const idList of nonUnique) {
-      // 6.1) Create hash path list where each item will be a result of
-      // running the Hash N-Degree Quads algorithm.
-      const hashPathList = [];
-
-      // 6.2) For each blank node identifier identifier in identifier list:
-      for(const id of idList) {
-        // 6.2.1) If a canonical identifier has already been issued for
-        // identifier, continue to the next identifier.
-        if(this.canonicalIssuer.hasId(id)) {
-          continue;
-        }
-
-        // 6.2.2) Create temporary issuer, an identifier issuer
-        // initialized with the prefix _:b.
-        const issuer = new IdentifierIssuer('b');
-
-        // 6.2.3) Use the Issue Identifier algorithm, passing temporary
-        // issuer and identifier, to issue a new temporary blank node
-        // identifier for identifier.
-        issuer.getId(id);
-
-        // 6.2.4) Run the Hash N-Degree Quads algorithm, passing
-        // temporary issuer, and append the result to the hash path list.
-        const result = await this.hashNDegreeQuads(id, issuer);
-        hashPathList.push(result);
+      // explicit is on and property isn't in the frame, skip processing
+      if(flags.explicit && !(prop in frame)) {
+        continue;
       }
 
-      // 6.3) For each result in the hash path list,
-      // lexicographically-sorted by the hash in result:
-      hashPathList.sort(_stringHashCompare);
-      for(const result of hashPathList) {
-        // 6.3.1) For each blank node identifier, existing identifier,
-        // that was issued a temporary identifier by identifier issuer
-        // in result, issue a canonical identifier, in the same order,
-        // using the Issue Identifier algorithm, passing canonical
-        // issuer and existing identifier.
-        const oldIds = result.issuer.getOldIds();
-        for(const id of oldIds) {
-          this.canonicalIssuer.getId(id);
-        }
-      }
-    }
+      // add objects
+      for(const o of subject[prop]) {
+        const subframe = (prop in frame ?
+          frame[prop] : _createImplicitFrame(flags));
 
-    /* Note: At this point all blank nodes in the set of RDF quads have been
-    assigned canonical identifiers, which have been stored in the canonical
-    issuer. Here each quad is updated by assigning each of its blank nodes
-    its new identifier. */
+        // recurse into list
+        if(graphTypes.isList(o)) {
+          const subframe =
+            (frame[prop] && frame[prop][0] && frame[prop][0]['@list']) ?
+              frame[prop][0]['@list'] :
+              _createImplicitFrame(flags);
 
-    // 7) For each quad, quad, in input dataset:
-    const normalized = [];
-    for(const quad of this.quads) {
-      // 7.1) Create a copy, quad copy, of quad and replace any existing
-      // blank node identifiers using the canonical identifiers
-      // previously issued by canonical issuer.
-      // Note: We optimize away the copy here.
-      const nQuad = NQuads.serializeQuadComponents(
-        this._componentWithCanonicalId(quad.subject),
-        quad.predicate,
-        this._componentWithCanonicalId(quad.object),
-        this._componentWithCanonicalId(quad.graph)
-      );
-      // 7.2) Add quad copy to the normalized dataset.
-      normalized.push(nQuad);
-    }
+          // add empty list
+          const list = {'@list': []};
+          _addFrameOutput(output, prop, list);
 
-    // sort normalized output
-    normalized.sort();
-
-    // 8) Return the normalized dataset.
-    return normalized.join('');
-  }
-
-  // 4.6) Hash First Degree Quads
-  async hashFirstDegreeQuads(id) {
-    // 1) Initialize nquads to an empty list. It will be used to store quads in
-    // N-Quads format.
-    const nquads = [];
-
-    // 2) Get the list of quads `quads` associated with the reference blank node
-    // identifier in the blank node to quads map.
-    const info = this.blankNodeInfo.get(id);
-    const quads = info.quads;
-
-    // 3) For each quad `quad` in `quads`:
-    for(const quad of quads) {
-      // 3.1) Serialize the quad in N-Quads format with the following special
-      // rule:
-
-      // 3.1.1) If any component in quad is an blank node, then serialize it
-      // using a special identifier as follows:
-      // 3.1.2) If the blank node's existing blank node identifier matches
-      // the reference blank node identifier then use the blank node
-      // identifier _:a, otherwise, use the blank node identifier _:z.
-      nquads.push(NQuads.serializeQuadComponents(
-        this.modifyFirstDegreeComponent(id, quad.subject, 'subject'),
-        quad.predicate,
-        this.modifyFirstDegreeComponent(id, quad.object, 'object'),
-        this.modifyFirstDegreeComponent(id, quad.graph, 'graph')
-      ));
-    }
-
-    // 4) Sort nquads in lexicographical order.
-    nquads.sort();
-
-    // 5) Return the hash that results from passing the sorted, joined nquads
-    // through the hash algorithm.
-    const md = this.createMessageDigest();
-    for(const nquad of nquads) {
-      md.update(nquad);
-    }
-    info.hash = await md.digest();
-    return info.hash;
-  }
-
-  // 4.7) Hash Related Blank Node
-  async hashRelatedBlankNode(related, quad, issuer, position) {
-    // 1) Initialize a string input to the value of position.
-    // Note: We use a hash object instead.
-    const md = this.createMessageDigest();
-    md.update(position);
-
-    // 2) If position is not g, append <, the value of the predicate in quad,
-    // and > to input.
-    if(position !== 'g') {
-      md.update(this.getRelatedPredicate(quad));
-    }
-
-    // 3) Set the identifier to use for related, preferring first the canonical
-    // identifier for related if issued, second the identifier issued by issuer
-    // if issued, and last, if necessary, the result of the Hash First Degree
-    // Quads algorithm, passing related.
-    let id;
-    if(this.canonicalIssuer.hasId(related)) {
-      id = '_:' + this.canonicalIssuer.getId(related);
-    } else if(issuer.hasId(related)) {
-      id = '_:' + issuer.getId(related);
-    } else {
-      id = this.blankNodeInfo.get(related).hash;
-    }
-
-    // 4) Append identifier to input.
-    md.update(id);
-
-    // 5) Return the hash that results from passing input through the hash
-    // algorithm.
-    return md.digest();
-  }
-
-  // 4.8) Hash N-Degree Quads
-  async hashNDegreeQuads(id, issuer) {
-    if(this.remainingDeepIterations === 0) {
-      throw new Error(
-        `Maximum deep iterations exceeded (${this.maxDeepIterations}).`);
-    }
-    this.remainingDeepIterations--;
-
-    // 1) Create a hash to related blank nodes map for storing hashes that
-    // identify related blank nodes.
-    // Note: 2) and 3) handled within `createHashToRelated`
-    const md = this.createMessageDigest();
-    const hashToRelated = await this.createHashToRelated(id, issuer);
-
-    // 4) Create an empty string, data to hash.
-    // Note: We created a hash object `md` above instead.
-
-    // 5) For each related hash to blank node list mapping in hash to related
-    // blank nodes map, sorted lexicographically by related hash:
-    const hashes = [...hashToRelated.keys()].sort();
-    for(const hash of hashes) {
-      // 5.1) Append the related hash to the data to hash.
-      md.update(hash);
-
-      // 5.2) Create a string chosen path.
-      let chosenPath = '';
-
-      // 5.3) Create an unset chosen issuer variable.
-      let chosenIssuer;
-
-      // 5.4) For each permutation of blank node list:
-      const permuter = new Permuter(hashToRelated.get(hash));
-      let i = 0;
-      while(permuter.hasNext()) {
-        const permutation = permuter.next();
-        // Note: batch permutations 3 at a time
-        if(++i % 3 === 0) {
-          if(this.signal && this.signal.aborted) {
-            throw new Error(`Abort signal received: "${this.signal.reason}".`);
-          }
-          await this._yield();
-        }
-
-        // 5.4.1) Create a copy of issuer, issuer copy.
-        let issuerCopy = issuer.clone();
-
-        // 5.4.2) Create a string path.
-        let path = '';
-
-        // 5.4.3) Create a recursion list, to store blank node identifiers
-        // that must be recursively processed by this algorithm.
-        const recursionList = [];
-
-        // 5.4.4) For each related in permutation:
-        let nextPermutation = false;
-        for(const related of permutation) {
-          // 5.4.4.1) If a canonical identifier has been issued for
-          // related, append it to path.
-          if(this.canonicalIssuer.hasId(related)) {
-            path += '_:' + this.canonicalIssuer.getId(related);
-          } else {
-            // 5.4.4.2) Otherwise:
-            // 5.4.4.2.1) If issuer copy has not issued an identifier for
-            // related, append related to recursion list.
-            if(!issuerCopy.hasId(related)) {
-              recursionList.push(related);
+          // add list objects
+          const src = o['@list'];
+          for(const oo of src) {
+            if(graphTypes.isSubjectReference(oo)) {
+              // recurse into subject reference
+              api.frame(
+                {...state, embedded: true},
+                [oo['@id']], subframe, list, '@list');
+            } else {
+              // include other values automatically
+              _addFrameOutput(list, '@list', util.clone(oo));
             }
-            // 5.4.4.2.2) Use the Issue Identifier algorithm, passing
-            // issuer copy and related and append the result to path.
-            path += '_:' + issuerCopy.getId(related);
           }
-
-          // 5.4.4.3) If chosen path is not empty and the length of path
-          // is greater than or equal to the length of chosen path and
-          // path is lexicographically greater than chosen path, then
-          // skip to the next permutation.
-          // Note: Comparing path length to chosen path length can be optimized
-          // away; only compare lexicographically.
-          if(chosenPath.length !== 0 && path > chosenPath) {
-            nextPermutation = true;
-            break;
-          }
-        }
-
-        if(nextPermutation) {
-          continue;
-        }
-
-        // 5.4.5) For each related in recursion list:
-        for(const related of recursionList) {
-          // 5.4.5.1) Set result to the result of recursively executing
-          // the Hash N-Degree Quads algorithm, passing related for
-          // identifier and issuer copy for path identifier issuer.
-          const result = await this.hashNDegreeQuads(related, issuerCopy);
-
-          // 5.4.5.2) Use the Issue Identifier algorithm, passing issuer
-          // copy and related and append the result to path.
-          path += '_:' + issuerCopy.getId(related);
-
-          // 5.4.5.3) Append <, the hash in result, and > to path.
-          path += `<${result.hash}>`;
-
-          // 5.4.5.4) Set issuer copy to the identifier issuer in
-          // result.
-          issuerCopy = result.issuer;
-
-          // 5.4.5.5) If chosen path is not empty and the length of path
-          // is greater than or equal to the length of chosen path and
-          // path is lexicographically greater than chosen path, then
-          // skip to the next permutation.
-          // Note: Comparing path length to chosen path length can be optimized
-          // away; only compare lexicographically.
-          if(chosenPath.length !== 0 && path > chosenPath) {
-            nextPermutation = true;
-            break;
-          }
-        }
-
-        if(nextPermutation) {
-          continue;
-        }
-
-        // 5.4.6) If chosen path is empty or path is lexicographically
-        // less than chosen path, set chosen path to path and chosen
-        // issuer to issuer copy.
-        if(chosenPath.length === 0 || path < chosenPath) {
-          chosenPath = path;
-          chosenIssuer = issuerCopy;
+        } else if(graphTypes.isSubjectReference(o)) {
+          // recurse into subject reference
+          api.frame(
+            {...state, embedded: true},
+            [o['@id']], subframe, output, prop);
+        } else if(_valueMatch(subframe[0], o)) {
+          // include other values, if they match
+          _addFrameOutput(output, prop, util.clone(o));
         }
       }
-
-      // 5.5) Append chosen path to data to hash.
-      md.update(chosenPath);
-
-      // 5.6) Replace issuer, by reference, with chosen issuer.
-      issuer = chosenIssuer;
     }
 
-    // 6) Return issuer and the hash that results from passing data to hash
-    // through the hash algorithm.
-    return {hash: await md.digest(), issuer};
-  }
-
-  // helper for modifying component during Hash First Degree Quads
-  modifyFirstDegreeComponent(id, component) {
-    if(component.termType !== 'BlankNode') {
-      return component;
-    }
-    /* Note: A mistake in the RDFC-1.0 spec that made its way into
-    implementations (and therefore must stay to avoid interop breakage)
-    resulted in an assigned canonical ID, if available for
-    `component.value`, not being used in place of `_:a`/`_:z`, so
-    we don't use it here. */
-    return {
-      termType: 'BlankNode',
-      value: component.value === id ? 'a' : 'z'
-    };
-  }
-
-  // helper for getting a related predicate
-  getRelatedPredicate(quad) {
-    return `<${quad.predicate.value}>`;
-  }
-
-  // helper for creating hash to related blank nodes map
-  async createHashToRelated(id, issuer) {
-    // 1) Create a hash to related blank nodes map for storing hashes that
-    // identify related blank nodes.
-    const hashToRelated = new Map();
-
-    // 2) Get a reference, quads, to the list of quads in the blank node to
-    // quads map for the key identifier.
-    const quads = this.blankNodeInfo.get(id).quads;
-
-    // 3) For each quad in quads:
-    let i = 0;
-    for(const quad of quads) {
-      // Note: batch hashing related blank node quads 100 at a time
-      if(++i % 100 === 0) {
-        await this._yield();
+    // handle defaults
+    for(const prop of Object.keys(frame).sort()) {
+      // skip keywords
+      if(prop === '@type') {
+        if(!types.isObject(frame[prop][0]) ||
+           !('@default' in frame[prop][0])) {
+          continue;
+        }
+        // allow through default types
+      } else if(isKeyword(prop)) {
+        continue;
       }
-      // 3.1) For each component in quad, if component is the subject, object,
-      // or graph name and it is a blank node that is not identified by
-      // identifier:
-      // steps 3.1.1 and 3.1.2 occur in helpers:
-      await Promise.all([
-        this._addRelatedBlankNodeHash({
-          quad, component: quad.subject, position: 's',
-          id, issuer, hashToRelated
-        }),
-        this._addRelatedBlankNodeHash({
-          quad, component: quad.object, position: 'o',
-          id, issuer, hashToRelated
-        }),
-        this._addRelatedBlankNodeHash({
-          quad, component: quad.graph, position: 'g',
-          id, issuer, hashToRelated
-        })
-      ]);
+
+      // if omit default is off, then include default values for properties
+      // that appear in the next frame but are not in the matching subject
+      const next = frame[prop][0] || {};
+      const omitDefaultOn = _getFrameFlag(next, options, 'omitDefault');
+      if(!omitDefaultOn && !(prop in output)) {
+        let preserve = '@null';
+        if('@default' in next) {
+          preserve = util.clone(next['@default']);
+        }
+        if(!types.isArray(preserve)) {
+          preserve = [preserve];
+        }
+        output[prop] = [{'@preserve': preserve}];
+      }
     }
 
-    return hashToRelated;
-  }
-
-  async _hashAndTrackBlankNode({id, hashToBlankNodes}) {
-    // 5.3.1) Create a hash, hash, according to the Hash First Degree
-    // Quads algorithm.
-    const hash = await this.hashFirstDegreeQuads(id);
-
-    // 5.3.2) Add hash and identifier to hash to blank nodes map,
-    // creating a new entry if necessary.
-    const idList = hashToBlankNodes.get(hash);
-    if(!idList) {
-      hashToBlankNodes.set(hash, [id]);
-    } else {
-      idList.push(id);
+    // if embed reverse values by finding nodes having this subject as a value
+    // of the associated property
+    for(const reverseProp of Object.keys(frame['@reverse'] || {}).sort()) {
+      const subframe = frame['@reverse'][reverseProp];
+      for(const subject of Object.keys(state.subjects)) {
+        const nodeValues =
+          util.getValues(state.subjects[subject], reverseProp);
+        if(nodeValues.some(v => v['@id'] === id)) {
+          // node has property referencing this subject, recurse
+          output['@reverse'] = output['@reverse'] || {};
+          util.addValue(
+            output['@reverse'], reverseProp, [], {propertyIsArray: true});
+          api.frame(
+            {...state, embedded: true},
+            [subject], subframe, output['@reverse'][reverseProp],
+            property);
+        }
+      }
     }
-  }
 
-  _addBlankNodeQuadInfo({quad, component}) {
-    if(component.termType !== 'BlankNode') {
-      return;
-    }
-    const id = component.value;
-    const info = this.blankNodeInfo.get(id);
-    if(info) {
-      info.quads.add(quad);
-    } else {
-      this.blankNodeInfo.set(id, {quads: new Set([quad]), hash: null});
-    }
-  }
+    // add output to parent
+    _addFrameOutput(parent, property, output);
 
-  async _addRelatedBlankNodeHash(
-    {quad, component, position, id, issuer, hashToRelated}) {
-    if(!(component.termType === 'BlankNode' && component.value !== id)) {
-      return;
-    }
-    // 3.1.1) Set hash to the result of the Hash Related Blank Node
-    // algorithm, passing the blank node identifier for component as
-    // related, quad, path identifier issuer as issuer, and position as
-    // either s, o, or g based on whether component is a subject, object,
-    // graph name, respectively.
-    const related = component.value;
-    const hash = await this.hashRelatedBlankNode(
-      related, quad, issuer, position);
-
-    // 3.1.2) Add a mapping of hash to the blank node identifier for
-    // component to hash to related blank nodes map, adding an entry as
-    // necessary.
-    const entries = hashToRelated.get(hash);
-    if(entries) {
-      entries.push(related);
-    } else {
-      hashToRelated.set(hash, [related]);
-    }
-  }
-
-  // canonical ids for 7.1
-  _componentWithCanonicalId(component) {
-    if(component.termType === 'BlankNode' &&
-      !component.value.startsWith(this.canonicalIssuer.prefix)) {
-      // create new BlankNode
-      return {
-        termType: 'BlankNode',
-        value: this.canonicalIssuer.getId(component.value)
-      };
-    }
-    return component;
-  }
-
-  async _yield() {
-    return new Promise(resolve => setImmediate(resolve));
+    // pop matching subject from circular ref-checking stack
+    state.subjectStack.pop();
   }
 };
 
-function _stringHashCompare(a, b) {
-  return a.hash < b.hash ? -1 : a.hash > b.hash ? 1 : 0;
+/**
+ * Replace `@null` with `null`, removing it from arrays.
+ *
+ * @param input the framed, compacted output.
+ * @param options the framing options used.
+ *
+ * @return the resulting output.
+ */
+api.cleanupNull = (input, options) => {
+  // recurse through arrays
+  if(types.isArray(input)) {
+    const noNulls = input.map(v => api.cleanupNull(v, options));
+    return noNulls.filter(v => v); // removes nulls from array
+  }
+
+  if(input === '@null') {
+    return null;
+  }
+
+  if(types.isObject(input)) {
+    // handle in-memory linked nodes
+    if('@id' in input) {
+      const id = input['@id'];
+      if(options.link.hasOwnProperty(id)) {
+        const idx = options.link[id].indexOf(input);
+        if(idx !== -1) {
+          // already visited
+          return options.link[id][idx];
+        }
+        // prevent circular visitation
+        options.link[id].push(input);
+      } else {
+        // prevent circular visitation
+        options.link[id] = [input];
+      }
+    }
+
+    for(const key in input) {
+      input[key] = api.cleanupNull(input[key], options);
+    }
+  }
+  return input;
+};
+
+/**
+ * Creates an implicit frame when recursing through subject matches. If
+ * a frame doesn't have an explicit frame for a particular property, then
+ * a wildcard child frame will be created that uses the same flags that the
+ * parent frame used.
+ *
+ * @param flags the current framing flags.
+ *
+ * @return the implicit frame.
+ */
+function _createImplicitFrame(flags) {
+  const frame = {};
+  for(const key in flags) {
+    if(flags[key] !== undefined) {
+      frame['@' + key] = [flags[key]];
+    }
+  }
+  return [frame];
 }
+
+/**
+ * Checks the current subject stack to see if embedding the given subject
+ * would cause a circular reference.
+ *
+ * @param subjectToEmbed the subject to embed.
+ * @param graph the graph the subject to embed is in.
+ * @param subjectStack the current stack of subjects.
+ *
+ * @return true if a circular reference would be created, false if not.
+ */
+function _createsCircularReference(subjectToEmbed, graph, subjectStack) {
+  for(let i = subjectStack.length - 1; i >= 0; --i) {
+    const subject = subjectStack[i];
+    if(subject.graph === graph &&
+      subject.subject['@id'] === subjectToEmbed['@id']) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Gets the frame flag value for the given flag name.
+ *
+ * @param frame the frame.
+ * @param options the framing options.
+ * @param name the flag name.
+ *
+ * @return the flag value.
+ */
+function _getFrameFlag(frame, options, name) {
+  const flag = '@' + name;
+  let rval = (flag in frame ? frame[flag][0] : options[name]);
+  if(name === 'embed') {
+    // default is "@last"
+    // backwards-compatibility support for "embed" maps:
+    // true => "@last"
+    // false => "@never"
+    if(rval === true) {
+      rval = '@once';
+    } else if(rval === false) {
+      rval = '@never';
+    } else if(rval !== '@always' && rval !== '@never' && rval !== '@link' &&
+      rval !== '@first' && rval !== '@last' && rval !== '@once') {
+      throw new JsonLdError(
+        'Invalid JSON-LD syntax; invalid value of @embed.',
+        'jsonld.SyntaxError', {code: 'invalid @embed value', frame});
+    }
+  }
+  return rval;
+}
+
+/**
+ * Validates a JSON-LD frame, throwing an exception if the frame is invalid.
+ *
+ * @param frame the frame to validate.
+ */
+function _validateFrame(frame) {
+  if(!types.isArray(frame) || frame.length !== 1 || !types.isObject(frame[0])) {
+    throw new JsonLdError(
+      'Invalid JSON-LD syntax; a JSON-LD frame must be a single object.',
+      'jsonld.SyntaxError', {frame});
+  }
+
+  if('@id' in frame[0]) {
+    for(const id of util.asArray(frame[0]['@id'])) {
+      // @id must be wildcard or an IRI
+      if(!(types.isObject(id) || url.isAbsolute(id)) ||
+        (types.isString(id) && id.indexOf('_:') === 0)) {
+        throw new JsonLdError(
+          'Invalid JSON-LD syntax; invalid @id in frame.',
+          'jsonld.SyntaxError', {code: 'invalid frame', frame});
+      }
+    }
+  }
+
+  if('@type' in frame[0]) {
+    for(const type of util.asArray(frame[0]['@type'])) {
+      // @type must be wildcard, IRI, or @json
+      if(!(types.isObject(type) || url.isAbsolute(type) ||
+          (type === '@json')) ||
+        (types.isString(type) && type.indexOf('_:') === 0)) {
+        throw new JsonLdError(
+          'Invalid JSON-LD syntax; invalid @type in frame.',
+          'jsonld.SyntaxError', {code: 'invalid frame', frame});
+      }
+    }
+  }
+}
+
+/**
+ * Returns a map of all of the subjects that match a parsed frame.
+ *
+ * @param state the current framing state.
+ * @param subjects the set of subjects to filter.
+ * @param frame the parsed frame.
+ * @param flags the frame flags.
+ *
+ * @return all of the matched subjects.
+ */
+function _filterSubjects(state, subjects, frame, flags) {
+  // filter subjects in @id order
+  const rval = {};
+  for(const id of subjects) {
+    const subject = state.graphMap[state.graph][id];
+    if(_filterSubject(state, subject, frame, flags)) {
+      rval[id] = subject;
+    }
+  }
+  return rval;
+}
+
+/**
+ * Returns true if the given subject matches the given frame.
+ *
+ * Matches either based on explicit type inclusion where the node has any
+ * type listed in the frame. If the frame has empty types defined matches
+ * nodes not having a @type. If the frame has a type of {} defined matches
+ * nodes having any type defined.
+ *
+ * Otherwise, does duck typing, where the node must have all of the
+ * properties defined in the frame.
+ *
+ * @param state the current framing state.
+ * @param subject the subject to check.
+ * @param frame the frame to check.
+ * @param flags the frame flags.
+ *
+ * @return true if the subject matches, false if not.
+ */
+function _filterSubject(state, subject, frame, flags) {
+  // check ducktype
+  let wildcard = true;
+  let matchesSome = false;
+
+  for(const key in frame) {
+    let matchThis = false;
+    const nodeValues = util.getValues(subject, key);
+    const isEmpty = util.getValues(frame, key).length === 0;
+
+    if(key === '@id') {
+      // match on no @id or any matching @id, including wildcard
+      if(types.isEmptyObject(frame['@id'][0] || {})) {
+        matchThis = true;
+      } else if(frame['@id'].length >= 0) {
+        matchThis = frame['@id'].includes(nodeValues[0]);
+      }
+      if(!flags.requireAll) {
+        return matchThis;
+      }
+    } else if(key === '@type') {
+      // check @type (object value means 'any' type,
+      // fall through to ducktyping)
+      wildcard = false;
+      if(isEmpty) {
+        if(nodeValues.length > 0) {
+          // don't match on no @type
+          return false;
+        }
+        matchThis = true;
+      } else if(frame['@type'].length === 1 &&
+        types.isEmptyObject(frame['@type'][0])) {
+        // match on wildcard @type if there is a type
+        matchThis = nodeValues.length > 0;
+      } else {
+        // match on a specific @type
+        for(const type of frame['@type']) {
+          if(types.isObject(type) && '@default' in type) {
+            // match on default object
+            matchThis = true;
+          } else {
+            matchThis = matchThis || nodeValues.some(tt => tt === type);
+          }
+        }
+      }
+      if(!flags.requireAll) {
+        return matchThis;
+      }
+    } else if(isKeyword(key)) {
+      continue;
+    } else {
+      // Force a copy of this frame entry so it can be manipulated
+      const thisFrame = util.getValues(frame, key)[0];
+      let hasDefault = false;
+      if(thisFrame) {
+        _validateFrame([thisFrame]);
+        hasDefault = '@default' in thisFrame;
+      }
+
+      // no longer a wildcard pattern if frame has any non-keyword properties
+      wildcard = false;
+
+      // skip, but allow match if node has no value for property, and frame has
+      // a default value
+      if(nodeValues.length === 0 && hasDefault) {
+        continue;
+      }
+
+      // if frame value is empty, don't match if subject has any value
+      if(nodeValues.length > 0 && isEmpty) {
+        return false;
+      }
+
+      if(thisFrame === undefined) {
+        // node does not match if values is not empty and the value of property
+        // in frame is match none.
+        if(nodeValues.length > 0) {
+          return false;
+        }
+        matchThis = true;
+      } else {
+        if(graphTypes.isList(thisFrame)) {
+          const listValue = thisFrame['@list'][0];
+          if(graphTypes.isList(nodeValues[0])) {
+            const nodeListValues = nodeValues[0]['@list'];
+
+            if(graphTypes.isValue(listValue)) {
+              // match on any matching value
+              matchThis = nodeListValues.some(lv => _valueMatch(listValue, lv));
+            } else if(graphTypes.isSubject(listValue) ||
+              graphTypes.isSubjectReference(listValue)) {
+              matchThis = nodeListValues.some(lv => _nodeMatch(
+                state, listValue, lv, flags));
+            }
+          }
+        } else if(graphTypes.isValue(thisFrame)) {
+          matchThis = nodeValues.some(nv => _valueMatch(thisFrame, nv));
+        } else if(graphTypes.isSubjectReference(thisFrame)) {
+          matchThis =
+            nodeValues.some(nv => _nodeMatch(state, thisFrame, nv, flags));
+        } else if(types.isObject(thisFrame)) {
+          matchThis = nodeValues.length > 0;
+        } else {
+          matchThis = false;
+        }
+      }
+    }
+
+    // all non-defaulted values must match if requireAll is set
+    if(!matchThis && flags.requireAll) {
+      return false;
+    }
+
+    matchesSome = matchesSome || matchThis;
+  }
+
+  // return true if wildcard or subject matches some properties
+  return wildcard || matchesSome;
+}
+
+/**
+ * Removes an existing embed.
+ *
+ * @param state the current framing state.
+ * @param id the @id of the embed to remove.
+ */
+function _removeEmbed(state, id) {
+  // get existing embed
+  const embeds = state.uniqueEmbeds[state.graph];
+  const embed = embeds[id];
+  const parent = embed.parent;
+  const property = embed.property;
+
+  // create reference to replace embed
+  const subject = {'@id': id};
+
+  // remove existing embed
+  if(types.isArray(parent)) {
+    // replace subject with reference
+    for(let i = 0; i < parent.length; ++i) {
+      if(util.compareValues(parent[i], subject)) {
+        parent[i] = subject;
+        break;
+      }
+    }
+  } else {
+    // replace subject with reference
+    const useArray = types.isArray(parent[property]);
+    util.removeValue(parent, property, subject, {propertyIsArray: useArray});
+    util.addValue(parent, property, subject, {propertyIsArray: useArray});
+  }
+
+  // recursively remove dependent dangling embeds
+  const removeDependents = id => {
+    // get embed keys as a separate array to enable deleting keys in map
+    const ids = Object.keys(embeds);
+    for(const next of ids) {
+      if(next in embeds && types.isObject(embeds[next].parent) &&
+        embeds[next].parent['@id'] === id) {
+        delete embeds[next];
+        removeDependents(next);
+      }
+    }
+  };
+  removeDependents(id);
+}
+
+/**
+ * Removes the @preserve keywords from expanded result of framing.
+ *
+ * @param input the framed, framed output.
+ * @param options the framing options used.
+ *
+ * @return the resulting output.
+ */
+function _cleanupPreserve(input, options) {
+  // recurse through arrays
+  if(types.isArray(input)) {
+    return input.map(value => _cleanupPreserve(value, options));
+  }
+
+  if(types.isObject(input)) {
+    // remove @preserve
+    if('@preserve' in input) {
+      return input['@preserve'][0];
+    }
+
+    // skip @values
+    if(graphTypes.isValue(input)) {
+      return input;
+    }
+
+    // recurse through @lists
+    if(graphTypes.isList(input)) {
+      input['@list'] = _cleanupPreserve(input['@list'], options);
+      return input;
+    }
+
+    // handle in-memory linked nodes
+    if('@id' in input) {
+      const id = input['@id'];
+      if(options.link.hasOwnProperty(id)) {
+        const idx = options.link[id].indexOf(input);
+        if(idx !== -1) {
+          // already visited
+          return options.link[id][idx];
+        }
+        // prevent circular visitation
+        options.link[id].push(input);
+      } else {
+        // prevent circular visitation
+        options.link[id] = [input];
+      }
+    }
+
+    // recurse through properties
+    for(const prop in input) {
+      // potentially remove the id, if it is an unreference bnode
+      if(prop === '@id' && options.bnodesToClear.includes(input[prop])) {
+        delete input['@id'];
+        continue;
+      }
+
+      input[prop] = _cleanupPreserve(input[prop], options);
+    }
+  }
+  return input;
+}
+
+/**
+ * Adds framing output to the given parent.
+ *
+ * @param parent the parent to add to.
+ * @param property the parent property.
+ * @param output the output to add.
+ */
+function _addFrameOutput(parent, property, output) {
+  if(types.isObject(parent)) {
+    util.addValue(parent, property, output, {propertyIsArray: true});
+  } else {
+    parent.push(output);
+  }
+}
+
+/**
+ * Node matches if it is a node, and matches the pattern as a frame.
+ *
+ * @param state the current framing state.
+ * @param pattern used to match value
+ * @param value to check
+ * @param flags the frame flags.
+ */
+function _nodeMatch(state, pattern, value, flags) {
+  if(!('@id' in value)) {
+    return false;
+  }
+  const nodeObject = state.subjects[value['@id']];
+  return nodeObject && _filterSubject(state, nodeObject, pattern, flags);
+}
+
+/**
+ * Value matches if it is a value and matches the value pattern
+ *
+ * * `pattern` is empty
+ * * @values are the same, or `pattern[@value]` is a wildcard, and
+ * * @types are the same or `value[@type]` is not null
+ *   and `pattern[@type]` is `{}`, or `value[@type]` is null
+ *   and `pattern[@type]` is null or `[]`, and
+ * * @languages are the same or `value[@language]` is not null
+ *   and `pattern[@language]` is `{}`, or `value[@language]` is null
+ *   and `pattern[@language]` is null or `[]`.
+ *
+ * @param pattern used to match value
+ * @param value to check
+ */
+function _valueMatch(pattern, value) {
+  const v1 = value['@value'];
+  const t1 = value['@type'];
+  const l1 = value['@language'];
+  const v2 = pattern['@value'] ?
+    (types.isArray(pattern['@value']) ?
+      pattern['@value'] : [pattern['@value']]) :
+    [];
+  const t2 = pattern['@type'] ?
+    (types.isArray(pattern['@type']) ?
+      pattern['@type'] : [pattern['@type']]) :
+    [];
+  const l2 = pattern['@language'] ?
+    (types.isArray(pattern['@language']) ?
+      pattern['@language'] : [pattern['@language']]) :
+    [];
+
+  if(v2.length === 0 && t2.length === 0 && l2.length === 0) {
+    return true;
+  }
+  if(!(v2.includes(v1) || types.isEmptyObject(v2[0]))) {
+    return false;
+  }
+  if(!(!t1 && t2.length === 0 || t2.includes(t1) || t1 &&
+    types.isEmptyObject(t2[0]))) {
+    return false;
+  }
+  if(!(!l1 && l2.length === 0 || l2.includes(l1) || l1 &&
+    types.isEmptyObject(l2[0]))) {
+    return false;
+  }
+  return true;
+}
+
+
+/***/ },
+
+/***/ 3947
+(module, __unused_webpack_exports, __webpack_require__) {
+
+"use strict";
+/*
+ * Copyright (c) 2017-2023 Digital Bazaar, Inc. All rights reserved.
+ */
+
+
+const JsonLdError = __webpack_require__(2207);
+const graphTypes = __webpack_require__(3978);
+const types = __webpack_require__(7382);
+
+const {
+  REGEX_BCP47,
+  addValue: _addValue
+} = __webpack_require__(9263);
+
+const {
+  handleEvent: _handleEvent
+} = __webpack_require__(2246);
+
+// constants
+const {
+  // RDF,
+  RDF_LIST,
+  RDF_FIRST,
+  RDF_REST,
+  RDF_NIL,
+  RDF_TYPE,
+  // RDF_PLAIN_LITERAL,
+  // RDF_XML_LITERAL,
+  RDF_JSON_LITERAL,
+  // RDF_OBJECT,
+  // RDF_LANGSTRING,
+
+  // XSD,
+  XSD_BOOLEAN,
+  XSD_DOUBLE,
+  XSD_INTEGER,
+  XSD_STRING,
+} = __webpack_require__(9378);
+
+const api = {};
+module.exports = api;
+
+/**
+ * Converts an RDF dataset to JSON-LD.
+ *
+ * @param dataset the RDF dataset.
+ * @param options the RDF serialization options.
+ *
+ * @return a Promise that resolves to the JSON-LD output.
+ */
+api.fromRDF = async (
+  dataset,
+  options
+) => {
+  const {
+    useRdfType = false,
+    useNativeTypes = false,
+    rdfDirection = null
+  } = options;
+  // FIXME: use Maps?
+  const defaultGraph = {};
+  const graphMap = {'@default': defaultGraph};
+  const referencedOnce = {};
+  if(rdfDirection) {
+    if(rdfDirection === 'compound-literal') {
+      throw new JsonLdError(
+        'Unsupported rdfDirection value.',
+        'jsonld.InvalidRdfDirection',
+        {value: rdfDirection});
+    } else if(rdfDirection !== 'i18n-datatype') {
+      throw new JsonLdError(
+        'Unknown rdfDirection value.',
+        'jsonld.InvalidRdfDirection',
+        {value: rdfDirection});
+    }
+  }
+
+  for(const quad of dataset) {
+    // TODO: change 'name' to 'graph'
+    const name = (quad.graph.termType === 'DefaultGraph') ?
+      '@default' : quad.graph.value;
+    if(!(name in graphMap)) {
+      graphMap[name] = {};
+    }
+    if(name !== '@default' && !(name in defaultGraph)) {
+      defaultGraph[name] = {'@id': name};
+    }
+
+    const nodeMap = graphMap[name];
+
+    // get subject, predicate, object
+    const s = _nodeId(quad.subject);
+    const p = quad.predicate.value;
+    const o = quad.object;
+
+    if(!(s in nodeMap)) {
+      nodeMap[s] = {'@id': s};
+    }
+    const node = nodeMap[s];
+
+    const objectNodeId = _nodeId(o);
+    const objectIsNode = !!objectNodeId;
+    if(objectIsNode && !(objectNodeId in nodeMap)) {
+      nodeMap[objectNodeId] = {'@id': objectNodeId};
+    }
+
+    if(p === RDF_TYPE && !useRdfType && objectIsNode) {
+      _addValue(node, '@type', objectNodeId, {propertyIsArray: true});
+      continue;
+    }
+
+    const value = _RDFToObject(o, useNativeTypes, rdfDirection, options);
+    _addValue(node, p, value, {propertyIsArray: true});
+
+    // object may be an RDF list/partial list node but we can't know easily
+    // until all triples are read
+    if(objectIsNode) {
+      if(objectNodeId === RDF_NIL) {
+        // track rdf:nil uniquely per graph
+        const object = nodeMap[objectNodeId];
+        if(!('usages' in object)) {
+          object.usages = [];
+        }
+        object.usages.push({
+          node,
+          property: p,
+          value
+        });
+      } else if(objectNodeId in referencedOnce) {
+        // object referenced more than once
+        referencedOnce[objectNodeId] = false;
+      } else {
+        // keep track of single reference
+        referencedOnce[objectNodeId] = {
+          node,
+          property: p,
+          value
+        };
+      }
+    }
+  }
+
+  /*
+  for(let name in dataset) {
+    const graph = dataset[name];
+    if(!(name in graphMap)) {
+      graphMap[name] = {};
+    }
+    if(name !== '@default' && !(name in defaultGraph)) {
+      defaultGraph[name] = {'@id': name};
+    }
+    const nodeMap = graphMap[name];
+    for(let ti = 0; ti < graph.length; ++ti) {
+      const triple = graph[ti];
+
+      // get subject, predicate, object
+      const s = triple.subject.value;
+      const p = triple.predicate.value;
+      const o = triple.object;
+
+      if(!(s in nodeMap)) {
+        nodeMap[s] = {'@id': s};
+      }
+      const node = nodeMap[s];
+
+      const objectIsId = (o.type === 'IRI' || o.type === 'blank node');
+      if(objectIsId && !(o.value in nodeMap)) {
+        nodeMap[o.value] = {'@id': o.value};
+      }
+
+      if(p === RDF_TYPE && !useRdfType && objectIsId) {
+        _addValue(node, '@type', o.value, {propertyIsArray: true});
+        continue;
+      }
+
+      const value = _RDFToObject(o, useNativeTypes);
+      _addValue(node, p, value, {propertyIsArray: true});
+
+      // object may be an RDF list/partial list node but we can't know easily
+      // until all triples are read
+      if(objectIsId) {
+        if(o.value === RDF_NIL) {
+          // track rdf:nil uniquely per graph
+          const object = nodeMap[o.value];
+          if(!('usages' in object)) {
+            object.usages = [];
+          }
+          object.usages.push({
+            node: node,
+            property: p,
+            value: value
+          });
+        } else if(o.value in referencedOnce) {
+          // object referenced more than once
+          referencedOnce[o.value] = false;
+        } else {
+          // keep track of single reference
+          referencedOnce[o.value] = {
+            node: node,
+            property: p,
+            value: value
+          };
+        }
+      }
+    }
+  }*/
+
+  // convert linked lists to @list arrays
+  for(const name in graphMap) {
+    const graphObject = graphMap[name];
+
+    // no @lists to be converted, continue
+    if(!(RDF_NIL in graphObject)) {
+      continue;
+    }
+
+    // iterate backwards through each RDF list
+    const nil = graphObject[RDF_NIL];
+    if(!nil.usages) {
+      continue;
+    }
+    for(let usage of nil.usages) {
+      let node = usage.node;
+      let property = usage.property;
+      let head = usage.value;
+      const list = [];
+      const listNodes = [];
+
+      // ensure node is a well-formed list node; it must:
+      // 1. Be referenced only once.
+      // 2. Have an array for rdf:first that has 1 item.
+      // 3. Have an array for rdf:rest that has 1 item.
+      // 4. Have no keys other than: @id, rdf:first, rdf:rest, and,
+      //   optionally, @type where the value is rdf:List.
+      let nodeKeyCount = Object.keys(node).length;
+      while(property === RDF_REST &&
+        types.isObject(referencedOnce[node['@id']]) &&
+        types.isArray(node[RDF_FIRST]) && node[RDF_FIRST].length === 1 &&
+        types.isArray(node[RDF_REST]) && node[RDF_REST].length === 1 &&
+        (nodeKeyCount === 3 ||
+          (nodeKeyCount === 4 && types.isArray(node['@type']) &&
+          node['@type'].length === 1 && node['@type'][0] === RDF_LIST))) {
+        list.push(node[RDF_FIRST][0]);
+        listNodes.push(node['@id']);
+
+        // get next node, moving backwards through list
+        usage = referencedOnce[node['@id']];
+        node = usage.node;
+        property = usage.property;
+        head = usage.value;
+        nodeKeyCount = Object.keys(node).length;
+
+        // if node is not a blank node, then list head found
+        if(!graphTypes.isBlankNode(node)) {
+          break;
+        }
+      }
+
+      // transform list into @list object
+      delete head['@id'];
+      head['@list'] = list.reverse();
+      for(const listNode of listNodes) {
+        delete graphObject[listNode];
+      }
+    }
+
+    delete nil.usages;
+  }
+
+  const result = [];
+  const subjects = Object.keys(defaultGraph).sort();
+  for(const subject of subjects) {
+    const node = defaultGraph[subject];
+    if(subject in graphMap) {
+      const graph = node['@graph'] = [];
+      const graphObject = graphMap[subject];
+      const graphSubjects = Object.keys(graphObject).sort();
+      for(const graphSubject of graphSubjects) {
+        const node = graphObject[graphSubject];
+        // only add full subjects to top-level
+        if(!graphTypes.isSubjectReference(node)) {
+          graph.push(node);
+        }
+      }
+    }
+    // only add full subjects to top-level
+    if(!graphTypes.isSubjectReference(node)) {
+      result.push(node);
+    }
+  }
+
+  return result;
+};
+
+/**
+ * Converts an RDF triple object to a JSON-LD object.
+ *
+ * @param o the RDF triple object to convert.
+ * @param useNativeTypes true to output native types, false not to.
+ * @param rdfDirection text direction mode [null, i18n-datatype]
+ * @param options top level API options
+ *
+ * @return the JSON-LD object.
+ */
+function _RDFToObject(o, useNativeTypes, rdfDirection, options) {
+  // convert NamedNode/BlankNode object to JSON-LD
+  const nodeId = _nodeId(o);
+  if(nodeId) {
+    return {'@id': nodeId};
+  }
+
+  // convert literal to JSON-LD
+  const rval = {'@value': o.value};
+
+  // add language
+  if(o.language) {
+    if(!o.language.match(REGEX_BCP47)) {
+      if(options.eventHandler) {
+        _handleEvent({
+          event: {
+            type: ['JsonLdEvent'],
+            code: 'invalid @language value',
+            level: 'warning',
+            message: '@language value must be valid BCP47.',
+            details: {
+              language: o.language
+            }
+          },
+          options
+        });
+      }
+    }
+    rval['@language'] = o.language;
+  } else {
+    let type = o.datatype.value;
+    if(!type) {
+      type = XSD_STRING;
+    }
+    if(type === RDF_JSON_LITERAL) {
+      type = '@json';
+      try {
+        rval['@value'] = JSON.parse(rval['@value']);
+      } catch(e) {
+        throw new JsonLdError(
+          'JSON literal could not be parsed.',
+          'jsonld.InvalidJsonLiteral',
+          {code: 'invalid JSON literal', value: rval['@value'], cause: e});
+      }
+    }
+    // use native types for certain xsd types
+    if(useNativeTypes) {
+      if(type === XSD_BOOLEAN) {
+        if(rval['@value'] === 'true' || rval['@value'] === '1') {
+          rval['@value'] = true;
+        } else if(rval['@value'] === 'false' || rval['@value'] === '0') {
+          rval['@value'] = false;
+        } else {
+          rval['@type'] = type;
+        }
+      } else if(type === XSD_INTEGER) {
+        if(types.isNumeric(rval['@value'])) {
+          const i = parseInt(rval['@value'], 10);
+          if(i.toFixed(0) === rval['@value']) {
+            rval['@value'] = i;
+          }
+        } else {
+          rval['@type'] = type;
+        }
+      } else if(type === XSD_DOUBLE) {
+        if(types.isNumeric(rval['@value'])) {
+          rval['@value'] = parseFloat(rval['@value']);
+        } else {
+          rval['@type'] = type;
+        }
+      } else {
+        rval['@type'] = type;
+      }
+    } else if(rdfDirection === 'i18n-datatype' &&
+      type.startsWith('https://www.w3.org/ns/i18n#')) {
+      const [, language, direction] = type.split(/[#_]/);
+      if(language.length > 0) {
+        rval['@language'] = language;
+        if(!language.match(REGEX_BCP47)) {
+          if(options.eventHandler) {
+            _handleEvent({
+              event: {
+                type: ['JsonLdEvent'],
+                code: 'invalid @language value',
+                level: 'warning',
+                message: '@language value must be valid BCP47.',
+                details: {
+                  language
+                }
+              },
+              options
+            });
+          }
+        }
+      }
+      rval['@direction'] = direction;
+    } else if(type !== XSD_STRING) {
+      rval['@type'] = type;
+    }
+  }
+
+  return rval;
+}
+
+/**
+ * Return id for a term. Handles BlankNodes and NamedNodes. Adds a '_:' prefix
+ * for BlanksNodes.
+ *
+ * @param term a term object.
+ *
+ * @return the Node term id or null.
+ */
+function _nodeId(term) {
+  if(term.termType === 'NamedNode') {
+    return term.value;
+  } else if(term.termType === 'BlankNode') {
+    return '_:' + term.value;
+  }
+  return null;
+}
+
+
+/***/ },
+
+/***/ 3978
+(module, __unused_webpack_exports, __webpack_require__) {
+
+"use strict";
+/*
+ * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
+ */
+
+
+const types = __webpack_require__(7382);
+
+const api = {};
+module.exports = api;
+
+/**
+ * Returns true if the given value is a subject with properties.
+ *
+ * @param v the value to check.
+ *
+ * @return true if the value is a subject with properties, false if not.
+ */
+api.isSubject = v => {
+  // Note: A value is a subject if all of these hold true:
+  // 1. It is an Object.
+  // 2. It is not a @value, @set, or @list.
+  // 3. It has more than 1 key OR any existing key is not @id.
+  if(types.isObject(v) &&
+    !(('@value' in v) || ('@set' in v) || ('@list' in v))) {
+    const keyCount = Object.keys(v).length;
+    return (keyCount > 1 || !('@id' in v));
+  }
+  return false;
+};
+
+/**
+ * Returns true if the given value is a subject reference.
+ *
+ * @param v the value to check.
+ *
+ * @return true if the value is a subject reference, false if not.
+ */
+api.isSubjectReference = v =>
+  // Note: A value is a subject reference if all of these hold true:
+  // 1. It is an Object.
+  // 2. It has a single key: @id.
+  (types.isObject(v) && Object.keys(v).length === 1 && ('@id' in v));
+
+/**
+ * Returns true if the given value is a @value.
+ *
+ * @param v the value to check.
+ *
+ * @return true if the value is a @value, false if not.
+ */
+api.isValue = v =>
+  // Note: A value is a @value if all of these hold true:
+  // 1. It is an Object.
+  // 2. It has the @value property.
+  types.isObject(v) && ('@value' in v);
+
+/**
+ * Returns true if the given value is a @list.
+ *
+ * @param v the value to check.
+ *
+ * @return true if the value is a @list, false if not.
+ */
+api.isList = v =>
+  // Note: A value is a @list if all of these hold true:
+  // 1. It is an Object.
+  // 2. It has the @list property.
+  types.isObject(v) && ('@list' in v);
+
+/**
+ * Returns true if the given value is a @graph.
+ *
+ * @return true if the value is a @graph, false if not.
+ */
+api.isGraph = v => {
+  // Note: A value is a graph if all of these hold true:
+  // 1. It is an object.
+  // 2. It has an `@graph` key.
+  // 3. It may have '@id' or '@index'
+  return types.isObject(v) &&
+    '@graph' in v &&
+    Object.keys(v)
+      .filter(key => key !== '@id' && key !== '@index').length === 1;
+};
+
+/**
+ * Returns true if the given value is a simple @graph.
+ *
+ * @return true if the value is a simple @graph, false if not.
+ */
+api.isSimpleGraph = v => {
+  // Note: A value is a simple graph if all of these hold true:
+  // 1. It is an object.
+  // 2. It has an `@graph` key.
+  // 3. It has only 1 key or 2 keys where one of them is `@index`.
+  return api.isGraph(v) && !('@id' in v);
+};
+
+/**
+ * Returns true if the given value is a blank node.
+ *
+ * @param v the value to check.
+ *
+ * @return true if the value is a blank node, false if not.
+ */
+api.isBlankNode = v => {
+  // Note: A value is a blank node if all of these hold true:
+  // 1. It is an Object.
+  // 2. If it has an @id key that is not a string OR begins with '_:'.
+  // 3. It has no keys OR is not a @value, @set, or @list.
+  if(types.isObject(v)) {
+    if('@id' in v) {
+      const id = v['@id'];
+      return !types.isString(id) || id.indexOf('_:') === 0;
+    }
+    return (Object.keys(v).length === 0 ||
+      !(('@value' in v) || ('@set' in v) || ('@list' in v)));
+  }
+  return false;
+};
 
 
 /***/ },
@@ -8823,1171 +7461,7 @@ module.exports = factory;
 
 /***/ },
 
-/***/ 4991
-(__unused_webpack_module, exports, __webpack_require__) {
-
-"use strict";
-/*!
- * Copyright (c) 2023 Digital Bazaar, Inc. All rights reserved.
- */
-
-
-__webpack_require__(2791);
-
-exports.setImmediate = setImmediate;
-
-// WebCrypto
-exports.crypto = globalThis.crypto;
-
-// precompute byte to hex table
-const byteToHex = [];
-for(let n = 0; n <= 0xff; ++n) {
-  byteToHex.push(n.toString(16).padStart(2, '0'));
-}
-
-exports.bufferToHex = function bufferToHex(buffer) {
-  let hex = '';
-  const bytes = new Uint8Array(buffer);
-  for(let i = 0; i < bytes.length; ++i) {
-    hex += byteToHex[bytes[i]];
-  }
-  return hex;
-};
-
-
-/***/ },
-
-/***/ 5229
-(module, __unused_webpack_exports, __webpack_require__) {
-
-"use strict";
-/*
- * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
- */
-
-
-const {
-  isSubjectReference: _isSubjectReference
-} = __webpack_require__(3978);
-
-const {
-  createMergedNodeMap: _createMergedNodeMap
-} = __webpack_require__(9233);
-
-const api = {};
-module.exports = api;
-
-/**
- * Performs JSON-LD flattening.
- *
- * @param input the expanded JSON-LD to flatten.
- *
- * @return the flattened output.
- */
-api.flatten = input => {
-  const defaultGraph = _createMergedNodeMap(input);
-
-  // produce flattened output
-  const flattened = [];
-  const keys = Object.keys(defaultGraph).sort();
-  for(let ki = 0; ki < keys.length; ++ki) {
-    const node = defaultGraph[keys[ki]];
-    // only add full subjects to top-level
-    if(!_isSubjectReference(node)) {
-      flattened.push(node);
-    }
-  }
-  return flattened;
-};
-
-
-/***/ },
-
-/***/ 5445
-(module) {
-
-"use strict";
-/*
- * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
- */
-
-
-module.exports = jsonld => {
-  class JsonLdProcessor {
-    toString() {
-      return '[object JsonLdProcessor]';
-    }
-  }
-  Object.defineProperty(JsonLdProcessor, 'prototype', {
-    writable: false,
-    enumerable: false
-  });
-  Object.defineProperty(JsonLdProcessor.prototype, 'constructor', {
-    writable: true,
-    enumerable: false,
-    configurable: true,
-    value: JsonLdProcessor
-  });
-
-  // The Web IDL test harness will check the number of parameters defined in
-  // the functions below. The number of parameters must exactly match the
-  // required (non-optional) parameters of the JsonLdProcessor interface as
-  // defined here:
-  // https://www.w3.org/TR/json-ld-api/#the-jsonldprocessor-interface
-
-  JsonLdProcessor.compact = function(input, ctx) {
-    if(arguments.length < 2) {
-      return Promise.reject(
-        new TypeError('Could not compact, too few arguments.'));
-    }
-    return jsonld.compact(input, ctx);
-  };
-  JsonLdProcessor.expand = function(input) {
-    if(arguments.length < 1) {
-      return Promise.reject(
-        new TypeError('Could not expand, too few arguments.'));
-    }
-    return jsonld.expand(input);
-  };
-  JsonLdProcessor.flatten = function(input) {
-    if(arguments.length < 1) {
-      return Promise.reject(
-        new TypeError('Could not flatten, too few arguments.'));
-    }
-    return jsonld.flatten(input);
-  };
-
-  return JsonLdProcessor;
-};
-
-
-/***/ },
-
-/***/ 6717
-(module, __unused_webpack_exports, __webpack_require__) {
-
-"use strict";
-
-module.exports = Yallist
-
-Yallist.Node = Node
-Yallist.create = Yallist
-
-function Yallist (list) {
-  var self = this
-  if (!(self instanceof Yallist)) {
-    self = new Yallist()
-  }
-
-  self.tail = null
-  self.head = null
-  self.length = 0
-
-  if (list && typeof list.forEach === 'function') {
-    list.forEach(function (item) {
-      self.push(item)
-    })
-  } else if (arguments.length > 0) {
-    for (var i = 0, l = arguments.length; i < l; i++) {
-      self.push(arguments[i])
-    }
-  }
-
-  return self
-}
-
-Yallist.prototype.removeNode = function (node) {
-  if (node.list !== this) {
-    throw new Error('removing node which does not belong to this list')
-  }
-
-  var next = node.next
-  var prev = node.prev
-
-  if (next) {
-    next.prev = prev
-  }
-
-  if (prev) {
-    prev.next = next
-  }
-
-  if (node === this.head) {
-    this.head = next
-  }
-  if (node === this.tail) {
-    this.tail = prev
-  }
-
-  node.list.length--
-  node.next = null
-  node.prev = null
-  node.list = null
-
-  return next
-}
-
-Yallist.prototype.unshiftNode = function (node) {
-  if (node === this.head) {
-    return
-  }
-
-  if (node.list) {
-    node.list.removeNode(node)
-  }
-
-  var head = this.head
-  node.list = this
-  node.next = head
-  if (head) {
-    head.prev = node
-  }
-
-  this.head = node
-  if (!this.tail) {
-    this.tail = node
-  }
-  this.length++
-}
-
-Yallist.prototype.pushNode = function (node) {
-  if (node === this.tail) {
-    return
-  }
-
-  if (node.list) {
-    node.list.removeNode(node)
-  }
-
-  var tail = this.tail
-  node.list = this
-  node.prev = tail
-  if (tail) {
-    tail.next = node
-  }
-
-  this.tail = node
-  if (!this.head) {
-    this.head = node
-  }
-  this.length++
-}
-
-Yallist.prototype.push = function () {
-  for (var i = 0, l = arguments.length; i < l; i++) {
-    push(this, arguments[i])
-  }
-  return this.length
-}
-
-Yallist.prototype.unshift = function () {
-  for (var i = 0, l = arguments.length; i < l; i++) {
-    unshift(this, arguments[i])
-  }
-  return this.length
-}
-
-Yallist.prototype.pop = function () {
-  if (!this.tail) {
-    return undefined
-  }
-
-  var res = this.tail.value
-  this.tail = this.tail.prev
-  if (this.tail) {
-    this.tail.next = null
-  } else {
-    this.head = null
-  }
-  this.length--
-  return res
-}
-
-Yallist.prototype.shift = function () {
-  if (!this.head) {
-    return undefined
-  }
-
-  var res = this.head.value
-  this.head = this.head.next
-  if (this.head) {
-    this.head.prev = null
-  } else {
-    this.tail = null
-  }
-  this.length--
-  return res
-}
-
-Yallist.prototype.forEach = function (fn, thisp) {
-  thisp = thisp || this
-  for (var walker = this.head, i = 0; walker !== null; i++) {
-    fn.call(thisp, walker.value, i, this)
-    walker = walker.next
-  }
-}
-
-Yallist.prototype.forEachReverse = function (fn, thisp) {
-  thisp = thisp || this
-  for (var walker = this.tail, i = this.length - 1; walker !== null; i--) {
-    fn.call(thisp, walker.value, i, this)
-    walker = walker.prev
-  }
-}
-
-Yallist.prototype.get = function (n) {
-  for (var i = 0, walker = this.head; walker !== null && i < n; i++) {
-    // abort out of the list early if we hit a cycle
-    walker = walker.next
-  }
-  if (i === n && walker !== null) {
-    return walker.value
-  }
-}
-
-Yallist.prototype.getReverse = function (n) {
-  for (var i = 0, walker = this.tail; walker !== null && i < n; i++) {
-    // abort out of the list early if we hit a cycle
-    walker = walker.prev
-  }
-  if (i === n && walker !== null) {
-    return walker.value
-  }
-}
-
-Yallist.prototype.map = function (fn, thisp) {
-  thisp = thisp || this
-  var res = new Yallist()
-  for (var walker = this.head; walker !== null;) {
-    res.push(fn.call(thisp, walker.value, this))
-    walker = walker.next
-  }
-  return res
-}
-
-Yallist.prototype.mapReverse = function (fn, thisp) {
-  thisp = thisp || this
-  var res = new Yallist()
-  for (var walker = this.tail; walker !== null;) {
-    res.push(fn.call(thisp, walker.value, this))
-    walker = walker.prev
-  }
-  return res
-}
-
-Yallist.prototype.reduce = function (fn, initial) {
-  var acc
-  var walker = this.head
-  if (arguments.length > 1) {
-    acc = initial
-  } else if (this.head) {
-    walker = this.head.next
-    acc = this.head.value
-  } else {
-    throw new TypeError('Reduce of empty list with no initial value')
-  }
-
-  for (var i = 0; walker !== null; i++) {
-    acc = fn(acc, walker.value, i)
-    walker = walker.next
-  }
-
-  return acc
-}
-
-Yallist.prototype.reduceReverse = function (fn, initial) {
-  var acc
-  var walker = this.tail
-  if (arguments.length > 1) {
-    acc = initial
-  } else if (this.tail) {
-    walker = this.tail.prev
-    acc = this.tail.value
-  } else {
-    throw new TypeError('Reduce of empty list with no initial value')
-  }
-
-  for (var i = this.length - 1; walker !== null; i--) {
-    acc = fn(acc, walker.value, i)
-    walker = walker.prev
-  }
-
-  return acc
-}
-
-Yallist.prototype.toArray = function () {
-  var arr = new Array(this.length)
-  for (var i = 0, walker = this.head; walker !== null; i++) {
-    arr[i] = walker.value
-    walker = walker.next
-  }
-  return arr
-}
-
-Yallist.prototype.toArrayReverse = function () {
-  var arr = new Array(this.length)
-  for (var i = 0, walker = this.tail; walker !== null; i++) {
-    arr[i] = walker.value
-    walker = walker.prev
-  }
-  return arr
-}
-
-Yallist.prototype.slice = function (from, to) {
-  to = to || this.length
-  if (to < 0) {
-    to += this.length
-  }
-  from = from || 0
-  if (from < 0) {
-    from += this.length
-  }
-  var ret = new Yallist()
-  if (to < from || to < 0) {
-    return ret
-  }
-  if (from < 0) {
-    from = 0
-  }
-  if (to > this.length) {
-    to = this.length
-  }
-  for (var i = 0, walker = this.head; walker !== null && i < from; i++) {
-    walker = walker.next
-  }
-  for (; walker !== null && i < to; i++, walker = walker.next) {
-    ret.push(walker.value)
-  }
-  return ret
-}
-
-Yallist.prototype.sliceReverse = function (from, to) {
-  to = to || this.length
-  if (to < 0) {
-    to += this.length
-  }
-  from = from || 0
-  if (from < 0) {
-    from += this.length
-  }
-  var ret = new Yallist()
-  if (to < from || to < 0) {
-    return ret
-  }
-  if (from < 0) {
-    from = 0
-  }
-  if (to > this.length) {
-    to = this.length
-  }
-  for (var i = this.length, walker = this.tail; walker !== null && i > to; i--) {
-    walker = walker.prev
-  }
-  for (; walker !== null && i > from; i--, walker = walker.prev) {
-    ret.push(walker.value)
-  }
-  return ret
-}
-
-Yallist.prototype.splice = function (start, deleteCount, ...nodes) {
-  if (start > this.length) {
-    start = this.length - 1
-  }
-  if (start < 0) {
-    start = this.length + start;
-  }
-
-  for (var i = 0, walker = this.head; walker !== null && i < start; i++) {
-    walker = walker.next
-  }
-
-  var ret = []
-  for (var i = 0; walker && i < deleteCount; i++) {
-    ret.push(walker.value)
-    walker = this.removeNode(walker)
-  }
-  if (walker === null) {
-    walker = this.tail
-  }
-
-  if (walker !== this.head && walker !== this.tail) {
-    walker = walker.prev
-  }
-
-  for (var i = 0; i < nodes.length; i++) {
-    walker = insert(this, walker, nodes[i])
-  }
-  return ret;
-}
-
-Yallist.prototype.reverse = function () {
-  var head = this.head
-  var tail = this.tail
-  for (var walker = head; walker !== null; walker = walker.prev) {
-    var p = walker.prev
-    walker.prev = walker.next
-    walker.next = p
-  }
-  this.head = tail
-  this.tail = head
-  return this
-}
-
-function insert (self, node, value) {
-  var inserted = node === self.head ?
-    new Node(value, null, node, self) :
-    new Node(value, node, node.next, self)
-
-  if (inserted.next === null) {
-    self.tail = inserted
-  }
-  if (inserted.prev === null) {
-    self.head = inserted
-  }
-
-  self.length++
-
-  return inserted
-}
-
-function push (self, item) {
-  self.tail = new Node(item, self.tail, null, self)
-  if (!self.head) {
-    self.head = self.tail
-  }
-  self.length++
-}
-
-function unshift (self, item) {
-  self.head = new Node(item, null, self.head, self)
-  if (!self.tail) {
-    self.tail = self.head
-  }
-  self.length++
-}
-
-function Node (value, prev, next, list) {
-  if (!(this instanceof Node)) {
-    return new Node(value, prev, next, list)
-  }
-
-  this.list = list
-  this.value = value
-
-  if (prev) {
-    prev.next = this
-    this.prev = prev
-  } else {
-    this.prev = null
-  }
-
-  if (next) {
-    next.prev = this
-    this.next = next
-  } else {
-    this.next = null
-  }
-}
-
-try {
-  // add if support for Symbol.iterator is present
-  __webpack_require__(3269)(Yallist)
-} catch (er) {}
-
-
-/***/ },
-
-/***/ 6957
-(module, __unused_webpack_exports, __webpack_require__) {
-
-"use strict";
-/*
- * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
- */
-
-
-const {parseLinkHeader, buildHeaders} = __webpack_require__(9263);
-const {LINK_HEADER_CONTEXT} = __webpack_require__(9378);
-const JsonLdError = __webpack_require__(2207);
-const RequestQueue = __webpack_require__(3743);
-const {prependBase} = __webpack_require__(470);
-
-const REGEX_LINK_HEADER = /(^|(\r\n))link:/i;
-
-/**
- * Creates a built-in XMLHttpRequest document loader.
- *
- * @param options the options to use:
- *          secure: require all URLs to use HTTPS.
- *          headers: an object (map) of headers which will be passed as request
- *            headers for the requested document. Accept is not allowed.
- *          [xhr]: the XMLHttpRequest API to use.
- *
- * @return the XMLHttpRequest document loader.
- */
-module.exports = ({
-  secure,
-  headers = {},
-  xhr
-} = {headers: {}}) => {
-  headers = buildHeaders(headers);
-  const queue = new RequestQueue();
-  return queue.wrapLoader(loader);
-
-  async function loader(url) {
-    if(url.indexOf('http:') !== 0 && url.indexOf('https:') !== 0) {
-      throw new JsonLdError(
-        'URL could not be dereferenced; only "http" and "https" URLs are ' +
-        'supported.',
-        'jsonld.InvalidUrl', {code: 'loading document failed', url});
-    }
-    if(secure && url.indexOf('https') !== 0) {
-      throw new JsonLdError(
-        'URL could not be dereferenced; secure mode is enabled and ' +
-        'the URL\'s scheme is not "https".',
-        'jsonld.InvalidUrl', {code: 'loading document failed', url});
-    }
-
-    let req;
-    try {
-      req = await _get(xhr, url, headers);
-    } catch(e) {
-      throw new JsonLdError(
-        'URL could not be dereferenced, an error occurred.',
-        'jsonld.LoadDocumentError',
-        {code: 'loading document failed', url, cause: e});
-    }
-
-    if(req.status >= 400) {
-      throw new JsonLdError(
-        'URL could not be dereferenced: ' + req.statusText,
-        'jsonld.LoadDocumentError', {
-          code: 'loading document failed',
-          url,
-          httpStatusCode: req.status
-        });
-    }
-
-    let doc = {contextUrl: null, documentUrl: url, document: req.response};
-    let alternate = null;
-
-    // handle Link Header (avoid unsafe header warning by existence testing)
-    const contentType = req.getResponseHeader('Content-Type');
-    let linkHeader;
-    if(REGEX_LINK_HEADER.test(req.getAllResponseHeaders())) {
-      linkHeader = req.getResponseHeader('Link');
-    }
-    if(linkHeader && contentType !== 'application/ld+json') {
-      // only 1 related link header permitted
-      const linkHeaders = parseLinkHeader(linkHeader);
-      const linkedContext = linkHeaders[LINK_HEADER_CONTEXT];
-      if(Array.isArray(linkedContext)) {
-        throw new JsonLdError(
-          'URL could not be dereferenced, it has more than one ' +
-          'associated HTTP Link Header.',
-          'jsonld.InvalidUrl',
-          {code: 'multiple context link headers', url});
-      }
-      if(linkedContext) {
-        doc.contextUrl = linkedContext.target;
-      }
-
-      // "alternate" link header is a redirect
-      alternate = linkHeaders.alternate;
-      if(alternate &&
-        alternate.type == 'application/ld+json' &&
-        !(contentType || '').match(/^application\/(\w*\+)?json$/)) {
-        doc = await loader(prependBase(url, alternate.target));
-      }
-    }
-
-    return doc;
-  }
-};
-
-function _get(xhr, url, headers) {
-  xhr = xhr || XMLHttpRequest;
-  const req = new xhr();
-  return new Promise((resolve, reject) => {
-    req.onload = () => resolve(req);
-    req.onerror = err => reject(err);
-    req.open('GET', url, true);
-    for(const k in headers) {
-      req.setRequestHeader(k, headers[k]);
-    }
-    req.send();
-  });
-}
-
-
-/***/ },
-
-/***/ 7034
-(module, __unused_webpack_exports, __webpack_require__) {
-
-"use strict";
-/*
- * Copyright (c) 2019 Digital Bazaar, Inc. All rights reserved.
- */
-
-
-const {
-  isArray: _isArray,
-  isObject: _isObject,
-  isString: _isString,
-} = __webpack_require__(7382);
-const {
-  asArray: _asArray
-} = __webpack_require__(9263);
-const {prependBase} = __webpack_require__(470);
-const JsonLdError = __webpack_require__(2207);
-const ResolvedContext = __webpack_require__(7532);
-
-const MAX_CONTEXT_URLS = 10;
-
-module.exports = class ContextResolver {
-  /**
-   * Creates a ContextResolver.
-   *
-   * @param sharedCache a shared LRU cache with `get` and `set` APIs.
-   */
-  constructor({sharedCache}) {
-    this.perOpCache = new Map();
-    this.sharedCache = sharedCache;
-  }
-
-  async resolve({
-    activeCtx, context, documentLoader, base, cycles = new Set()
-  }) {
-    // process `@context`
-    if(context && _isObject(context) && context['@context']) {
-      context = context['@context'];
-    }
-
-    // context is one or more contexts
-    context = _asArray(context);
-
-    // resolve each context in the array
-    const allResolved = [];
-    for(const ctx of context) {
-      if(_isString(ctx)) {
-        // see if `ctx` has been resolved before...
-        let resolved = this._get(ctx);
-        if(!resolved) {
-          // not resolved yet, resolve
-          resolved = await this._resolveRemoteContext(
-            {activeCtx, url: ctx, documentLoader, base, cycles});
-        }
-
-        // add to output and continue
-        if(_isArray(resolved)) {
-          allResolved.push(...resolved);
-        } else {
-          allResolved.push(resolved);
-        }
-        continue;
-      }
-      if(ctx === null) {
-        // handle `null` context, nothing to cache
-        allResolved.push(new ResolvedContext({document: null}));
-        continue;
-      }
-      if(!_isObject(ctx)) {
-        _throwInvalidLocalContext(context);
-      }
-      // context is an object, get/create `ResolvedContext` for it
-      const key = JSON.stringify(ctx);
-      let resolved = this._get(key);
-      if(!resolved) {
-        // create a new static `ResolvedContext` and cache it
-        resolved = new ResolvedContext({document: ctx});
-        this._cacheResolvedContext({key, resolved, tag: 'static'});
-      }
-      allResolved.push(resolved);
-    }
-
-    return allResolved;
-  }
-
-  _get(key) {
-    // get key from per operation cache; no `tag` is used with this cache so
-    // any retrieved context will always be the same during a single operation
-    let resolved = this.perOpCache.get(key);
-    if(!resolved) {
-      // see if the shared cache has a `static` entry for this URL
-      const tagMap = this.sharedCache.get(key);
-      if(tagMap) {
-        resolved = tagMap.get('static');
-        if(resolved) {
-          this.perOpCache.set(key, resolved);
-        }
-      }
-    }
-    return resolved;
-  }
-
-  _cacheResolvedContext({key, resolved, tag}) {
-    this.perOpCache.set(key, resolved);
-    if(tag !== undefined) {
-      let tagMap = this.sharedCache.get(key);
-      if(!tagMap) {
-        tagMap = new Map();
-        this.sharedCache.set(key, tagMap);
-      }
-      tagMap.set(tag, resolved);
-    }
-    return resolved;
-  }
-
-  async _resolveRemoteContext({activeCtx, url, documentLoader, base, cycles}) {
-    // resolve relative URL and fetch context
-    url = prependBase(base, url);
-    const {context, remoteDoc} = await this._fetchContext(
-      {activeCtx, url, documentLoader, cycles});
-
-    // update base according to remote document and resolve any relative URLs
-    base = remoteDoc.documentUrl || url;
-    _resolveContextUrls({context, base});
-
-    // resolve, cache, and return context
-    const resolved = await this.resolve(
-      {activeCtx, context, documentLoader, base, cycles});
-    this._cacheResolvedContext({key: url, resolved, tag: remoteDoc.tag});
-    return resolved;
-  }
-
-  async _fetchContext({activeCtx, url, documentLoader, cycles}) {
-    // check for max context URLs fetched during a resolve operation
-    if(cycles.size > MAX_CONTEXT_URLS) {
-      throw new JsonLdError(
-        'Maximum number of @context URLs exceeded.',
-        'jsonld.ContextUrlError',
-        {
-          code: activeCtx.processingMode === 'json-ld-1.0' ?
-            'loading remote context failed' :
-            'context overflow',
-          max: MAX_CONTEXT_URLS
-        });
-    }
-
-    // check for context URL cycle
-    // shortcut to avoid extra work that would eventually hit the max above
-    if(cycles.has(url)) {
-      throw new JsonLdError(
-        'Cyclical @context URLs detected.',
-        'jsonld.ContextUrlError',
-        {
-          code: activeCtx.processingMode === 'json-ld-1.0' ?
-            'recursive context inclusion' :
-            'context overflow',
-          url
-        });
-    }
-
-    // track cycles
-    cycles.add(url);
-
-    let context;
-    let remoteDoc;
-
-    try {
-      remoteDoc = await documentLoader(url);
-      context = remoteDoc.document || null;
-      // parse string context as JSON
-      if(_isString(context)) {
-        context = JSON.parse(context);
-      }
-    } catch(e) {
-      throw new JsonLdError(
-        'Dereferencing a URL did not result in a valid JSON-LD object. ' +
-        'Possible causes are an inaccessible URL perhaps due to ' +
-        'a same-origin policy (ensure the server uses CORS if you are ' +
-        'using client-side JavaScript), too many redirects, a ' +
-        'non-JSON response, or more than one HTTP Link Header was ' +
-        'provided for a remote context. ' +
-        `URL: "${url}".`,
-        'jsonld.InvalidUrl',
-        {code: 'loading remote context failed', url, cause: e});
-    }
-
-    // ensure ctx is an object
-    if(!_isObject(context)) {
-      throw new JsonLdError(
-        'Dereferencing a URL did not result in a JSON object. The ' +
-        'response was valid JSON, but it was not a JSON object. ' +
-        `URL: "${url}".`,
-        'jsonld.InvalidUrl', {code: 'invalid remote context', url});
-    }
-
-    // use empty context if no @context key is present
-    if(!('@context' in context)) {
-      context = {'@context': {}};
-    } else {
-      context = {'@context': context['@context']};
-    }
-
-    // append @context URL to context if given
-    if(remoteDoc.contextUrl) {
-      if(!_isArray(context['@context'])) {
-        context['@context'] = [context['@context']];
-      }
-      context['@context'].push(remoteDoc.contextUrl);
-    }
-
-    return {context, remoteDoc};
-  }
-};
-
-function _throwInvalidLocalContext(ctx) {
-  throw new JsonLdError(
-    'Invalid JSON-LD syntax; @context must be an object.',
-    'jsonld.SyntaxError', {
-      code: 'invalid local context', context: ctx
-    });
-}
-
-/**
- * Resolve all relative `@context` URLs in the given context by inline
- * replacing them with absolute URLs.
- *
- * @param context the context.
- * @param base the base IRI to use to resolve relative IRIs.
- */
-function _resolveContextUrls({context, base}) {
-  if(!context) {
-    return;
-  }
-
-  const ctx = context['@context'];
-
-  if(_isString(ctx)) {
-    context['@context'] = prependBase(base, ctx);
-    return;
-  }
-
-  if(_isArray(ctx)) {
-    for(let i = 0; i < ctx.length; ++i) {
-      const element = ctx[i];
-      if(_isString(element)) {
-        ctx[i] = prependBase(base, element);
-        continue;
-      }
-      if(_isObject(element)) {
-        _resolveContextUrls({context: {'@context': element}, base});
-      }
-    }
-    return;
-  }
-
-  if(!_isObject(ctx)) {
-    // no @context URLs can be found in non-object
-    return;
-  }
-
-  // ctx is an object, resolve any context URLs in terms
-  for(const term in ctx) {
-    _resolveContextUrls({context: ctx[term], base});
-  }
-}
-
-
-/***/ },
-
-/***/ 7382
-(module) {
-
-"use strict";
-/*
- * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
- */
-
-
-const api = {};
-module.exports = api;
-
-/**
- * Returns true if the given value is an Array.
- *
- * @param v the value to check.
- *
- * @return true if the value is an Array, false if not.
- */
-api.isArray = Array.isArray;
-
-/**
- * Returns true if the given value is a Boolean.
- *
- * @param v the value to check.
- *
- * @return true if the value is a Boolean, false if not.
- */
-api.isBoolean = v => (typeof v === 'boolean' ||
-  Object.prototype.toString.call(v) === '[object Boolean]');
-
-/**
- * Returns true if the given value is a double.
- *
- * @param v the value to check.
- *
- * @return true if the value is a double, false if not.
- */
-api.isDouble = v => api.isNumber(v) &&
-  (String(v).indexOf('.') !== -1 || Math.abs(v) >= 1e21);
-
-/**
- * Returns true if the given value is an empty Object.
- *
- * @param v the value to check.
- *
- * @return true if the value is an empty Object, false if not.
- */
-api.isEmptyObject = v => api.isObject(v) && Object.keys(v).length === 0;
-
-/**
- * Returns true if the given value is a Number.
- *
- * @param v the value to check.
- *
- * @return true if the value is a Number, false if not.
- */
-api.isNumber = v => (typeof v === 'number' ||
-  Object.prototype.toString.call(v) === '[object Number]');
-
-/**
- * Returns true if the given value is numeric.
- *
- * @param v the value to check.
- *
- * @return true if the value is numeric, false if not.
- */
-api.isNumeric = v => !isNaN(parseFloat(v)) && isFinite(v);
-
-/**
- * Returns true if the given value is an Object.
- *
- * @param v the value to check.
- *
- * @return true if the value is an Object, false if not.
- */
-api.isObject = v => Object.prototype.toString.call(v) === '[object Object]';
-
-/**
- * Returns true if the given value is a String.
- *
- * @param v the value to check.
- *
- * @return true if the value is a String, false if not.
- */
-api.isString = v => (typeof v === 'string' ||
-  Object.prototype.toString.call(v) === '[object String]');
-
-/**
- * Returns true if the given value is undefined.
- *
- * @param v the value to check.
- *
- * @return true if the value is undefined, false if not.
- */
-api.isUndefined = v => typeof v === 'undefined';
-
-
-/***/ },
-
-/***/ 7532
-(module, __unused_webpack_exports, __webpack_require__) {
-
-"use strict";
-/*
- * Copyright (c) 2019 Digital Bazaar, Inc. All rights reserved.
- */
-
-
-const LRU = __webpack_require__(1235);
-
-const MAX_ACTIVE_CONTEXTS = 10;
-
-module.exports = class ResolvedContext {
-  /**
-   * Creates a ResolvedContext.
-   *
-   * @param document the context document.
-   */
-  constructor({document}) {
-    this.document = document;
-    // TODO: enable customization of processed context cache
-    // TODO: limit based on size of processed contexts vs. number of them
-    this.cache = new LRU({max: MAX_ACTIVE_CONTEXTS});
-  }
-
-  getProcessed(activeCtx) {
-    return this.cache.get(activeCtx);
-  }
-
-  setProcessed(activeCtx, processedCtx) {
-    this.cache.set(activeCtx, processedCtx);
-  }
-};
-
-
-/***/ },
-
-/***/ 7920
-(module, __unused_webpack_exports, __webpack_require__) {
-
-"use strict";
-/*!
- * Copyright (c) 2016-2023 Digital Bazaar, Inc. All rights reserved.
- */
-
-
-const {bufferToHex, crypto} = __webpack_require__(4991);
-
-const algorithmMap = new Map([
-  ['sha256', 'SHA-256'],
-  ['SHA256', 'SHA-256'],
-  ['SHA-256', 'SHA-256'],
-  ['sha384', 'SHA-384'],
-  ['SHA384', 'SHA-384'],
-  ['SHA-384', 'SHA-384'],
-  ['sha512', 'SHA-512'],
-  ['SHA512', 'SHA-512'],
-  ['SHA-512', 'SHA-512'],
-]);
-
-module.exports = class MessageDigest {
-  /**
-   * Creates a new WebCrypto API MessageDigest.
-   *
-   * @param {string} algorithm - The algorithm to use.
-   */
-  constructor(algorithm) {
-    // check if crypto.subtle is available
-    // check is here rather than top-level to only fail if class is used
-    if(!(crypto && crypto.subtle)) {
-      throw new Error('crypto.subtle not found.');
-    }
-    if(!algorithmMap.has(algorithm)) {
-      throw new Error(`Unsupported algorithm "${algorithm}".`);
-    }
-    this.algorithm = algorithmMap.get(algorithm);
-    this._content = '';
-  }
-
-  update(msg) {
-    this._content += msg;
-  }
-
-  async digest() {
-    const data = new TextEncoder().encode(this._content);
-    const buffer = await crypto.subtle.digest(this.algorithm, data);
-    return bufferToHex(buffer);
-  }
-};
-
-
-/***/ },
-
-/***/ 7946
+/***/ 9233
 (module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
@@ -10000,838 +7474,334 @@ const {isKeyword} = __webpack_require__(1972);
 const graphTypes = __webpack_require__(3978);
 const types = __webpack_require__(7382);
 const util = __webpack_require__(9263);
-const url = __webpack_require__(470);
 const JsonLdError = __webpack_require__(2207);
-const {
-  createNodeMap: _createNodeMap,
-  mergeNodeMapGraphs: _mergeNodeMapGraphs
-} = __webpack_require__(9233);
 
 const api = {};
 module.exports = api;
 
 /**
- * Performs JSON-LD `merged` framing.
+ * Creates a merged JSON-LD node map (node ID => node).
  *
- * @param input the expanded JSON-LD to frame.
- * @param frame the expanded JSON-LD frame to use.
- * @param options the framing options.
+ * @param input the expanded JSON-LD to create a node map of.
+ * @param [options] the options to use:
+ *          [issuer] a jsonld.IdentifierIssuer to use to label blank nodes.
  *
- * @return the framed output.
+ * @return the node map.
  */
-api.frameMergedOrDefault = (input, frame, options) => {
-  // create framing state
-  const state = {
-    options,
-    embedded: false,
-    graph: '@default',
-    graphMap: {'@default': {}},
-    subjectStack: [],
-    link: {},
-    bnodeMap: {}
-  };
+api.createMergedNodeMap = (input, options) => {
+  options = options || {};
 
-  // produce a map of all graphs and name each bnode
-  // FIXME: currently uses subjects from @merged graph only
-  const issuer = new util.IdentifierIssuer('_:b');
-  _createNodeMap(input, state.graphMap, '@default', issuer);
-  if(options.merged) {
-    state.graphMap['@merged'] = _mergeNodeMapGraphs(state.graphMap);
-    state.graph = '@merged';
-  }
-  state.subjects = state.graphMap[state.graph];
+  // produce a map of all subjects and name each bnode
+  const issuer = options.issuer || new util.IdentifierIssuer('_:b');
+  const graphs = {'@default': {}};
+  api.createNodeMap(input, graphs, '@default', issuer);
 
-  // frame the subjects
-  const framed = [];
-  api.frame(state, Object.keys(state.subjects).sort(), frame, framed);
-
-  // If pruning blank nodes, find those to prune
-  if(options.pruneBlankNodeIdentifiers) {
-    // remove all blank nodes appearing only once, done in compaction
-    options.bnodesToClear =
-      Object.keys(state.bnodeMap).filter(id => state.bnodeMap[id].length === 1);
-  }
-
-  // remove @preserve from results
-  options.link = {};
-  return _cleanupPreserve(framed, options);
+  // add all non-default graphs to default graph
+  return api.mergeNodeMaps(graphs);
 };
 
 /**
- * Frames subjects according to the given frame.
+ * Recursively flattens the subjects in the given JSON-LD expanded input
+ * into a node map.
  *
- * @param state the current framing state.
- * @param subjects the subjects to filter.
- * @param frame the frame.
- * @param parent the parent subject or top-level array.
- * @param property the parent property, initialized to null.
+ * @param input the JSON-LD expanded input.
+ * @param graphs a map of graph name to subject map.
+ * @param graph the name of the current graph.
+ * @param issuer the blank node identifier issuer.
+ * @param name the name assigned to the current input if it is a bnode.
+ * @param list the list to append to, null for none.
  */
-api.frame = (state, subjects, frame, parent, property = null) => {
-  // validate the frame
-  _validateFrame(frame);
-  frame = frame[0];
-
-  // get flags for current frame
-  const options = state.options;
-  const flags = {
-    embed: _getFrameFlag(frame, options, 'embed'),
-    explicit: _getFrameFlag(frame, options, 'explicit'),
-    requireAll: _getFrameFlag(frame, options, 'requireAll')
-  };
-
-  // get link for current graph
-  if(!state.link.hasOwnProperty(state.graph)) {
-    state.link[state.graph] = {};
+api.createNodeMap = (input, graphs, graph, issuer, name, list) => {
+  // recurse through array
+  if(types.isArray(input)) {
+    for(const node of input) {
+      api.createNodeMap(node, graphs, graph, issuer, undefined, list);
+    }
+    return;
   }
-  const link = state.link[state.graph];
 
-  // filter out subjects that match the frame
-  const matches = _filterSubjects(state, subjects, frame, flags);
-
-  // add matches to output
-  const ids = Object.keys(matches).sort();
-  for(const id of ids) {
-    const subject = matches[id];
-
-    /* Note: In order to treat each top-level match as a compartmentalized
-    result, clear the unique embedded subjects map when the property is null,
-    which only occurs at the top-level. */
-    if(property === null) {
-      state.uniqueEmbeds = {[state.graph]: {}};
-    } else {
-      state.uniqueEmbeds[state.graph] = state.uniqueEmbeds[state.graph] || {};
+  // add non-object to list
+  if(!types.isObject(input)) {
+    if(list) {
+      list.push(input);
     }
+    return;
+  }
 
-    if(flags.embed === '@link' && id in link) {
-      // TODO: may want to also match an existing linked subject against
-      // the current frame ... so different frames could produce different
-      // subjects that are only shared in-memory when the frames are the same
-
-      // add existing linked subject
-      _addFrameOutput(parent, property, link[id]);
-      continue;
-    }
-
-    // start output for subject
-    const output = {'@id': id};
-    if(id.indexOf('_:') === 0) {
-      util.addValue(state.bnodeMap, id, output, {propertyIsArray: true});
-    }
-    link[id] = output;
-
-    // validate @embed
-    if((flags.embed === '@first' || flags.embed === '@last') && state.is11) {
-      throw new JsonLdError(
-        'Invalid JSON-LD syntax; invalid value of @embed.',
-        'jsonld.SyntaxError', {code: 'invalid @embed value', frame});
-    }
-
-    if(!state.embedded && state.uniqueEmbeds[state.graph].hasOwnProperty(id)) {
-      // skip adding this node object to the top level, as it was
-      // already included in another node object
-      continue;
-    }
-
-    // if embed is @never or if a circular reference would be created by an
-    // embed, the subject cannot be embedded, just add the reference;
-    // note that a circular reference won't occur when the embed flag is
-    // `@link` as the above check will short-circuit before reaching this point
-    if(state.embedded &&
-      (flags.embed === '@never' ||
-      _createsCircularReference(subject, state.graph, state.subjectStack))) {
-      _addFrameOutput(parent, property, output);
-      continue;
-    }
-
-    // if only the first (or once) should be embedded
-    if(state.embedded &&
-       (flags.embed == '@first' || flags.embed == '@once') &&
-       state.uniqueEmbeds[state.graph].hasOwnProperty(id)) {
-      _addFrameOutput(parent, property, output);
-      continue;
-    }
-
-    // if only the last match should be embedded
-    if(flags.embed === '@last') {
-      // remove any existing embed
-      if(id in state.uniqueEmbeds[state.graph]) {
-        _removeEmbed(state, id);
+  // add values to list
+  if(graphTypes.isValue(input)) {
+    if('@type' in input) {
+      let type = input['@type'];
+      // rename @type blank node
+      if(type.indexOf('_:') === 0) {
+        input['@type'] = type = issuer.getId(type);
       }
     }
+    if(list) {
+      list.push(input);
+    }
+    return;
+  } else if(list && graphTypes.isList(input)) {
+    const _list = [];
+    api.createNodeMap(input['@list'], graphs, graph, issuer, name, _list);
+    list.push({'@list': _list});
+    return;
+  }
 
-    state.uniqueEmbeds[state.graph][id] = {parent, property};
+  // Note: At this point, input must be a subject.
 
-    // push matching subject onto stack to enable circular embed checks
-    state.subjectStack.push({subject, graph: state.graph});
-
-    // subject is also the name of a graph
-    if(id in state.graphMap) {
-      let recurse = false;
-      let subframe = null;
-      if(!('@graph' in frame)) {
-        recurse = state.graph !== '@merged';
-        subframe = {};
-      } else {
-        subframe = frame['@graph'][0];
-        recurse = !(id === '@merged' || id === '@default');
-        if(!types.isObject(subframe)) {
-          subframe = {};
-        }
-      }
-
-      if(recurse) {
-        // recurse into graph
-        api.frame(
-          {...state, graph: id, embedded: false},
-          Object.keys(state.graphMap[id]).sort(), [subframe], output, '@graph');
+  // spec requires @type to be named first, so assign names early
+  if('@type' in input) {
+    const types = input['@type'];
+    for(const type of types) {
+      if(type.indexOf('_:') === 0) {
+        issuer.getId(type);
       }
     }
+  }
 
-    // if frame has @included, recurse over its sub-frame
-    if('@included' in frame) {
-      api.frame(
-        {...state, embedded: false},
-        subjects, frame['@included'], output, '@included');
+  // get name for subject
+  if(types.isUndefined(name)) {
+    name = graphTypes.isBlankNode(input) ?
+      issuer.getId(input['@id']) : input['@id'];
+  }
+
+  // add subject reference to list
+  if(list) {
+    list.push({'@id': name});
+  }
+
+  // create new subject or merge into existing one
+  const subjects = graphs[graph];
+  const subject = subjects[name] = subjects[name] || {};
+  subject['@id'] = name;
+  const properties = Object.keys(input).sort();
+  for(let property of properties) {
+    // skip @id
+    if(property === '@id') {
+      continue;
     }
 
-    // iterate over subject properties
-    for(const prop of Object.keys(subject).sort()) {
-      // copy keywords to output
-      if(isKeyword(prop)) {
-        output[prop] = util.clone(subject[prop]);
-
-        if(prop === '@type') {
-          // count bnode values of @type
-          for(const type of subject['@type']) {
-            if(type.indexOf('_:') === 0) {
-              util.addValue(
-                state.bnodeMap, type, output, {propertyIsArray: true});
-            }
+    // handle reverse properties
+    if(property === '@reverse') {
+      const referencedNode = {'@id': name};
+      const reverseMap = input['@reverse'];
+      for(const reverseProperty in reverseMap) {
+        const items = reverseMap[reverseProperty];
+        for(const item of items) {
+          let itemName = item['@id'];
+          if(graphTypes.isBlankNode(item)) {
+            itemName = issuer.getId(itemName);
           }
-        }
-        continue;
-      }
-
-      // explicit is on and property isn't in the frame, skip processing
-      if(flags.explicit && !(prop in frame)) {
-        continue;
-      }
-
-      // add objects
-      for(const o of subject[prop]) {
-        const subframe = (prop in frame ?
-          frame[prop] : _createImplicitFrame(flags));
-
-        // recurse into list
-        if(graphTypes.isList(o)) {
-          const subframe =
-            (frame[prop] && frame[prop][0] && frame[prop][0]['@list']) ?
-              frame[prop][0]['@list'] :
-              _createImplicitFrame(flags);
-
-          // add empty list
-          const list = {'@list': []};
-          _addFrameOutput(output, prop, list);
-
-          // add list objects
-          const src = o['@list'];
-          for(const oo of src) {
-            if(graphTypes.isSubjectReference(oo)) {
-              // recurse into subject reference
-              api.frame(
-                {...state, embedded: true},
-                [oo['@id']], subframe, list, '@list');
-            } else {
-              // include other values automatically
-              _addFrameOutput(list, '@list', util.clone(oo));
-            }
-          }
-        } else if(graphTypes.isSubjectReference(o)) {
-          // recurse into subject reference
-          api.frame(
-            {...state, embedded: true},
-            [o['@id']], subframe, output, prop);
-        } else if(_valueMatch(subframe[0], o)) {
-          // include other values, if they match
-          _addFrameOutput(output, prop, util.clone(o));
+          api.createNodeMap(item, graphs, graph, issuer, itemName);
+          util.addValue(
+            subjects[itemName], reverseProperty, referencedNode,
+            {propertyIsArray: true, allowDuplicate: false});
         }
       }
+      continue;
     }
 
-    // handle defaults
-    for(const prop of Object.keys(frame).sort()) {
-      // skip keywords
-      if(prop === '@type') {
-        if(!types.isObject(frame[prop][0]) ||
-           !('@default' in frame[prop][0])) {
+    // recurse into graph
+    if(property === '@graph') {
+      // add graph subjects map entry
+      if(!(name in graphs)) {
+        graphs[name] = {};
+      }
+      api.createNodeMap(input[property], graphs, name, issuer);
+      continue;
+    }
+
+    // recurse into included
+    if(property === '@included') {
+      api.createNodeMap(input[property], graphs, graph, issuer);
+      continue;
+    }
+
+    // copy non-@type keywords
+    if(property !== '@type' && isKeyword(property)) {
+      if(property === '@index' && property in subject &&
+        (input[property] !== subject[property] ||
+        input[property]['@id'] !== subject[property]['@id'])) {
+        throw new JsonLdError(
+          'Invalid JSON-LD syntax; conflicting @index property detected.',
+          'jsonld.SyntaxError',
+          {code: 'conflicting indexes', subject});
+      }
+      subject[property] = input[property];
+      continue;
+    }
+
+    // iterate over objects
+    const objects = input[property];
+
+    // if property is a bnode, assign it a new id
+    if(property.indexOf('_:') === 0) {
+      property = issuer.getId(property);
+    }
+
+    // ensure property is added for empty arrays
+    if(objects.length === 0) {
+      util.addValue(subject, property, [], {propertyIsArray: true});
+      continue;
+    }
+    for(let o of objects) {
+      if(property === '@type') {
+        // rename @type blank nodes
+        o = (o.indexOf('_:') === 0) ? issuer.getId(o) : o;
+      }
+
+      // handle embedded subject or subject reference
+      if(graphTypes.isSubject(o) || graphTypes.isSubjectReference(o)) {
+        // skip null @id
+        if('@id' in o && !o['@id']) {
           continue;
         }
-        // allow through default types
-      } else if(isKeyword(prop)) {
-        continue;
-      }
 
-      // if omit default is off, then include default values for properties
-      // that appear in the next frame but are not in the matching subject
-      const next = frame[prop][0] || {};
-      const omitDefaultOn = _getFrameFlag(next, options, 'omitDefault');
-      if(!omitDefaultOn && !(prop in output)) {
-        let preserve = '@null';
-        if('@default' in next) {
-          preserve = util.clone(next['@default']);
-        }
-        if(!types.isArray(preserve)) {
-          preserve = [preserve];
-        }
-        output[prop] = [{'@preserve': preserve}];
-      }
-    }
+        // relabel blank node @id
+        const id = graphTypes.isBlankNode(o) ?
+          issuer.getId(o['@id']) : o['@id'];
 
-    // if embed reverse values by finding nodes having this subject as a value
-    // of the associated property
-    for(const reverseProp of Object.keys(frame['@reverse'] || {}).sort()) {
-      const subframe = frame['@reverse'][reverseProp];
-      for(const subject of Object.keys(state.subjects)) {
-        const nodeValues =
-          util.getValues(state.subjects[subject], reverseProp);
-        if(nodeValues.some(v => v['@id'] === id)) {
-          // node has property referencing this subject, recurse
-          output['@reverse'] = output['@reverse'] || {};
-          util.addValue(
-            output['@reverse'], reverseProp, [], {propertyIsArray: true});
-          api.frame(
-            {...state, embedded: true},
-            [subject], subframe, output['@reverse'][reverseProp],
-            property);
-        }
+        // add reference and recurse
+        util.addValue(
+          subject, property, {'@id': id},
+          {propertyIsArray: true, allowDuplicate: false});
+        api.createNodeMap(o, graphs, graph, issuer, id);
+      } else if(graphTypes.isValue(o)) {
+        util.addValue(
+          subject, property, o,
+          {propertyIsArray: true, allowDuplicate: false});
+      } else if(graphTypes.isList(o)) {
+        // handle @list
+        const _list = [];
+        api.createNodeMap(o['@list'], graphs, graph, issuer, name, _list);
+        o = {'@list': _list};
+        util.addValue(
+          subject, property, o,
+          {propertyIsArray: true, allowDuplicate: false});
+      } else {
+        // handle @value
+        api.createNodeMap(o, graphs, graph, issuer, name);
+        util.addValue(
+          subject, property, o, {propertyIsArray: true, allowDuplicate: false});
       }
     }
-
-    // add output to parent
-    _addFrameOutput(parent, property, output);
-
-    // pop matching subject from circular ref-checking stack
-    state.subjectStack.pop();
   }
 };
 
 /**
- * Replace `@null` with `null`, removing it from arrays.
+ * Merge separate named graphs into a single merged graph including
+ * all nodes from the default graph and named graphs.
  *
- * @param input the framed, compacted output.
- * @param options the framing options used.
+ * @param graphs a map of graph name to subject map.
  *
- * @return the resulting output.
+ * @return the merged graph map.
  */
-api.cleanupNull = (input, options) => {
-  // recurse through arrays
-  if(types.isArray(input)) {
-    const noNulls = input.map(v => api.cleanupNull(v, options));
-    return noNulls.filter(v => v); // removes nulls from array
-  }
-
-  if(input === '@null') {
-    return null;
-  }
-
-  if(types.isObject(input)) {
-    // handle in-memory linked nodes
-    if('@id' in input) {
-      const id = input['@id'];
-      if(options.link.hasOwnProperty(id)) {
-        const idx = options.link[id].indexOf(input);
-        if(idx !== -1) {
-          // already visited
-          return options.link[id][idx];
-        }
-        // prevent circular visitation
-        options.link[id].push(input);
-      } else {
-        // prevent circular visitation
-        options.link[id] = [input];
+api.mergeNodeMapGraphs = graphs => {
+  const merged = {};
+  for(const name of Object.keys(graphs).sort()) {
+    for(const id of Object.keys(graphs[name]).sort()) {
+      const node = graphs[name][id];
+      if(!(id in merged)) {
+        merged[id] = {'@id': id};
       }
-    }
+      const mergedNode = merged[id];
 
-    for(const key in input) {
-      input[key] = api.cleanupNull(input[key], options);
-    }
-  }
-  return input;
-};
-
-/**
- * Creates an implicit frame when recursing through subject matches. If
- * a frame doesn't have an explicit frame for a particular property, then
- * a wildcard child frame will be created that uses the same flags that the
- * parent frame used.
- *
- * @param flags the current framing flags.
- *
- * @return the implicit frame.
- */
-function _createImplicitFrame(flags) {
-  const frame = {};
-  for(const key in flags) {
-    if(flags[key] !== undefined) {
-      frame['@' + key] = [flags[key]];
-    }
-  }
-  return [frame];
-}
-
-/**
- * Checks the current subject stack to see if embedding the given subject
- * would cause a circular reference.
- *
- * @param subjectToEmbed the subject to embed.
- * @param graph the graph the subject to embed is in.
- * @param subjectStack the current stack of subjects.
- *
- * @return true if a circular reference would be created, false if not.
- */
-function _createsCircularReference(subjectToEmbed, graph, subjectStack) {
-  for(let i = subjectStack.length - 1; i >= 0; --i) {
-    const subject = subjectStack[i];
-    if(subject.graph === graph &&
-      subject.subject['@id'] === subjectToEmbed['@id']) {
-      return true;
-    }
-  }
-  return false;
-}
-
-/**
- * Gets the frame flag value for the given flag name.
- *
- * @param frame the frame.
- * @param options the framing options.
- * @param name the flag name.
- *
- * @return the flag value.
- */
-function _getFrameFlag(frame, options, name) {
-  const flag = '@' + name;
-  let rval = (flag in frame ? frame[flag][0] : options[name]);
-  if(name === 'embed') {
-    // default is "@last"
-    // backwards-compatibility support for "embed" maps:
-    // true => "@last"
-    // false => "@never"
-    if(rval === true) {
-      rval = '@once';
-    } else if(rval === false) {
-      rval = '@never';
-    } else if(rval !== '@always' && rval !== '@never' && rval !== '@link' &&
-      rval !== '@first' && rval !== '@last' && rval !== '@once') {
-      throw new JsonLdError(
-        'Invalid JSON-LD syntax; invalid value of @embed.',
-        'jsonld.SyntaxError', {code: 'invalid @embed value', frame});
-    }
-  }
-  return rval;
-}
-
-/**
- * Validates a JSON-LD frame, throwing an exception if the frame is invalid.
- *
- * @param frame the frame to validate.
- */
-function _validateFrame(frame) {
-  if(!types.isArray(frame) || frame.length !== 1 || !types.isObject(frame[0])) {
-    throw new JsonLdError(
-      'Invalid JSON-LD syntax; a JSON-LD frame must be a single object.',
-      'jsonld.SyntaxError', {frame});
-  }
-
-  if('@id' in frame[0]) {
-    for(const id of util.asArray(frame[0]['@id'])) {
-      // @id must be wildcard or an IRI
-      if(!(types.isObject(id) || url.isAbsolute(id)) ||
-        (types.isString(id) && id.indexOf('_:') === 0)) {
-        throw new JsonLdError(
-          'Invalid JSON-LD syntax; invalid @id in frame.',
-          'jsonld.SyntaxError', {code: 'invalid frame', frame});
-      }
-    }
-  }
-
-  if('@type' in frame[0]) {
-    for(const type of util.asArray(frame[0]['@type'])) {
-      // @type must be wildcard, IRI, or @json
-      if(!(types.isObject(type) || url.isAbsolute(type) ||
-          (type === '@json')) ||
-        (types.isString(type) && type.indexOf('_:') === 0)) {
-        throw new JsonLdError(
-          'Invalid JSON-LD syntax; invalid @type in frame.',
-          'jsonld.SyntaxError', {code: 'invalid frame', frame});
-      }
-    }
-  }
-}
-
-/**
- * Returns a map of all of the subjects that match a parsed frame.
- *
- * @param state the current framing state.
- * @param subjects the set of subjects to filter.
- * @param frame the parsed frame.
- * @param flags the frame flags.
- *
- * @return all of the matched subjects.
- */
-function _filterSubjects(state, subjects, frame, flags) {
-  // filter subjects in @id order
-  const rval = {};
-  for(const id of subjects) {
-    const subject = state.graphMap[state.graph][id];
-    if(_filterSubject(state, subject, frame, flags)) {
-      rval[id] = subject;
-    }
-  }
-  return rval;
-}
-
-/**
- * Returns true if the given subject matches the given frame.
- *
- * Matches either based on explicit type inclusion where the node has any
- * type listed in the frame. If the frame has empty types defined matches
- * nodes not having a @type. If the frame has a type of {} defined matches
- * nodes having any type defined.
- *
- * Otherwise, does duck typing, where the node must have all of the
- * properties defined in the frame.
- *
- * @param state the current framing state.
- * @param subject the subject to check.
- * @param frame the frame to check.
- * @param flags the frame flags.
- *
- * @return true if the subject matches, false if not.
- */
-function _filterSubject(state, subject, frame, flags) {
-  // check ducktype
-  let wildcard = true;
-  let matchesSome = false;
-
-  for(const key in frame) {
-    let matchThis = false;
-    const nodeValues = util.getValues(subject, key);
-    const isEmpty = util.getValues(frame, key).length === 0;
-
-    if(key === '@id') {
-      // match on no @id or any matching @id, including wildcard
-      if(types.isEmptyObject(frame['@id'][0] || {})) {
-        matchThis = true;
-      } else if(frame['@id'].length >= 0) {
-        matchThis = frame['@id'].includes(nodeValues[0]);
-      }
-      if(!flags.requireAll) {
-        return matchThis;
-      }
-    } else if(key === '@type') {
-      // check @type (object value means 'any' type,
-      // fall through to ducktyping)
-      wildcard = false;
-      if(isEmpty) {
-        if(nodeValues.length > 0) {
-          // don't match on no @type
-          return false;
-        }
-        matchThis = true;
-      } else if(frame['@type'].length === 1 &&
-        types.isEmptyObject(frame['@type'][0])) {
-        // match on wildcard @type if there is a type
-        matchThis = nodeValues.length > 0;
-      } else {
-        // match on a specific @type
-        for(const type of frame['@type']) {
-          if(types.isObject(type) && '@default' in type) {
-            // match on default object
-            matchThis = true;
-          } else {
-            matchThis = matchThis || nodeValues.some(tt => tt === type);
-          }
-        }
-      }
-      if(!flags.requireAll) {
-        return matchThis;
-      }
-    } else if(isKeyword(key)) {
-      continue;
-    } else {
-      // Force a copy of this frame entry so it can be manipulated
-      const thisFrame = util.getValues(frame, key)[0];
-      let hasDefault = false;
-      if(thisFrame) {
-        _validateFrame([thisFrame]);
-        hasDefault = '@default' in thisFrame;
-      }
-
-      // no longer a wildcard pattern if frame has any non-keyword properties
-      wildcard = false;
-
-      // skip, but allow match if node has no value for property, and frame has
-      // a default value
-      if(nodeValues.length === 0 && hasDefault) {
-        continue;
-      }
-
-      // if frame value is empty, don't match if subject has any value
-      if(nodeValues.length > 0 && isEmpty) {
-        return false;
-      }
-
-      if(thisFrame === undefined) {
-        // node does not match if values is not empty and the value of property
-        // in frame is match none.
-        if(nodeValues.length > 0) {
-          return false;
-        }
-        matchThis = true;
-      } else {
-        if(graphTypes.isList(thisFrame)) {
-          const listValue = thisFrame['@list'][0];
-          if(graphTypes.isList(nodeValues[0])) {
-            const nodeListValues = nodeValues[0]['@list'];
-
-            if(graphTypes.isValue(listValue)) {
-              // match on any matching value
-              matchThis = nodeListValues.some(lv => _valueMatch(listValue, lv));
-            } else if(graphTypes.isSubject(listValue) ||
-              graphTypes.isSubjectReference(listValue)) {
-              matchThis = nodeListValues.some(lv => _nodeMatch(
-                state, listValue, lv, flags));
-            }
-          }
-        } else if(graphTypes.isValue(thisFrame)) {
-          matchThis = nodeValues.some(nv => _valueMatch(thisFrame, nv));
-        } else if(graphTypes.isSubjectReference(thisFrame)) {
-          matchThis =
-            nodeValues.some(nv => _nodeMatch(state, thisFrame, nv, flags));
-        } else if(types.isObject(thisFrame)) {
-          matchThis = nodeValues.length > 0;
+      for(const property of Object.keys(node).sort()) {
+        if(isKeyword(property) && property !== '@type') {
+          // copy keywords
+          mergedNode[property] = util.clone(node[property]);
         } else {
-          matchThis = false;
+          // merge objects
+          for(const value of node[property]) {
+            util.addValue(
+              mergedNode, property, util.clone(value),
+              {propertyIsArray: true, allowDuplicate: false});
+          }
         }
       }
     }
-
-    // all non-defaulted values must match if requireAll is set
-    if(!matchThis && flags.requireAll) {
-      return false;
-    }
-
-    matchesSome = matchesSome || matchThis;
   }
 
-  // return true if wildcard or subject matches some properties
-  return wildcard || matchesSome;
-}
+  return merged;
+};
 
-/**
- * Removes an existing embed.
- *
- * @param state the current framing state.
- * @param id the @id of the embed to remove.
- */
-function _removeEmbed(state, id) {
-  // get existing embed
-  const embeds = state.uniqueEmbeds[state.graph];
-  const embed = embeds[id];
-  const parent = embed.parent;
-  const property = embed.property;
-
-  // create reference to replace embed
-  const subject = {'@id': id};
-
-  // remove existing embed
-  if(types.isArray(parent)) {
-    // replace subject with reference
-    for(let i = 0; i < parent.length; ++i) {
-      if(util.compareValues(parent[i], subject)) {
-        parent[i] = subject;
-        break;
+api.mergeNodeMaps = graphs => {
+  // add all non-default graphs to default graph
+  const defaultGraph = graphs['@default'];
+  const graphNames = Object.keys(graphs).sort();
+  for(const graphName of graphNames) {
+    if(graphName === '@default') {
+      continue;
+    }
+    const nodeMap = graphs[graphName];
+    let subject = defaultGraph[graphName];
+    if(!subject) {
+      defaultGraph[graphName] = subject = {
+        '@id': graphName,
+        '@graph': []
+      };
+    } else if(!('@graph' in subject)) {
+      subject['@graph'] = [];
+    }
+    const graph = subject['@graph'];
+    for(const id of Object.keys(nodeMap).sort()) {
+      const node = nodeMap[id];
+      // only add full subjects
+      if(!graphTypes.isSubjectReference(node)) {
+        graph.push(node);
       }
     }
-  } else {
-    // replace subject with reference
-    const useArray = types.isArray(parent[property]);
-    util.removeValue(parent, property, subject, {propertyIsArray: useArray});
-    util.addValue(parent, property, subject, {propertyIsArray: useArray});
   }
-
-  // recursively remove dependent dangling embeds
-  const removeDependents = id => {
-    // get embed keys as a separate array to enable deleting keys in map
-    const ids = Object.keys(embeds);
-    for(const next of ids) {
-      if(next in embeds && types.isObject(embeds[next].parent) &&
-        embeds[next].parent['@id'] === id) {
-        delete embeds[next];
-        removeDependents(next);
-      }
-    }
-  };
-  removeDependents(id);
-}
-
-/**
- * Removes the @preserve keywords from expanded result of framing.
- *
- * @param input the framed, framed output.
- * @param options the framing options used.
- *
- * @return the resulting output.
- */
-function _cleanupPreserve(input, options) {
-  // recurse through arrays
-  if(types.isArray(input)) {
-    return input.map(value => _cleanupPreserve(value, options));
-  }
-
-  if(types.isObject(input)) {
-    // remove @preserve
-    if('@preserve' in input) {
-      return input['@preserve'][0];
-    }
-
-    // skip @values
-    if(graphTypes.isValue(input)) {
-      return input;
-    }
-
-    // recurse through @lists
-    if(graphTypes.isList(input)) {
-      input['@list'] = _cleanupPreserve(input['@list'], options);
-      return input;
-    }
-
-    // handle in-memory linked nodes
-    if('@id' in input) {
-      const id = input['@id'];
-      if(options.link.hasOwnProperty(id)) {
-        const idx = options.link[id].indexOf(input);
-        if(idx !== -1) {
-          // already visited
-          return options.link[id][idx];
-        }
-        // prevent circular visitation
-        options.link[id].push(input);
-      } else {
-        // prevent circular visitation
-        options.link[id] = [input];
-      }
-    }
-
-    // recurse through properties
-    for(const prop in input) {
-      // potentially remove the id, if it is an unreference bnode
-      if(prop === '@id' && options.bnodesToClear.includes(input[prop])) {
-        delete input['@id'];
-        continue;
-      }
-
-      input[prop] = _cleanupPreserve(input[prop], options);
-    }
-  }
-  return input;
-}
-
-/**
- * Adds framing output to the given parent.
- *
- * @param parent the parent to add to.
- * @param property the parent property.
- * @param output the output to add.
- */
-function _addFrameOutput(parent, property, output) {
-  if(types.isObject(parent)) {
-    util.addValue(parent, property, output, {propertyIsArray: true});
-  } else {
-    parent.push(output);
-  }
-}
-
-/**
- * Node matches if it is a node, and matches the pattern as a frame.
- *
- * @param state the current framing state.
- * @param pattern used to match value
- * @param value to check
- * @param flags the frame flags.
- */
-function _nodeMatch(state, pattern, value, flags) {
-  if(!('@id' in value)) {
-    return false;
-  }
-  const nodeObject = state.subjects[value['@id']];
-  return nodeObject && _filterSubject(state, nodeObject, pattern, flags);
-}
-
-/**
- * Value matches if it is a value and matches the value pattern
- *
- * * `pattern` is empty
- * * @values are the same, or `pattern[@value]` is a wildcard, and
- * * @types are the same or `value[@type]` is not null
- *   and `pattern[@type]` is `{}`, or `value[@type]` is null
- *   and `pattern[@type]` is null or `[]`, and
- * * @languages are the same or `value[@language]` is not null
- *   and `pattern[@language]` is `{}`, or `value[@language]` is null
- *   and `pattern[@language]` is null or `[]`.
- *
- * @param pattern used to match value
- * @param value to check
- */
-function _valueMatch(pattern, value) {
-  const v1 = value['@value'];
-  const t1 = value['@type'];
-  const l1 = value['@language'];
-  const v2 = pattern['@value'] ?
-    (types.isArray(pattern['@value']) ?
-      pattern['@value'] : [pattern['@value']]) :
-    [];
-  const t2 = pattern['@type'] ?
-    (types.isArray(pattern['@type']) ?
-      pattern['@type'] : [pattern['@type']]) :
-    [];
-  const l2 = pattern['@language'] ?
-    (types.isArray(pattern['@language']) ?
-      pattern['@language'] : [pattern['@language']]) :
-    [];
-
-  if(v2.length === 0 && t2.length === 0 && l2.length === 0) {
-    return true;
-  }
-  if(!(v2.includes(v1) || types.isEmptyObject(v2[0]))) {
-    return false;
-  }
-  if(!(!t1 && t2.length === 0 || t2.includes(t1) || t1 &&
-    types.isEmptyObject(t2[0]))) {
-    return false;
-  }
-  if(!(!l1 && l2.length === 0 || l2.includes(l1) || l1 &&
-    types.isEmptyObject(l2[0]))) {
-    return false;
-  }
-  return true;
-}
+  return defaultGraph;
+};
 
 
 /***/ },
 
-/***/ 8229
+/***/ 3082
 (module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
 /*
- * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2021 Digital Bazaar, Inc. All rights reserved.
  */
 
 
-// TODO: move `NQuads` to its own package
-module.exports = __webpack_require__(989).NQuads;
+const xhrLoader = __webpack_require__(6957);
+
+const api = {};
+module.exports = api;
+
+/**
+ * Setup browser document loaders.
+ *
+ * @param jsonld the jsonld api.
+ */
+api.setupDocumentLoaders = function(jsonld) {
+  if(typeof XMLHttpRequest !== 'undefined') {
+    jsonld.documentLoaders.xhr = xhrLoader;
+    // use xhr document loader by default
+    jsonld.useDocumentLoader('xhr');
+  }
+};
+
+/**
+ * Setup browser globals.
+ *
+ * @param jsonld the jsonld api.
+ */
+api.setupGlobals = function(jsonld) {
+  // setup browser global JsonLdProcessor
+  if(typeof globalThis.JsonLdProcessor === 'undefined') {
+    Object.defineProperty(globalThis, 'JsonLdProcessor', {
+      writable: true,
+      enumerable: false,
+      configurable: true,
+      value: jsonld.JsonLdProcessor
+    });
+  }
+};
 
 
 /***/ },
@@ -11266,7 +8236,107 @@ function _makeTerm(id) {
 
 /***/ },
 
-/***/ 9233
+/***/ 7382
+(module) {
+
+"use strict";
+/*
+ * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
+ */
+
+
+const api = {};
+module.exports = api;
+
+/**
+ * Returns true if the given value is an Array.
+ *
+ * @param v the value to check.
+ *
+ * @return true if the value is an Array, false if not.
+ */
+api.isArray = Array.isArray;
+
+/**
+ * Returns true if the given value is a Boolean.
+ *
+ * @param v the value to check.
+ *
+ * @return true if the value is a Boolean, false if not.
+ */
+api.isBoolean = v => (typeof v === 'boolean' ||
+  Object.prototype.toString.call(v) === '[object Boolean]');
+
+/**
+ * Returns true if the given value is a double.
+ *
+ * @param v the value to check.
+ *
+ * @return true if the value is a double, false if not.
+ */
+api.isDouble = v => api.isNumber(v) &&
+  (String(v).indexOf('.') !== -1 || Math.abs(v) >= 1e21);
+
+/**
+ * Returns true if the given value is an empty Object.
+ *
+ * @param v the value to check.
+ *
+ * @return true if the value is an empty Object, false if not.
+ */
+api.isEmptyObject = v => api.isObject(v) && Object.keys(v).length === 0;
+
+/**
+ * Returns true if the given value is a Number.
+ *
+ * @param v the value to check.
+ *
+ * @return true if the value is a Number, false if not.
+ */
+api.isNumber = v => (typeof v === 'number' ||
+  Object.prototype.toString.call(v) === '[object Number]');
+
+/**
+ * Returns true if the given value is numeric.
+ *
+ * @param v the value to check.
+ *
+ * @return true if the value is numeric, false if not.
+ */
+api.isNumeric = v => !isNaN(parseFloat(v)) && isFinite(v);
+
+/**
+ * Returns true if the given value is an Object.
+ *
+ * @param v the value to check.
+ *
+ * @return true if the value is an Object, false if not.
+ */
+api.isObject = v => Object.prototype.toString.call(v) === '[object Object]';
+
+/**
+ * Returns true if the given value is a String.
+ *
+ * @param v the value to check.
+ *
+ * @return true if the value is a String, false if not.
+ */
+api.isString = v => (typeof v === 'string' ||
+  Object.prototype.toString.call(v) === '[object String]');
+
+/**
+ * Returns true if the given value is undefined.
+ *
+ * @param v the value to check.
+ *
+ * @return true if the value is undefined, false if not.
+ */
+api.isUndefined = v => typeof v === 'undefined';
+
+
+/***/ },
+
+/***/ 470
 (module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";
@@ -11275,291 +8345,302 @@ function _makeTerm(id) {
  */
 
 
-const {isKeyword} = __webpack_require__(1972);
-const graphTypes = __webpack_require__(3978);
 const types = __webpack_require__(7382);
-const util = __webpack_require__(9263);
-const JsonLdError = __webpack_require__(2207);
 
 const api = {};
 module.exports = api;
 
-/**
- * Creates a merged JSON-LD node map (node ID => node).
- *
- * @param input the expanded JSON-LD to create a node map of.
- * @param [options] the options to use:
- *          [issuer] a jsonld.IdentifierIssuer to use to label blank nodes.
- *
- * @return the node map.
- */
-api.createMergedNodeMap = (input, options) => {
-  options = options || {};
+// define URL parser
+// parseUri 1.2.2
+// (c) Steven Levithan <stevenlevithan.com>
+// MIT License
+// with local jsonld.js modifications
+api.parsers = {
+  simple: {
+    // RFC 3986 basic parts
+    keys: [
+      'href', 'scheme', 'authority', 'path', 'query', 'fragment'
+    ],
+    /* eslint-disable-next-line max-len */
+    regex: /^(?:([^:\/?#]+):)?(?:\/\/([^\/?#]*))?([^?#]*)(?:\?([^#]*))?(?:#(.*))?/
+  },
+  full: {
+    keys: [
+      'href', 'protocol', 'scheme', 'authority', 'auth', 'user', 'password',
+      'hostname', 'port', 'path', 'directory', 'file', 'query', 'fragment'
+    ],
+    /* eslint-disable-next-line max-len */
+    regex: /^(([a-zA-Z][a-zA-Z0-9+-.]*):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?(?:(((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/
+  }
+};
+api.parse = (str, parser) => {
+  const parsed = {};
+  const o = api.parsers[parser || 'full'];
+  const m = o.regex.exec(str);
+  let i = o.keys.length;
+  while(i--) {
+    parsed[o.keys[i]] = (m[i] === undefined) ? null : m[i];
+  }
 
-  // produce a map of all subjects and name each bnode
-  const issuer = options.issuer || new util.IdentifierIssuer('_:b');
-  const graphs = {'@default': {}};
-  api.createNodeMap(input, graphs, '@default', issuer);
+  // remove default ports in found in URLs
+  if((parsed.scheme === 'https' && parsed.port === '443') ||
+    (parsed.scheme === 'http' && parsed.port === '80')) {
+    parsed.href = parsed.href.replace(':' + parsed.port, '');
+    parsed.authority = parsed.authority.replace(':' + parsed.port, '');
+    parsed.port = null;
+  }
 
-  // add all non-default graphs to default graph
-  return api.mergeNodeMaps(graphs);
+  parsed.normalizedPath = api.removeDotSegments(parsed.path);
+  return parsed;
 };
 
 /**
- * Recursively flattens the subjects in the given JSON-LD expanded input
- * into a node map.
+ * Prepends a base IRI to the given relative IRI.
  *
- * @param input the JSON-LD expanded input.
- * @param graphs a map of graph name to subject map.
- * @param graph the name of the current graph.
- * @param issuer the blank node identifier issuer.
- * @param name the name assigned to the current input if it is a bnode.
- * @param list the list to append to, null for none.
+ * @param base the base IRI.
+ * @param iri the relative IRI.
+ *
+ * @return the absolute IRI.
  */
-api.createNodeMap = (input, graphs, graph, issuer, name, list) => {
-  // recurse through array
-  if(types.isArray(input)) {
-    for(const node of input) {
-      api.createNodeMap(node, graphs, graph, issuer, undefined, list);
-    }
-    return;
+api.prependBase = (base, iri) => {
+  // skip IRI processing
+  if(base === null) {
+    return iri;
+  }
+  // already an absolute IRI
+  if(api.isAbsolute(iri)) {
+    return iri;
   }
 
-  // add non-object to list
-  if(!types.isObject(input)) {
-    if(list) {
-      list.push(input);
-    }
-    return;
+  // parse base if it is a string
+  if(!base || types.isString(base)) {
+    base = api.parse(base || '');
   }
 
-  // add values to list
-  if(graphTypes.isValue(input)) {
-    if('@type' in input) {
-      let type = input['@type'];
-      // rename @type blank node
-      if(type.indexOf('_:') === 0) {
-        input['@type'] = type = issuer.getId(type);
-      }
-    }
-    if(list) {
-      list.push(input);
-    }
-    return;
-  } else if(list && graphTypes.isList(input)) {
-    const _list = [];
-    api.createNodeMap(input['@list'], graphs, graph, issuer, name, _list);
-    list.push({'@list': _list});
-    return;
-  }
+  // parse given IRI
+  const rel = api.parse(iri);
 
-  // Note: At this point, input must be a subject.
+  // per RFC3986 5.2.2
+  const transform = {
+    protocol: base.protocol || ''
+  };
 
-  // spec requires @type to be named first, so assign names early
-  if('@type' in input) {
-    const types = input['@type'];
-    for(const type of types) {
-      if(type.indexOf('_:') === 0) {
-        issuer.getId(type);
-      }
-    }
-  }
+  if(rel.authority !== null) {
+    transform.authority = rel.authority;
+    transform.path = rel.path;
+    transform.query = rel.query;
+  } else {
+    transform.authority = base.authority;
 
-  // get name for subject
-  if(types.isUndefined(name)) {
-    name = graphTypes.isBlankNode(input) ?
-      issuer.getId(input['@id']) : input['@id'];
-  }
-
-  // add subject reference to list
-  if(list) {
-    list.push({'@id': name});
-  }
-
-  // create new subject or merge into existing one
-  const subjects = graphs[graph];
-  const subject = subjects[name] = subjects[name] || {};
-  subject['@id'] = name;
-  const properties = Object.keys(input).sort();
-  for(let property of properties) {
-    // skip @id
-    if(property === '@id') {
-      continue;
-    }
-
-    // handle reverse properties
-    if(property === '@reverse') {
-      const referencedNode = {'@id': name};
-      const reverseMap = input['@reverse'];
-      for(const reverseProperty in reverseMap) {
-        const items = reverseMap[reverseProperty];
-        for(const item of items) {
-          let itemName = item['@id'];
-          if(graphTypes.isBlankNode(item)) {
-            itemName = issuer.getId(itemName);
-          }
-          api.createNodeMap(item, graphs, graph, issuer, itemName);
-          util.addValue(
-            subjects[itemName], reverseProperty, referencedNode,
-            {propertyIsArray: true, allowDuplicate: false});
-        }
-      }
-      continue;
-    }
-
-    // recurse into graph
-    if(property === '@graph') {
-      // add graph subjects map entry
-      if(!(name in graphs)) {
-        graphs[name] = {};
-      }
-      api.createNodeMap(input[property], graphs, name, issuer);
-      continue;
-    }
-
-    // recurse into included
-    if(property === '@included') {
-      api.createNodeMap(input[property], graphs, graph, issuer);
-      continue;
-    }
-
-    // copy non-@type keywords
-    if(property !== '@type' && isKeyword(property)) {
-      if(property === '@index' && property in subject &&
-        (input[property] !== subject[property] ||
-        input[property]['@id'] !== subject[property]['@id'])) {
-        throw new JsonLdError(
-          'Invalid JSON-LD syntax; conflicting @index property detected.',
-          'jsonld.SyntaxError',
-          {code: 'conflicting indexes', subject});
-      }
-      subject[property] = input[property];
-      continue;
-    }
-
-    // iterate over objects
-    const objects = input[property];
-
-    // if property is a bnode, assign it a new id
-    if(property.indexOf('_:') === 0) {
-      property = issuer.getId(property);
-    }
-
-    // ensure property is added for empty arrays
-    if(objects.length === 0) {
-      util.addValue(subject, property, [], {propertyIsArray: true});
-      continue;
-    }
-    for(let o of objects) {
-      if(property === '@type') {
-        // rename @type blank nodes
-        o = (o.indexOf('_:') === 0) ? issuer.getId(o) : o;
-      }
-
-      // handle embedded subject or subject reference
-      if(graphTypes.isSubject(o) || graphTypes.isSubjectReference(o)) {
-        // skip null @id
-        if('@id' in o && !o['@id']) {
-          continue;
-        }
-
-        // relabel blank node @id
-        const id = graphTypes.isBlankNode(o) ?
-          issuer.getId(o['@id']) : o['@id'];
-
-        // add reference and recurse
-        util.addValue(
-          subject, property, {'@id': id},
-          {propertyIsArray: true, allowDuplicate: false});
-        api.createNodeMap(o, graphs, graph, issuer, id);
-      } else if(graphTypes.isValue(o)) {
-        util.addValue(
-          subject, property, o,
-          {propertyIsArray: true, allowDuplicate: false});
-      } else if(graphTypes.isList(o)) {
-        // handle @list
-        const _list = [];
-        api.createNodeMap(o['@list'], graphs, graph, issuer, name, _list);
-        o = {'@list': _list};
-        util.addValue(
-          subject, property, o,
-          {propertyIsArray: true, allowDuplicate: false});
+    if(rel.path === '') {
+      transform.path = base.path;
+      if(rel.query !== null) {
+        transform.query = rel.query;
       } else {
-        // handle @value
-        api.createNodeMap(o, graphs, graph, issuer, name);
-        util.addValue(
-          subject, property, o, {propertyIsArray: true, allowDuplicate: false});
+        transform.query = base.query;
       }
+    } else {
+      if(rel.path.indexOf('/') === 0) {
+        // IRI represents an absolute path
+        transform.path = rel.path;
+      } else {
+        // merge paths
+        let path = base.path;
+
+        // append relative path to the end of the last directory from base
+        path = path.substr(0, path.lastIndexOf('/') + 1);
+        if((path.length > 0 || base.authority) && path.substr(-1) !== '/') {
+          path += '/';
+        }
+        path += rel.path;
+
+        transform.path = path;
+      }
+      transform.query = rel.query;
     }
   }
+
+  if(rel.path !== '') {
+    // remove slashes and dots in path
+    transform.path = api.removeDotSegments(transform.path);
+  }
+
+  // construct URL
+  let rval = transform.protocol;
+  if(transform.authority !== null) {
+    rval += '//' + transform.authority;
+  }
+  rval += transform.path;
+  if(transform.query !== null) {
+    rval += '?' + transform.query;
+  }
+  if(rel.fragment !== null) {
+    rval += '#' + rel.fragment;
+  }
+
+  // handle empty base
+  if(rval === '') {
+    rval = './';
+  }
+
+  return rval;
 };
 
 /**
- * Merge separate named graphs into a single merged graph including
- * all nodes from the default graph and named graphs.
+ * Removes a base IRI from the given absolute IRI.
  *
- * @param graphs a map of graph name to subject map.
+ * @param base the base IRI.
+ * @param iri the absolute IRI.
  *
- * @return the merged graph map.
+ * @return the relative IRI if relative to base, otherwise the absolute IRI.
  */
-api.mergeNodeMapGraphs = graphs => {
-  const merged = {};
-  for(const name of Object.keys(graphs).sort()) {
-    for(const id of Object.keys(graphs[name]).sort()) {
-      const node = graphs[name][id];
-      if(!(id in merged)) {
-        merged[id] = {'@id': id};
-      }
-      const mergedNode = merged[id];
+api.removeBase = (base, iri) => {
+  // skip IRI processing
+  if(base === null) {
+    return iri;
+  }
 
-      for(const property of Object.keys(node).sort()) {
-        if(isKeyword(property) && property !== '@type') {
-          // copy keywords
-          mergedNode[property] = util.clone(node[property]);
-        } else {
-          // merge objects
-          for(const value of node[property]) {
-            util.addValue(
-              mergedNode, property, util.clone(value),
-              {propertyIsArray: true, allowDuplicate: false});
-          }
-        }
-      }
+  if(!base || types.isString(base)) {
+    base = api.parse(base || '');
+  }
+
+  // establish base root
+  let root = '';
+  if(base.href !== '') {
+    root += (base.protocol || '') + '//' + (base.authority || '');
+  } else if(iri.indexOf('//')) {
+    // support network-path reference with empty base
+    root += '//';
+  }
+
+  // IRI not relative to base
+  if(iri.indexOf(root) !== 0) {
+    return iri;
+  }
+
+  // remove root from IRI and parse remainder
+  const rel = api.parse(iri.substr(root.length));
+
+  // remove path segments that match (do not remove last segment unless there
+  // is a hash or query)
+  const baseSegments = base.normalizedPath.split('/');
+  const iriSegments = rel.normalizedPath.split('/');
+  const last = (rel.fragment || rel.query) ? 0 : 1;
+  while(baseSegments.length > 0 && iriSegments.length > last) {
+    if(baseSegments[0] !== iriSegments[0]) {
+      break;
+    }
+    baseSegments.shift();
+    iriSegments.shift();
+  }
+
+  // use '../' for each non-matching base segment
+  let rval = '';
+  if(baseSegments.length > 0) {
+    // don't count the last segment (if it ends with '/' last path doesn't
+    // count and if it doesn't end with '/' it isn't a path)
+    baseSegments.pop();
+    for(let i = 0; i < baseSegments.length; ++i) {
+      rval += '../';
     }
   }
 
-  return merged;
+  // prepend remaining segments
+  rval += iriSegments.join('/');
+
+  // add query and hash
+  if(rel.query !== null) {
+    rval += '?' + rel.query;
+  }
+  if(rel.fragment !== null) {
+    rval += '#' + rel.fragment;
+  }
+
+  // handle empty base
+  if(rval === '') {
+    rval = './';
+  }
+
+  return rval;
 };
 
-api.mergeNodeMaps = graphs => {
-  // add all non-default graphs to default graph
-  const defaultGraph = graphs['@default'];
-  const graphNames = Object.keys(graphs).sort();
-  for(const graphName of graphNames) {
-    if(graphName === '@default') {
+/**
+ * Removes dot segments from a URL path.
+ *
+ * @param path the path to remove dot segments from.
+ */
+api.removeDotSegments = path => {
+  // RFC 3986 5.2.4 (reworked)
+
+  // empty path shortcut
+  if(path.length === 0) {
+    return '';
+  }
+
+  const input = path.split('/');
+  const output = [];
+
+  while(input.length > 0) {
+    const next = input.shift();
+    const done = input.length === 0;
+
+    if(next === '.') {
+      if(done) {
+        // ensure output has trailing /
+        output.push('');
+      }
       continue;
     }
-    const nodeMap = graphs[graphName];
-    let subject = defaultGraph[graphName];
-    if(!subject) {
-      defaultGraph[graphName] = subject = {
-        '@id': graphName,
-        '@graph': []
-      };
-    } else if(!('@graph' in subject)) {
-      subject['@graph'] = [];
-    }
-    const graph = subject['@graph'];
-    for(const id of Object.keys(nodeMap).sort()) {
-      const node = nodeMap[id];
-      // only add full subjects
-      if(!graphTypes.isSubjectReference(node)) {
-        graph.push(node);
+
+    if(next === '..') {
+      output.pop();
+      if(done) {
+        // ensure output has trailing /
+        output.push('');
       }
+      continue;
     }
+
+    output.push(next);
   }
-  return defaultGraph;
+
+  // if path was absolute, ensure output has leading /
+  if(path[0] === '/' && output.length > 0 && output[0] !== '') {
+    output.unshift('');
+  }
+  if(output.length === 1 && output[0] === '') {
+    return '/';
+  }
+
+  return output.join('/');
 };
+
+// TODO: time better isAbsolute/isRelative checks using full regexes:
+// http://jmrware.com/articles/2009/uri_regexp/URI_regex.html
+
+// regex to check for absolute IRI (starting scheme and ':') or blank node IRI
+const isAbsoluteRegex = /^([A-Za-z][A-Za-z0-9+-.]*|_):[^\s]*$/;
+
+/**
+ * Returns true if the given value is an absolute IRI or blank node IRI, false
+ * if not.
+ * Note: This weak check only checks for a correct starting scheme.
+ *
+ * @param v the value to check.
+ *
+ * @return true if the value is an absolute IRI, false if not.
+ */
+api.isAbsolute = v => types.isString(v) && isAbsoluteRegex.test(v);
+
+/**
+ * Returns true if the given value is a relative IRI, false if not.
+ * Note: this is a weak check.
+ *
+ * @param v the value to check.
+ *
+ * @return true if the value is a relative IRI, false if not.
+ */
+api.isRelative = v => types.isString(v);
 
 
 /***/ },
@@ -12027,42 +9108,1406 @@ function _labelBlankNodes(issuer, element) {
 
 /***/ },
 
-/***/ 9378
+/***/ 1235
+(module, __unused_webpack_exports, __webpack_require__) {
+
+"use strict";
+
+
+// A linked list to keep track of recently-used-ness
+const Yallist = __webpack_require__(6717)
+
+const MAX = Symbol('max')
+const LENGTH = Symbol('length')
+const LENGTH_CALCULATOR = Symbol('lengthCalculator')
+const ALLOW_STALE = Symbol('allowStale')
+const MAX_AGE = Symbol('maxAge')
+const DISPOSE = Symbol('dispose')
+const NO_DISPOSE_ON_SET = Symbol('noDisposeOnSet')
+const LRU_LIST = Symbol('lruList')
+const CACHE = Symbol('cache')
+const UPDATE_AGE_ON_GET = Symbol('updateAgeOnGet')
+
+const naiveLength = () => 1
+
+// lruList is a yallist where the head is the youngest
+// item, and the tail is the oldest.  the list contains the Hit
+// objects as the entries.
+// Each Hit object has a reference to its Yallist.Node.  This
+// never changes.
+//
+// cache is a Map (or PseudoMap) that matches the keys to
+// the Yallist.Node object.
+class LRUCache {
+  constructor (options) {
+    if (typeof options === 'number')
+      options = { max: options }
+
+    if (!options)
+      options = {}
+
+    if (options.max && (typeof options.max !== 'number' || options.max < 0))
+      throw new TypeError('max must be a non-negative number')
+    // Kind of weird to have a default max of Infinity, but oh well.
+    const max = this[MAX] = options.max || Infinity
+
+    const lc = options.length || naiveLength
+    this[LENGTH_CALCULATOR] = (typeof lc !== 'function') ? naiveLength : lc
+    this[ALLOW_STALE] = options.stale || false
+    if (options.maxAge && typeof options.maxAge !== 'number')
+      throw new TypeError('maxAge must be a number')
+    this[MAX_AGE] = options.maxAge || 0
+    this[DISPOSE] = options.dispose
+    this[NO_DISPOSE_ON_SET] = options.noDisposeOnSet || false
+    this[UPDATE_AGE_ON_GET] = options.updateAgeOnGet || false
+    this.reset()
+  }
+
+  // resize the cache when the max changes.
+  set max (mL) {
+    if (typeof mL !== 'number' || mL < 0)
+      throw new TypeError('max must be a non-negative number')
+
+    this[MAX] = mL || Infinity
+    trim(this)
+  }
+  get max () {
+    return this[MAX]
+  }
+
+  set allowStale (allowStale) {
+    this[ALLOW_STALE] = !!allowStale
+  }
+  get allowStale () {
+    return this[ALLOW_STALE]
+  }
+
+  set maxAge (mA) {
+    if (typeof mA !== 'number')
+      throw new TypeError('maxAge must be a non-negative number')
+
+    this[MAX_AGE] = mA
+    trim(this)
+  }
+  get maxAge () {
+    return this[MAX_AGE]
+  }
+
+  // resize the cache when the lengthCalculator changes.
+  set lengthCalculator (lC) {
+    if (typeof lC !== 'function')
+      lC = naiveLength
+
+    if (lC !== this[LENGTH_CALCULATOR]) {
+      this[LENGTH_CALCULATOR] = lC
+      this[LENGTH] = 0
+      this[LRU_LIST].forEach(hit => {
+        hit.length = this[LENGTH_CALCULATOR](hit.value, hit.key)
+        this[LENGTH] += hit.length
+      })
+    }
+    trim(this)
+  }
+  get lengthCalculator () { return this[LENGTH_CALCULATOR] }
+
+  get length () { return this[LENGTH] }
+  get itemCount () { return this[LRU_LIST].length }
+
+  rforEach (fn, thisp) {
+    thisp = thisp || this
+    for (let walker = this[LRU_LIST].tail; walker !== null;) {
+      const prev = walker.prev
+      forEachStep(this, fn, walker, thisp)
+      walker = prev
+    }
+  }
+
+  forEach (fn, thisp) {
+    thisp = thisp || this
+    for (let walker = this[LRU_LIST].head; walker !== null;) {
+      const next = walker.next
+      forEachStep(this, fn, walker, thisp)
+      walker = next
+    }
+  }
+
+  keys () {
+    return this[LRU_LIST].toArray().map(k => k.key)
+  }
+
+  values () {
+    return this[LRU_LIST].toArray().map(k => k.value)
+  }
+
+  reset () {
+    if (this[DISPOSE] &&
+        this[LRU_LIST] &&
+        this[LRU_LIST].length) {
+      this[LRU_LIST].forEach(hit => this[DISPOSE](hit.key, hit.value))
+    }
+
+    this[CACHE] = new Map() // hash of items by key
+    this[LRU_LIST] = new Yallist() // list of items in order of use recency
+    this[LENGTH] = 0 // length of items in the list
+  }
+
+  dump () {
+    return this[LRU_LIST].map(hit =>
+      isStale(this, hit) ? false : {
+        k: hit.key,
+        v: hit.value,
+        e: hit.now + (hit.maxAge || 0)
+      }).toArray().filter(h => h)
+  }
+
+  dumpLru () {
+    return this[LRU_LIST]
+  }
+
+  set (key, value, maxAge) {
+    maxAge = maxAge || this[MAX_AGE]
+
+    if (maxAge && typeof maxAge !== 'number')
+      throw new TypeError('maxAge must be a number')
+
+    const now = maxAge ? Date.now() : 0
+    const len = this[LENGTH_CALCULATOR](value, key)
+
+    if (this[CACHE].has(key)) {
+      if (len > this[MAX]) {
+        del(this, this[CACHE].get(key))
+        return false
+      }
+
+      const node = this[CACHE].get(key)
+      const item = node.value
+
+      // dispose of the old one before overwriting
+      // split out into 2 ifs for better coverage tracking
+      if (this[DISPOSE]) {
+        if (!this[NO_DISPOSE_ON_SET])
+          this[DISPOSE](key, item.value)
+      }
+
+      item.now = now
+      item.maxAge = maxAge
+      item.value = value
+      this[LENGTH] += len - item.length
+      item.length = len
+      this.get(key)
+      trim(this)
+      return true
+    }
+
+    const hit = new Entry(key, value, len, now, maxAge)
+
+    // oversized objects fall out of cache automatically.
+    if (hit.length > this[MAX]) {
+      if (this[DISPOSE])
+        this[DISPOSE](key, value)
+
+      return false
+    }
+
+    this[LENGTH] += hit.length
+    this[LRU_LIST].unshift(hit)
+    this[CACHE].set(key, this[LRU_LIST].head)
+    trim(this)
+    return true
+  }
+
+  has (key) {
+    if (!this[CACHE].has(key)) return false
+    const hit = this[CACHE].get(key).value
+    return !isStale(this, hit)
+  }
+
+  get (key) {
+    return get(this, key, true)
+  }
+
+  peek (key) {
+    return get(this, key, false)
+  }
+
+  pop () {
+    const node = this[LRU_LIST].tail
+    if (!node)
+      return null
+
+    del(this, node)
+    return node.value
+  }
+
+  del (key) {
+    del(this, this[CACHE].get(key))
+  }
+
+  load (arr) {
+    // reset the cache
+    this.reset()
+
+    const now = Date.now()
+    // A previous serialized cache has the most recent items first
+    for (let l = arr.length - 1; l >= 0; l--) {
+      const hit = arr[l]
+      const expiresAt = hit.e || 0
+      if (expiresAt === 0)
+        // the item was created without expiration in a non aged cache
+        this.set(hit.k, hit.v)
+      else {
+        const maxAge = expiresAt - now
+        // dont add already expired items
+        if (maxAge > 0) {
+          this.set(hit.k, hit.v, maxAge)
+        }
+      }
+    }
+  }
+
+  prune () {
+    this[CACHE].forEach((value, key) => get(this, key, false))
+  }
+}
+
+const get = (self, key, doUse) => {
+  const node = self[CACHE].get(key)
+  if (node) {
+    const hit = node.value
+    if (isStale(self, hit)) {
+      del(self, node)
+      if (!self[ALLOW_STALE])
+        return undefined
+    } else {
+      if (doUse) {
+        if (self[UPDATE_AGE_ON_GET])
+          node.value.now = Date.now()
+        self[LRU_LIST].unshiftNode(node)
+      }
+    }
+    return hit.value
+  }
+}
+
+const isStale = (self, hit) => {
+  if (!hit || (!hit.maxAge && !self[MAX_AGE]))
+    return false
+
+  const diff = Date.now() - hit.now
+  return hit.maxAge ? diff > hit.maxAge
+    : self[MAX_AGE] && (diff > self[MAX_AGE])
+}
+
+const trim = self => {
+  if (self[LENGTH] > self[MAX]) {
+    for (let walker = self[LRU_LIST].tail;
+      self[LENGTH] > self[MAX] && walker !== null;) {
+      // We know that we're about to delete this one, and also
+      // what the next least recently used key will be, so just
+      // go ahead and set it now.
+      const prev = walker.prev
+      del(self, walker)
+      walker = prev
+    }
+  }
+}
+
+const del = (self, node) => {
+  if (node) {
+    const hit = node.value
+    if (self[DISPOSE])
+      self[DISPOSE](hit.key, hit.value)
+
+    self[LENGTH] -= hit.length
+    self[CACHE].delete(hit.key)
+    self[LRU_LIST].removeNode(node)
+  }
+}
+
+class Entry {
+  constructor (key, value, length, now, maxAge) {
+    this.key = key
+    this.value = value
+    this.length = length
+    this.now = now
+    this.maxAge = maxAge || 0
+  }
+}
+
+const forEachStep = (self, fn, node, thisp) => {
+  let hit = node.value
+  if (isStale(self, hit)) {
+    del(self, node)
+    if (!self[ALLOW_STALE])
+      hit = undefined
+  }
+  if (hit)
+    fn.call(thisp, hit.value, hit.key, self)
+}
+
+module.exports = LRUCache
+
+
+/***/ },
+
+/***/ 3269
+(module) {
+
+"use strict";
+
+module.exports = function (Yallist) {
+  Yallist.prototype[Symbol.iterator] = function* () {
+    for (let walker = this.head; walker; walker = walker.next) {
+      yield walker.value
+    }
+  }
+}
+
+
+/***/ },
+
+/***/ 6717
+(module, __unused_webpack_exports, __webpack_require__) {
+
+"use strict";
+
+module.exports = Yallist
+
+Yallist.Node = Node
+Yallist.create = Yallist
+
+function Yallist (list) {
+  var self = this
+  if (!(self instanceof Yallist)) {
+    self = new Yallist()
+  }
+
+  self.tail = null
+  self.head = null
+  self.length = 0
+
+  if (list && typeof list.forEach === 'function') {
+    list.forEach(function (item) {
+      self.push(item)
+    })
+  } else if (arguments.length > 0) {
+    for (var i = 0, l = arguments.length; i < l; i++) {
+      self.push(arguments[i])
+    }
+  }
+
+  return self
+}
+
+Yallist.prototype.removeNode = function (node) {
+  if (node.list !== this) {
+    throw new Error('removing node which does not belong to this list')
+  }
+
+  var next = node.next
+  var prev = node.prev
+
+  if (next) {
+    next.prev = prev
+  }
+
+  if (prev) {
+    prev.next = next
+  }
+
+  if (node === this.head) {
+    this.head = next
+  }
+  if (node === this.tail) {
+    this.tail = prev
+  }
+
+  node.list.length--
+  node.next = null
+  node.prev = null
+  node.list = null
+
+  return next
+}
+
+Yallist.prototype.unshiftNode = function (node) {
+  if (node === this.head) {
+    return
+  }
+
+  if (node.list) {
+    node.list.removeNode(node)
+  }
+
+  var head = this.head
+  node.list = this
+  node.next = head
+  if (head) {
+    head.prev = node
+  }
+
+  this.head = node
+  if (!this.tail) {
+    this.tail = node
+  }
+  this.length++
+}
+
+Yallist.prototype.pushNode = function (node) {
+  if (node === this.tail) {
+    return
+  }
+
+  if (node.list) {
+    node.list.removeNode(node)
+  }
+
+  var tail = this.tail
+  node.list = this
+  node.prev = tail
+  if (tail) {
+    tail.next = node
+  }
+
+  this.tail = node
+  if (!this.head) {
+    this.head = node
+  }
+  this.length++
+}
+
+Yallist.prototype.push = function () {
+  for (var i = 0, l = arguments.length; i < l; i++) {
+    push(this, arguments[i])
+  }
+  return this.length
+}
+
+Yallist.prototype.unshift = function () {
+  for (var i = 0, l = arguments.length; i < l; i++) {
+    unshift(this, arguments[i])
+  }
+  return this.length
+}
+
+Yallist.prototype.pop = function () {
+  if (!this.tail) {
+    return undefined
+  }
+
+  var res = this.tail.value
+  this.tail = this.tail.prev
+  if (this.tail) {
+    this.tail.next = null
+  } else {
+    this.head = null
+  }
+  this.length--
+  return res
+}
+
+Yallist.prototype.shift = function () {
+  if (!this.head) {
+    return undefined
+  }
+
+  var res = this.head.value
+  this.head = this.head.next
+  if (this.head) {
+    this.head.prev = null
+  } else {
+    this.tail = null
+  }
+  this.length--
+  return res
+}
+
+Yallist.prototype.forEach = function (fn, thisp) {
+  thisp = thisp || this
+  for (var walker = this.head, i = 0; walker !== null; i++) {
+    fn.call(thisp, walker.value, i, this)
+    walker = walker.next
+  }
+}
+
+Yallist.prototype.forEachReverse = function (fn, thisp) {
+  thisp = thisp || this
+  for (var walker = this.tail, i = this.length - 1; walker !== null; i--) {
+    fn.call(thisp, walker.value, i, this)
+    walker = walker.prev
+  }
+}
+
+Yallist.prototype.get = function (n) {
+  for (var i = 0, walker = this.head; walker !== null && i < n; i++) {
+    // abort out of the list early if we hit a cycle
+    walker = walker.next
+  }
+  if (i === n && walker !== null) {
+    return walker.value
+  }
+}
+
+Yallist.prototype.getReverse = function (n) {
+  for (var i = 0, walker = this.tail; walker !== null && i < n; i++) {
+    // abort out of the list early if we hit a cycle
+    walker = walker.prev
+  }
+  if (i === n && walker !== null) {
+    return walker.value
+  }
+}
+
+Yallist.prototype.map = function (fn, thisp) {
+  thisp = thisp || this
+  var res = new Yallist()
+  for (var walker = this.head; walker !== null;) {
+    res.push(fn.call(thisp, walker.value, this))
+    walker = walker.next
+  }
+  return res
+}
+
+Yallist.prototype.mapReverse = function (fn, thisp) {
+  thisp = thisp || this
+  var res = new Yallist()
+  for (var walker = this.tail; walker !== null;) {
+    res.push(fn.call(thisp, walker.value, this))
+    walker = walker.prev
+  }
+  return res
+}
+
+Yallist.prototype.reduce = function (fn, initial) {
+  var acc
+  var walker = this.head
+  if (arguments.length > 1) {
+    acc = initial
+  } else if (this.head) {
+    walker = this.head.next
+    acc = this.head.value
+  } else {
+    throw new TypeError('Reduce of empty list with no initial value')
+  }
+
+  for (var i = 0; walker !== null; i++) {
+    acc = fn(acc, walker.value, i)
+    walker = walker.next
+  }
+
+  return acc
+}
+
+Yallist.prototype.reduceReverse = function (fn, initial) {
+  var acc
+  var walker = this.tail
+  if (arguments.length > 1) {
+    acc = initial
+  } else if (this.tail) {
+    walker = this.tail.prev
+    acc = this.tail.value
+  } else {
+    throw new TypeError('Reduce of empty list with no initial value')
+  }
+
+  for (var i = this.length - 1; walker !== null; i--) {
+    acc = fn(acc, walker.value, i)
+    walker = walker.prev
+  }
+
+  return acc
+}
+
+Yallist.prototype.toArray = function () {
+  var arr = new Array(this.length)
+  for (var i = 0, walker = this.head; walker !== null; i++) {
+    arr[i] = walker.value
+    walker = walker.next
+  }
+  return arr
+}
+
+Yallist.prototype.toArrayReverse = function () {
+  var arr = new Array(this.length)
+  for (var i = 0, walker = this.tail; walker !== null; i++) {
+    arr[i] = walker.value
+    walker = walker.prev
+  }
+  return arr
+}
+
+Yallist.prototype.slice = function (from, to) {
+  to = to || this.length
+  if (to < 0) {
+    to += this.length
+  }
+  from = from || 0
+  if (from < 0) {
+    from += this.length
+  }
+  var ret = new Yallist()
+  if (to < from || to < 0) {
+    return ret
+  }
+  if (from < 0) {
+    from = 0
+  }
+  if (to > this.length) {
+    to = this.length
+  }
+  for (var i = 0, walker = this.head; walker !== null && i < from; i++) {
+    walker = walker.next
+  }
+  for (; walker !== null && i < to; i++, walker = walker.next) {
+    ret.push(walker.value)
+  }
+  return ret
+}
+
+Yallist.prototype.sliceReverse = function (from, to) {
+  to = to || this.length
+  if (to < 0) {
+    to += this.length
+  }
+  from = from || 0
+  if (from < 0) {
+    from += this.length
+  }
+  var ret = new Yallist()
+  if (to < from || to < 0) {
+    return ret
+  }
+  if (from < 0) {
+    from = 0
+  }
+  if (to > this.length) {
+    to = this.length
+  }
+  for (var i = this.length, walker = this.tail; walker !== null && i > to; i--) {
+    walker = walker.prev
+  }
+  for (; walker !== null && i > from; i--, walker = walker.prev) {
+    ret.push(walker.value)
+  }
+  return ret
+}
+
+Yallist.prototype.splice = function (start, deleteCount, ...nodes) {
+  if (start > this.length) {
+    start = this.length - 1
+  }
+  if (start < 0) {
+    start = this.length + start;
+  }
+
+  for (var i = 0, walker = this.head; walker !== null && i < start; i++) {
+    walker = walker.next
+  }
+
+  var ret = []
+  for (var i = 0; walker && i < deleteCount; i++) {
+    ret.push(walker.value)
+    walker = this.removeNode(walker)
+  }
+  if (walker === null) {
+    walker = this.tail
+  }
+
+  if (walker !== this.head && walker !== this.tail) {
+    walker = walker.prev
+  }
+
+  for (var i = 0; i < nodes.length; i++) {
+    walker = insert(this, walker, nodes[i])
+  }
+  return ret;
+}
+
+Yallist.prototype.reverse = function () {
+  var head = this.head
+  var tail = this.tail
+  for (var walker = head; walker !== null; walker = walker.prev) {
+    var p = walker.prev
+    walker.prev = walker.next
+    walker.next = p
+  }
+  this.head = tail
+  this.tail = head
+  return this
+}
+
+function insert (self, node, value) {
+  var inserted = node === self.head ?
+    new Node(value, null, node, self) :
+    new Node(value, node, node.next, self)
+
+  if (inserted.next === null) {
+    self.tail = inserted
+  }
+  if (inserted.prev === null) {
+    self.head = inserted
+  }
+
+  self.length++
+
+  return inserted
+}
+
+function push (self, item) {
+  self.tail = new Node(item, self.tail, null, self)
+  if (!self.head) {
+    self.head = self.tail
+  }
+  self.length++
+}
+
+function unshift (self, item) {
+  self.head = new Node(item, null, self.head, self)
+  if (!self.tail) {
+    self.tail = self.head
+  }
+  self.length++
+}
+
+function Node (value, prev, next, list) {
+  if (!(this instanceof Node)) {
+    return new Node(value, prev, next, list)
+  }
+
+  this.list = list
+  this.value = value
+
+  if (prev) {
+    prev.next = this
+    this.prev = prev
+  } else {
+    this.prev = null
+  }
+
+  if (next) {
+    next.prev = this
+    this.next = next
+  } else {
+    this.next = null
+  }
+}
+
+try {
+  // add if support for Symbol.iterator is present
+  __webpack_require__(3269)(Yallist)
+} catch (er) {}
+
+
+/***/ },
+
+/***/ 989
+(module, __unused_webpack_exports, __webpack_require__) {
+
+/**
+ * An implementation of the RDF Dataset Normalization specification.
+ *
+ * @author Dave Longley
+ *
+ * Copyright 2010-2021 Digital Bazaar, Inc.
+ */
+module.exports = __webpack_require__(4005);
+
+
+/***/ },
+
+/***/ 2985
 (module) {
 
 "use strict";
 /*
- * Copyright (c) 2017 Digital Bazaar, Inc. All rights reserved.
+ * Copyright (c) 2016-2021 Digital Bazaar, Inc. All rights reserved.
  */
 
 
-const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
-const XSD = 'http://www.w3.org/2001/XMLSchema#';
+module.exports = class IdentifierIssuer {
+  /**
+   * Creates a new IdentifierIssuer. A IdentifierIssuer issues unique
+   * identifiers, keeping track of any previously issued identifiers.
+   *
+   * @param {string} prefix - The prefix to use ('<prefix><counter>').
+   * @param {Map} [existing] - An existing Map to use.
+   * @param {number} [counter] - The counter to use.
+   */
+  constructor(prefix, existing = new Map(), counter = 0) {
+    this.prefix = prefix;
+    this._existing = existing;
+    this.counter = counter;
+  }
 
-module.exports = {
-  // TODO: Deprecated and will be removed later. Use LINK_HEADER_CONTEXT.
-  LINK_HEADER_REL: 'http://www.w3.org/ns/json-ld#context',
+  /**
+   * Copies this IdentifierIssuer.
+   *
+   * @returns {object} - A copy of this IdentifierIssuer.
+   */
+  clone() {
+    const {prefix, _existing, counter} = this;
+    return new IdentifierIssuer(prefix, new Map(_existing), counter);
+  }
 
-  LINK_HEADER_CONTEXT: 'http://www.w3.org/ns/json-ld#context',
+  /**
+   * Gets the new identifier for the given old identifier, where if no old
+   * identifier is given a new identifier will be generated.
+   *
+   * @param {string} [old] - The old identifier to get the new identifier for.
+   *
+   * @returns {string} - The new identifier.
+   */
+  getId(old) {
+    // return existing old identifier
+    const existing = old && this._existing.get(old);
+    if(existing) {
+      return existing;
+    }
 
-  RDF,
-  RDF_LIST: RDF + 'List',
-  RDF_FIRST: RDF + 'first',
-  RDF_REST: RDF + 'rest',
-  RDF_NIL: RDF + 'nil',
-  RDF_TYPE: RDF + 'type',
-  RDF_PLAIN_LITERAL: RDF + 'PlainLiteral',
-  RDF_XML_LITERAL: RDF + 'XMLLiteral',
-  RDF_JSON_LITERAL: RDF + 'JSON',
-  RDF_OBJECT: RDF + 'object',
-  RDF_LANGSTRING: RDF + 'langString',
+    // get next identifier
+    const identifier = this.prefix + this.counter;
+    this.counter++;
 
-  XSD,
-  XSD_BOOLEAN: XSD + 'boolean',
-  XSD_DOUBLE: XSD + 'double',
-  XSD_INTEGER: XSD + 'integer',
-  XSD_STRING: XSD + 'string',
+    // save mapping
+    if(old) {
+      this._existing.set(old, identifier);
+    }
+
+    return identifier;
+  }
+
+  /**
+   * Returns true if the given old identifer has already been assigned a new
+   * identifier.
+   *
+   * @param {string} old - The old identifier to check.
+   *
+   * @returns {boolean} - True if the old identifier has been assigned a new
+   *   identifier, false if not.
+   */
+  hasId(old) {
+    return this._existing.has(old);
+  }
+
+  /**
+   * Returns all of the IDs that have been issued new IDs in the order in
+   * which they were issued new IDs.
+   *
+   * @returns {Array} - The list of old IDs that has been issued new IDs in
+   *   order.
+   */
+  getOldIds() {
+    return [...this._existing.keys()];
+  }
 };
+
+
+/***/ },
+
+/***/ 7920
+(module, __unused_webpack_exports, __webpack_require__) {
+
+"use strict";
+/*!
+ * Copyright (c) 2016-2023 Digital Bazaar, Inc. All rights reserved.
+ */
+
+
+const {bufferToHex, crypto} = __webpack_require__(4991);
+
+const algorithmMap = new Map([
+  ['sha256', 'SHA-256'],
+  ['SHA256', 'SHA-256'],
+  ['SHA-256', 'SHA-256'],
+  ['sha384', 'SHA-384'],
+  ['SHA384', 'SHA-384'],
+  ['SHA-384', 'SHA-384'],
+  ['sha512', 'SHA-512'],
+  ['SHA512', 'SHA-512'],
+  ['SHA-512', 'SHA-512'],
+]);
+
+module.exports = class MessageDigest {
+  /**
+   * Creates a new WebCrypto API MessageDigest.
+   *
+   * @param {string} algorithm - The algorithm to use.
+   */
+  constructor(algorithm) {
+    // check if crypto.subtle is available
+    // check is here rather than top-level to only fail if class is used
+    if(!(crypto && crypto.subtle)) {
+      throw new Error('crypto.subtle not found.');
+    }
+    if(!algorithmMap.has(algorithm)) {
+      throw new Error(`Unsupported algorithm "${algorithm}".`);
+    }
+    this.algorithm = algorithmMap.get(algorithm);
+    this._content = '';
+  }
+
+  update(msg) {
+    this._content += msg;
+  }
+
+  async digest() {
+    const data = new TextEncoder().encode(this._content);
+    const buffer = await crypto.subtle.digest(this.algorithm, data);
+    return bufferToHex(buffer);
+  }
+};
+
+
+/***/ },
+
+/***/ 1227
+(module) {
+
+"use strict";
+/*!
+ * Copyright (c) 2016-2022 Digital Bazaar, Inc. All rights reserved.
+ */
+
+
+// eslint-disable-next-line no-unused-vars
+const TERMS = (/* unused pure expression or super */ null && (['subject', 'predicate', 'object', 'graph']));
+const RDF = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
+const RDF_LANGSTRING = RDF + 'langString';
+const XSD_STRING = 'http://www.w3.org/2001/XMLSchema#string';
+
+const TYPE_NAMED_NODE = 'NamedNode';
+const TYPE_BLANK_NODE = 'BlankNode';
+const TYPE_LITERAL = 'Literal';
+const TYPE_DEFAULT_GRAPH = 'DefaultGraph';
+
+// build regexes
+const REGEX = {};
+(() => {
+  // https://www.w3.org/TR/n-quads/#sec-grammar
+  // https://www.w3.org/TR/turtle/#grammar-production-BLANK_NODE_LABEL
+  const PN_CHARS_BASE =
+    'A-Z' + 'a-z' +
+    '\u00C0-\u00D6' +
+    '\u00D8-\u00F6' +
+    '\u00F8-\u02FF' +
+    '\u0370-\u037D' +
+    '\u037F-\u1FFF' +
+    '\u200C-\u200D' +
+    '\u2070-\u218F' +
+    '\u2C00-\u2FEF' +
+    '\u3001-\uD7FF' +
+    '\uF900-\uFDCF' +
+    '\uFDF0-\uFFFD';
+    // TODO:
+    //'\u10000-\uEFFFF';
+  const PN_CHARS_U =
+    PN_CHARS_BASE +
+    '_';
+  const PN_CHARS =
+    PN_CHARS_U +
+    '0-9' +
+    '-' +
+    '\u00B7' +
+    '\u0300-\u036F' +
+    '\u203F-\u2040';
+  const BLANK_NODE_LABEL =
+    '_:(' +
+      '(?:[' + PN_CHARS_U + '0-9])' +
+      '(?:(?:[' + PN_CHARS + '.])*(?:[' + PN_CHARS + ']))?' +
+    ')';
+  // Older simple regex: const IRI = '(?:<([^:]+:[^>]*)>)';
+  const UCHAR4 = '\\\\u[0-9A-Fa-f]{4}';
+  const UCHAR8 = '\\\\U[0-9A-Fa-f]{8}';
+  const IRI = '(?:<((?:' +
+    '[^\u0000-\u0020<>"{}|^`\\\\]' + '|' +
+    UCHAR4 + '|' +
+    UCHAR8 +
+    ')*)>)';
+  const bnode = BLANK_NODE_LABEL;
+  const plain = '"([^"\\\\]*(?:\\\\.[^"\\\\]*)*)"';
+  const datatype = '(?:\\^\\^' + IRI + ')';
+  const language = '(?:@([a-zA-Z]+(?:-[a-zA-Z0-9]+)*))';
+  const literal = '(?:' + plain + '(?:' + datatype + '|' + language + ')?)';
+  const ws = '[ \\t]+';
+  const wso = '[ \\t]*';
+
+  // define quad part regexes
+  const subject = '(?:' + IRI + '|' + bnode + ')' + ws;
+  const property = IRI + ws;
+  const object = '(?:' + IRI + '|' + bnode + '|' + literal + ')' + wso;
+  const graphName = '(?:\\.|(?:(?:' + IRI + '|' + bnode + ')' + wso + '\\.))';
+
+  // end of line and empty regexes
+  REGEX.eoln = /(?:\r\n)|(?:\n)|(?:\r)/g;
+  REGEX.empty = new RegExp('^' + wso + '$');
+
+  // full quad regex
+  REGEX.quad = new RegExp(
+    '^' + wso + subject + property + object + graphName + wso + '$');
+})();
+
+module.exports = class NQuads {
+  /**
+   * Parses RDF in the form of N-Quads.
+   *
+   * @param {string} input - The N-Quads input to parse.
+   *
+   * @returns {Array} - An RDF dataset (an array of quads per
+   *   https://rdf.js.org/).
+   */
+  static parse(input) {
+    // build RDF dataset
+    const dataset = [];
+
+    const graphs = {};
+
+    // split N-Quad input into lines
+    const lines = input.split(REGEX.eoln);
+    let lineNumber = 0;
+    for(const line of lines) {
+      lineNumber++;
+
+      // skip empty lines
+      if(REGEX.empty.test(line)) {
+        continue;
+      }
+
+      // parse quad
+      const match = line.match(REGEX.quad);
+      if(match === null) {
+        throw new Error('N-Quads parse error on line ' + lineNumber + '.');
+      }
+
+      // create RDF quad
+      const quad = {subject: null, predicate: null, object: null, graph: null};
+
+      // get subject
+      if(match[1] !== undefined) {
+        quad.subject = {
+          termType: TYPE_NAMED_NODE,
+          value: _iriUnescape(match[1])
+        };
+      } else {
+        quad.subject = {
+          termType: TYPE_BLANK_NODE,
+          value: match[2]
+        };
+      }
+
+      // get predicate
+      quad.predicate = {
+        termType: TYPE_NAMED_NODE,
+        value: _iriUnescape(match[3])
+      };
+
+      // get object
+      if(match[4] !== undefined) {
+        quad.object = {
+          termType: TYPE_NAMED_NODE,
+          value: _iriUnescape(match[4])
+        };
+      } else if(match[5] !== undefined) {
+        quad.object = {
+          termType: TYPE_BLANK_NODE,
+          value: match[5]
+        };
+      } else {
+        quad.object = {
+          termType: TYPE_LITERAL,
+          value: undefined,
+          datatype: {
+            termType: TYPE_NAMED_NODE
+          }
+        };
+        if(match[7] !== undefined) {
+          quad.object.datatype.value = _iriUnescape(match[7]);
+        } else if(match[8] !== undefined) {
+          quad.object.datatype.value = RDF_LANGSTRING;
+          quad.object.language = match[8];
+        } else {
+          quad.object.datatype.value = XSD_STRING;
+        }
+        quad.object.value = _stringLiteralUnescape(match[6]);
+      }
+
+      // get graph
+      if(match[9] !== undefined) {
+        quad.graph = {
+          termType: TYPE_NAMED_NODE,
+          value: _iriUnescape(match[9])
+        };
+      } else if(match[10] !== undefined) {
+        quad.graph = {
+          termType: TYPE_BLANK_NODE,
+          value: match[10]
+        };
+      } else {
+        quad.graph = {
+          termType: TYPE_DEFAULT_GRAPH,
+          value: ''
+        };
+      }
+
+      // only add quad if it is unique in its graph
+      if(!(quad.graph.value in graphs)) {
+        graphs[quad.graph.value] = [quad];
+        dataset.push(quad);
+      } else {
+        let unique = true;
+        const quads = graphs[quad.graph.value];
+        for(const q of quads) {
+          if(_compareTriples(q, quad)) {
+            unique = false;
+            break;
+          }
+        }
+        if(unique) {
+          quads.push(quad);
+          dataset.push(quad);
+        }
+      }
+    }
+
+    return dataset;
+  }
+
+  /**
+   * Converts an RDF dataset to N-Quads.
+   *
+   * @param {Array} dataset - The Array of quads RDF dataset to convert.
+   *
+   * @returns {string} - The N-Quads string.
+   */
+  static serialize(dataset) {
+    const quads = [];
+    for(const quad of dataset) {
+      quads.push(NQuads.serializeQuad(quad));
+    }
+    return quads.sort().join('');
+  }
+
+  /**
+   * Converts RDF quad components to an N-Quad string (a single quad).
+   *
+   * @param {object} s - N-Quad subject component.
+   * @param {object} p - N-Quad predicate component.
+   * @param {object} o - N-Quad object component.
+   * @param {object} g - N-Quad graph component.
+   *
+   * @returns {string} - The N-Quad.
+   */
+  static serializeQuadComponents(s, p, o, g) {
+    let nquad = '';
+
+    // subject can only be NamedNode or BlankNode
+    if(s.termType === TYPE_NAMED_NODE) {
+      nquad += `<${_iriEscape(s.value)}>`;
+    } else {
+      nquad += `_:${s.value}`;
+    }
+
+    // predicate normally a NamedNode, can be a BlankNode in generalized RDF
+    if(p.termType === TYPE_NAMED_NODE) {
+      nquad += ` <${_iriEscape(p.value)}> `;
+    } else {
+      nquad += ` _:${p.value} `;
+    }
+
+    // object is NamedNode, BlankNode, or Literal
+    if(o.termType === TYPE_NAMED_NODE) {
+      nquad += `<${_iriEscape(o.value)}>`;
+    } else if(o.termType === TYPE_BLANK_NODE) {
+      nquad += `_:${o.value}`;
+    } else {
+      nquad += `"${_stringLiteralEscape(o.value)}"`;
+      if(o.datatype.value === RDF_LANGSTRING) {
+        if(o.language) {
+          nquad += `@${o.language}`;
+        }
+      } else if(o.datatype.value !== XSD_STRING) {
+        nquad += `^^<${_iriEscape(o.datatype.value)}>`;
+      }
+    }
+
+    // graph can only be NamedNode or BlankNode (or DefaultGraph, but that
+    // does not add to `nquad`)
+    if(g.termType === TYPE_NAMED_NODE) {
+      nquad += ` <${_iriEscape(g.value)}>`;
+    } else if(g.termType === TYPE_BLANK_NODE) {
+      nquad += ` _:${g.value}`;
+    }
+
+    nquad += ' .\n';
+    return nquad;
+  }
+
+  /**
+   * Converts an RDF quad to an N-Quad string (a single quad).
+   *
+   * @param {object} quad - The RDF quad convert.
+   *
+   * @returns {string} - The N-Quad string.
+   */
+  static serializeQuad(quad) {
+    return NQuads.serializeQuadComponents(
+      quad.subject, quad.predicate, quad.object, quad.graph);
+  }
+};
+
+/**
+ * Compares two RDF triples for equality.
+ *
+ * @param {object} t1 - The first triple.
+ * @param {object} t2 - The second triple.
+ *
+ * @returns {boolean} - True if the triples are the same, false if not.
+ */
+function _compareTriples(t1, t2) {
+  // compare subject and object types first as it is the quickest check
+  if(!(t1.subject.termType === t2.subject.termType &&
+    t1.object.termType === t2.object.termType)) {
+    return false;
+  }
+  // compare values
+  if(!(t1.subject.value === t2.subject.value &&
+    t1.predicate.value === t2.predicate.value &&
+    t1.object.value === t2.object.value)) {
+    return false;
+  }
+  if(t1.object.termType !== TYPE_LITERAL) {
+    // no `datatype` or `language` to check
+    return true;
+  }
+  return (
+    (t1.object.datatype.termType === t2.object.datatype.termType) &&
+    (t1.object.language === t2.object.language) &&
+    (t1.object.datatype.value === t2.object.datatype.value)
+  );
+}
+
+const _stringLiteralEscapeRegex = /[\u0000-\u001F\u007F"\\]/g;
+const _stringLiteralEscapeMap = [];
+for(let n = 0; n <= 0x7f; ++n) {
+  if(_stringLiteralEscapeRegex.test(String.fromCharCode(n))) {
+    // default UCHAR mapping
+    _stringLiteralEscapeMap[n] =
+      '\\u' + n.toString(16).toUpperCase().padStart(4, '0');
+    // reset regex
+    _stringLiteralEscapeRegex.lastIndex = 0;
+  }
+}
+// special ECHAR mappings
+_stringLiteralEscapeMap['\b'.codePointAt(0)] = '\\b';
+_stringLiteralEscapeMap['\t'.codePointAt(0)] = '\\t';
+_stringLiteralEscapeMap['\n'.codePointAt(0)] = '\\n';
+_stringLiteralEscapeMap['\f'.codePointAt(0)] = '\\f';
+_stringLiteralEscapeMap['\r'.codePointAt(0)] = '\\r';
+_stringLiteralEscapeMap['"' .codePointAt(0)] = '\\"';
+_stringLiteralEscapeMap['\\'.codePointAt(0)] = '\\\\';
+
+/**
+ * Escape string to N-Quads literal.
+ *
+ * @param {string} s - String to escape.
+ *
+ * @returns {string} - Escaped N-Quads literal.
+ */
+function _stringLiteralEscape(s) {
+  if(!_stringLiteralEscapeRegex.test(s)) {
+    return s;
+  }
+  return s.replace(_stringLiteralEscapeRegex, function(match) {
+    return _stringLiteralEscapeMap[match.codePointAt(0)];
+  });
+}
+
+const _stringLiteralUnescapeRegex =
+  /(?:\\([btnfr"'\\]))|(?:\\u([0-9A-Fa-f]{4}))|(?:\\U([0-9A-Fa-f]{8}))/g;
+
+/**
+ * Unescape N-Quads literal to string.
+ *
+ * @param {string} s - String to unescape.
+ *
+ * @returns {string} - Unescaped N-Quads literal.
+ */
+function _stringLiteralUnescape(s) {
+  if(!_stringLiteralUnescapeRegex.test(s)) {
+    return s;
+  }
+  return s.replace(_stringLiteralUnescapeRegex, function(match, code, u, U) {
+    if(code) {
+      switch(code) {
+        case 'b': return '\b';
+        case 't': return '\t';
+        case 'n': return '\n';
+        case 'f': return '\f';
+        case 'r': return '\r';
+        case '"': return '"';
+        case '\'': return '\'';
+        case '\\': return '\\';
+      }
+    }
+    if(u) {
+      return String.fromCharCode(parseInt(u, 16));
+    }
+    if(U) {
+      return String.fromCodePoint(parseInt(U, 16));
+    }
+  });
+}
+
+const _iriEscapeRegex = /[\u0000-\u0020<>"{}|^`\\]/g;
+const _iriEscapeRegexMap = [];
+for(let n = 0; n <= 0x7f; ++n) {
+  if(_iriEscapeRegex.test(String.fromCharCode(n))) {
+    // UCHAR mapping
+    _iriEscapeRegexMap[n] =
+      '\\u' + n.toString(16).toUpperCase().padStart(4, '0');
+    // reset regex
+    _iriEscapeRegex.lastIndex = 0;
+  }
+}
+
+/**
+ * Escape IRI to N-Quads IRI.
+ *
+ * @param {string} s - IRI to escape.
+ *
+ * @returns {string} - Escaped N-Quads IRI.
+ */
+function _iriEscape(s) {
+  if(!_iriEscapeRegex.test(s)) {
+    return s;
+  }
+  return s.replace(_iriEscapeRegex, function(match) {
+    return _iriEscapeRegexMap[match.codePointAt(0)];
+  });
+}
+
+const _iriUnescapeRegex =
+  /(?:\\u([0-9A-Fa-f]{4}))|(?:\\U([0-9A-Fa-f]{8}))/g;
+
+/**
+ * Unescape N-Quads IRI to IRI.
+ *
+ * @param {string} s - IRI to unescape.
+ *
+ * @returns {string} - Unescaped N-Quads IRI.
+ */
+function _iriUnescape(s) {
+  if(!_iriUnescapeRegex.test(s)) {
+    return s;
+  }
+  return s.replace(_iriUnescapeRegex, function(match, u, U) {
+    if(u) {
+      return String.fromCharCode(parseInt(u, 16));
+    }
+    if(U) {
+      return String.fromCodePoint(parseInt(U, 16));
+    }
+  });
+}
 
 
 /***/ },
@@ -12154,6 +10599,1561 @@ module.exports = class Permuter {
     return rval;
   }
 };
+
+
+/***/ },
+
+/***/ 4229
+(module, __unused_webpack_exports, __webpack_require__) {
+
+"use strict";
+/*!
+ * Copyright (c) 2016-2023 Digital Bazaar, Inc. All rights reserved.
+ */
+
+
+const IdentifierIssuer = __webpack_require__(2985);
+const MessageDigest = __webpack_require__(7920);
+const Permuter = __webpack_require__(9925);
+const NQuads = __webpack_require__(1227);
+const {setImmediate} = __webpack_require__(4991);
+
+module.exports = class RDFC10 {
+  constructor({
+    createMessageDigest = null,
+    messageDigestAlgorithm = 'sha256',
+    canonicalIdMap = new Map(),
+    maxWorkFactor = 1,
+    maxDeepIterations = -1,
+    signal = null
+  } = {}) {
+    this.name = 'RDFC-1.0';
+    this.blankNodeInfo = new Map();
+    this.canonicalIssuer = new IdentifierIssuer('c14n', canonicalIdMap);
+    this.createMessageDigest = createMessageDigest ||
+      (() => new MessageDigest(messageDigestAlgorithm));
+    this.maxWorkFactor = maxWorkFactor;
+    this.maxDeepIterations = maxDeepIterations;
+    this.remainingDeepIterations = 0;
+    this.signal = signal;
+    this.quads = null;
+  }
+
+  // 4.4) Normalization Algorithm
+  async main(dataset) {
+    this.quads = dataset;
+
+    // 1) Create the normalization state.
+    // 2) For every quad in input dataset:
+    for(const quad of dataset) {
+      // 2.1) For each blank node that occurs in the quad, add a reference
+      // to the quad using the blank node identifier in the blank node to
+      // quads map, creating a new entry if necessary.
+      this._addBlankNodeQuadInfo({quad, component: quad.subject});
+      this._addBlankNodeQuadInfo({quad, component: quad.object});
+      this._addBlankNodeQuadInfo({quad, component: quad.graph});
+    }
+
+    // 3) Create a list of non-normalized blank node identifiers
+    // non-normalized identifiers and populate it using the keys from the
+    // blank node to quads map.
+    // Note: We use a map here and it was generated during step 2.
+
+    // 4) `simple` flag is skipped -- loop is optimized away. This optimization
+    // is permitted because there was a typo in the hash first degree quads
+    // algorithm in the RDFC-1.0 spec that was implemented widely making it
+    // such that it could not be fixed; the result was that the loop only
+    // needs to be run once and the first degree quad hashes will never change.
+    // 5.1-5.2 are skipped; first degree quad hashes are generated just once
+    // for all non-normalized blank nodes.
+
+    // 5.3) For each blank node identifier identifier in non-normalized
+    // identifiers:
+    const hashToBlankNodes = new Map();
+    const nonNormalized = [...this.blankNodeInfo.keys()];
+    let i = 0;
+    for(const id of nonNormalized) {
+      // Note: batch hashing first degree quads 100 at a time
+      if(++i % 100 === 0) {
+        await this._yield();
+      }
+      // steps 5.3.1 and 5.3.2:
+      await this._hashAndTrackBlankNode({id, hashToBlankNodes});
+    }
+
+    // 5.4) For each hash to identifier list mapping in hash to blank
+    // nodes map, lexicographically-sorted by hash:
+    const hashes = [...hashToBlankNodes.keys()].sort();
+    // optimize away second sort, gather non-unique hashes in order as we go
+    const nonUnique = [];
+    for(const hash of hashes) {
+      // 5.4.1) If the length of identifier list is greater than 1,
+      // continue to the next mapping.
+      const idList = hashToBlankNodes.get(hash);
+      if(idList.length > 1) {
+        nonUnique.push(idList);
+        continue;
+      }
+
+      // 5.4.2) Use the Issue Identifier algorithm, passing canonical
+      // issuer and the single blank node identifier in identifier
+      // list, identifier, to issue a canonical replacement identifier
+      // for identifier.
+      const id = idList[0];
+      this.canonicalIssuer.getId(id);
+
+      // Note: These steps are skipped, optimized away since the loop
+      // only needs to be run once.
+      // 5.4.3) Remove identifier from non-normalized identifiers.
+      // 5.4.4) Remove hash from the hash to blank nodes map.
+      // 5.4.5) Set simple to true.
+    }
+
+    if(this.maxDeepIterations < 0) {
+      // calculate maxDeepIterations if not explicit
+      if(this.maxWorkFactor === 0) {
+        this.maxDeepIterations = 0;
+      } else if(this.maxWorkFactor === Infinity) {
+        this.maxDeepIterations = Infinity;
+      } else {
+        const nonUniqueCount =
+          nonUnique.reduce((count, v) => count + v.length, 0);
+        this.maxDeepIterations = nonUniqueCount ** this.maxWorkFactor;
+      }
+    }
+    // handle any large inputs as Infinity
+    if(this.maxDeepIterations > Number.MAX_SAFE_INTEGER) {
+      this.maxDeepIterations = Infinity;
+    }
+    this.remainingDeepIterations = this.maxDeepIterations;
+
+    // 6) For each hash to identifier list mapping in hash to blank nodes map,
+    // lexicographically-sorted by hash:
+    // Note: sort optimized away, use `nonUnique`.
+    for(const idList of nonUnique) {
+      // 6.1) Create hash path list where each item will be a result of
+      // running the Hash N-Degree Quads algorithm.
+      const hashPathList = [];
+
+      // 6.2) For each blank node identifier identifier in identifier list:
+      for(const id of idList) {
+        // 6.2.1) If a canonical identifier has already been issued for
+        // identifier, continue to the next identifier.
+        if(this.canonicalIssuer.hasId(id)) {
+          continue;
+        }
+
+        // 6.2.2) Create temporary issuer, an identifier issuer
+        // initialized with the prefix _:b.
+        const issuer = new IdentifierIssuer('b');
+
+        // 6.2.3) Use the Issue Identifier algorithm, passing temporary
+        // issuer and identifier, to issue a new temporary blank node
+        // identifier for identifier.
+        issuer.getId(id);
+
+        // 6.2.4) Run the Hash N-Degree Quads algorithm, passing
+        // temporary issuer, and append the result to the hash path list.
+        const result = await this.hashNDegreeQuads(id, issuer);
+        hashPathList.push(result);
+      }
+
+      // 6.3) For each result in the hash path list,
+      // lexicographically-sorted by the hash in result:
+      hashPathList.sort(_stringHashCompare);
+      for(const result of hashPathList) {
+        // 6.3.1) For each blank node identifier, existing identifier,
+        // that was issued a temporary identifier by identifier issuer
+        // in result, issue a canonical identifier, in the same order,
+        // using the Issue Identifier algorithm, passing canonical
+        // issuer and existing identifier.
+        const oldIds = result.issuer.getOldIds();
+        for(const id of oldIds) {
+          this.canonicalIssuer.getId(id);
+        }
+      }
+    }
+
+    /* Note: At this point all blank nodes in the set of RDF quads have been
+    assigned canonical identifiers, which have been stored in the canonical
+    issuer. Here each quad is updated by assigning each of its blank nodes
+    its new identifier. */
+
+    // 7) For each quad, quad, in input dataset:
+    const normalized = [];
+    for(const quad of this.quads) {
+      // 7.1) Create a copy, quad copy, of quad and replace any existing
+      // blank node identifiers using the canonical identifiers
+      // previously issued by canonical issuer.
+      // Note: We optimize away the copy here.
+      const nQuad = NQuads.serializeQuadComponents(
+        this._componentWithCanonicalId(quad.subject),
+        quad.predicate,
+        this._componentWithCanonicalId(quad.object),
+        this._componentWithCanonicalId(quad.graph)
+      );
+      // 7.2) Add quad copy to the normalized dataset.
+      normalized.push(nQuad);
+    }
+
+    // sort normalized output
+    normalized.sort();
+
+    // 8) Return the normalized dataset.
+    return normalized.join('');
+  }
+
+  // 4.6) Hash First Degree Quads
+  async hashFirstDegreeQuads(id) {
+    // 1) Initialize nquads to an empty list. It will be used to store quads in
+    // N-Quads format.
+    const nquads = [];
+
+    // 2) Get the list of quads `quads` associated with the reference blank node
+    // identifier in the blank node to quads map.
+    const info = this.blankNodeInfo.get(id);
+    const quads = info.quads;
+
+    // 3) For each quad `quad` in `quads`:
+    for(const quad of quads) {
+      // 3.1) Serialize the quad in N-Quads format with the following special
+      // rule:
+
+      // 3.1.1) If any component in quad is an blank node, then serialize it
+      // using a special identifier as follows:
+      // 3.1.2) If the blank node's existing blank node identifier matches
+      // the reference blank node identifier then use the blank node
+      // identifier _:a, otherwise, use the blank node identifier _:z.
+      nquads.push(NQuads.serializeQuadComponents(
+        this.modifyFirstDegreeComponent(id, quad.subject, 'subject'),
+        quad.predicate,
+        this.modifyFirstDegreeComponent(id, quad.object, 'object'),
+        this.modifyFirstDegreeComponent(id, quad.graph, 'graph')
+      ));
+    }
+
+    // 4) Sort nquads in lexicographical order.
+    nquads.sort();
+
+    // 5) Return the hash that results from passing the sorted, joined nquads
+    // through the hash algorithm.
+    const md = this.createMessageDigest();
+    for(const nquad of nquads) {
+      md.update(nquad);
+    }
+    info.hash = await md.digest();
+    return info.hash;
+  }
+
+  // 4.7) Hash Related Blank Node
+  async hashRelatedBlankNode(related, quad, issuer, position) {
+    // 1) Initialize a string input to the value of position.
+    // Note: We use a hash object instead.
+    const md = this.createMessageDigest();
+    md.update(position);
+
+    // 2) If position is not g, append <, the value of the predicate in quad,
+    // and > to input.
+    if(position !== 'g') {
+      md.update(this.getRelatedPredicate(quad));
+    }
+
+    // 3) Set the identifier to use for related, preferring first the canonical
+    // identifier for related if issued, second the identifier issued by issuer
+    // if issued, and last, if necessary, the result of the Hash First Degree
+    // Quads algorithm, passing related.
+    let id;
+    if(this.canonicalIssuer.hasId(related)) {
+      id = '_:' + this.canonicalIssuer.getId(related);
+    } else if(issuer.hasId(related)) {
+      id = '_:' + issuer.getId(related);
+    } else {
+      id = this.blankNodeInfo.get(related).hash;
+    }
+
+    // 4) Append identifier to input.
+    md.update(id);
+
+    // 5) Return the hash that results from passing input through the hash
+    // algorithm.
+    return md.digest();
+  }
+
+  // 4.8) Hash N-Degree Quads
+  async hashNDegreeQuads(id, issuer) {
+    if(this.remainingDeepIterations === 0) {
+      throw new Error(
+        `Maximum deep iterations exceeded (${this.maxDeepIterations}).`);
+    }
+    this.remainingDeepIterations--;
+
+    // 1) Create a hash to related blank nodes map for storing hashes that
+    // identify related blank nodes.
+    // Note: 2) and 3) handled within `createHashToRelated`
+    const md = this.createMessageDigest();
+    const hashToRelated = await this.createHashToRelated(id, issuer);
+
+    // 4) Create an empty string, data to hash.
+    // Note: We created a hash object `md` above instead.
+
+    // 5) For each related hash to blank node list mapping in hash to related
+    // blank nodes map, sorted lexicographically by related hash:
+    const hashes = [...hashToRelated.keys()].sort();
+    for(const hash of hashes) {
+      // 5.1) Append the related hash to the data to hash.
+      md.update(hash);
+
+      // 5.2) Create a string chosen path.
+      let chosenPath = '';
+
+      // 5.3) Create an unset chosen issuer variable.
+      let chosenIssuer;
+
+      // 5.4) For each permutation of blank node list:
+      const permuter = new Permuter(hashToRelated.get(hash));
+      let i = 0;
+      while(permuter.hasNext()) {
+        const permutation = permuter.next();
+        // Note: batch permutations 3 at a time
+        if(++i % 3 === 0) {
+          if(this.signal && this.signal.aborted) {
+            throw new Error(`Abort signal received: "${this.signal.reason}".`);
+          }
+          await this._yield();
+        }
+
+        // 5.4.1) Create a copy of issuer, issuer copy.
+        let issuerCopy = issuer.clone();
+
+        // 5.4.2) Create a string path.
+        let path = '';
+
+        // 5.4.3) Create a recursion list, to store blank node identifiers
+        // that must be recursively processed by this algorithm.
+        const recursionList = [];
+
+        // 5.4.4) For each related in permutation:
+        let nextPermutation = false;
+        for(const related of permutation) {
+          // 5.4.4.1) If a canonical identifier has been issued for
+          // related, append it to path.
+          if(this.canonicalIssuer.hasId(related)) {
+            path += '_:' + this.canonicalIssuer.getId(related);
+          } else {
+            // 5.4.4.2) Otherwise:
+            // 5.4.4.2.1) If issuer copy has not issued an identifier for
+            // related, append related to recursion list.
+            if(!issuerCopy.hasId(related)) {
+              recursionList.push(related);
+            }
+            // 5.4.4.2.2) Use the Issue Identifier algorithm, passing
+            // issuer copy and related and append the result to path.
+            path += '_:' + issuerCopy.getId(related);
+          }
+
+          // 5.4.4.3) If chosen path is not empty and the length of path
+          // is greater than or equal to the length of chosen path and
+          // path is lexicographically greater than chosen path, then
+          // skip to the next permutation.
+          // Note: Comparing path length to chosen path length can be optimized
+          // away; only compare lexicographically.
+          if(chosenPath.length !== 0 && path > chosenPath) {
+            nextPermutation = true;
+            break;
+          }
+        }
+
+        if(nextPermutation) {
+          continue;
+        }
+
+        // 5.4.5) For each related in recursion list:
+        for(const related of recursionList) {
+          // 5.4.5.1) Set result to the result of recursively executing
+          // the Hash N-Degree Quads algorithm, passing related for
+          // identifier and issuer copy for path identifier issuer.
+          const result = await this.hashNDegreeQuads(related, issuerCopy);
+
+          // 5.4.5.2) Use the Issue Identifier algorithm, passing issuer
+          // copy and related and append the result to path.
+          path += '_:' + issuerCopy.getId(related);
+
+          // 5.4.5.3) Append <, the hash in result, and > to path.
+          path += `<${result.hash}>`;
+
+          // 5.4.5.4) Set issuer copy to the identifier issuer in
+          // result.
+          issuerCopy = result.issuer;
+
+          // 5.4.5.5) If chosen path is not empty and the length of path
+          // is greater than or equal to the length of chosen path and
+          // path is lexicographically greater than chosen path, then
+          // skip to the next permutation.
+          // Note: Comparing path length to chosen path length can be optimized
+          // away; only compare lexicographically.
+          if(chosenPath.length !== 0 && path > chosenPath) {
+            nextPermutation = true;
+            break;
+          }
+        }
+
+        if(nextPermutation) {
+          continue;
+        }
+
+        // 5.4.6) If chosen path is empty or path is lexicographically
+        // less than chosen path, set chosen path to path and chosen
+        // issuer to issuer copy.
+        if(chosenPath.length === 0 || path < chosenPath) {
+          chosenPath = path;
+          chosenIssuer = issuerCopy;
+        }
+      }
+
+      // 5.5) Append chosen path to data to hash.
+      md.update(chosenPath);
+
+      // 5.6) Replace issuer, by reference, with chosen issuer.
+      issuer = chosenIssuer;
+    }
+
+    // 6) Return issuer and the hash that results from passing data to hash
+    // through the hash algorithm.
+    return {hash: await md.digest(), issuer};
+  }
+
+  // helper for modifying component during Hash First Degree Quads
+  modifyFirstDegreeComponent(id, component) {
+    if(component.termType !== 'BlankNode') {
+      return component;
+    }
+    /* Note: A mistake in the RDFC-1.0 spec that made its way into
+    implementations (and therefore must stay to avoid interop breakage)
+    resulted in an assigned canonical ID, if available for
+    `component.value`, not being used in place of `_:a`/`_:z`, so
+    we don't use it here. */
+    return {
+      termType: 'BlankNode',
+      value: component.value === id ? 'a' : 'z'
+    };
+  }
+
+  // helper for getting a related predicate
+  getRelatedPredicate(quad) {
+    return `<${quad.predicate.value}>`;
+  }
+
+  // helper for creating hash to related blank nodes map
+  async createHashToRelated(id, issuer) {
+    // 1) Create a hash to related blank nodes map for storing hashes that
+    // identify related blank nodes.
+    const hashToRelated = new Map();
+
+    // 2) Get a reference, quads, to the list of quads in the blank node to
+    // quads map for the key identifier.
+    const quads = this.blankNodeInfo.get(id).quads;
+
+    // 3) For each quad in quads:
+    let i = 0;
+    for(const quad of quads) {
+      // Note: batch hashing related blank node quads 100 at a time
+      if(++i % 100 === 0) {
+        await this._yield();
+      }
+      // 3.1) For each component in quad, if component is the subject, object,
+      // or graph name and it is a blank node that is not identified by
+      // identifier:
+      // steps 3.1.1 and 3.1.2 occur in helpers:
+      await Promise.all([
+        this._addRelatedBlankNodeHash({
+          quad, component: quad.subject, position: 's',
+          id, issuer, hashToRelated
+        }),
+        this._addRelatedBlankNodeHash({
+          quad, component: quad.object, position: 'o',
+          id, issuer, hashToRelated
+        }),
+        this._addRelatedBlankNodeHash({
+          quad, component: quad.graph, position: 'g',
+          id, issuer, hashToRelated
+        })
+      ]);
+    }
+
+    return hashToRelated;
+  }
+
+  async _hashAndTrackBlankNode({id, hashToBlankNodes}) {
+    // 5.3.1) Create a hash, hash, according to the Hash First Degree
+    // Quads algorithm.
+    const hash = await this.hashFirstDegreeQuads(id);
+
+    // 5.3.2) Add hash and identifier to hash to blank nodes map,
+    // creating a new entry if necessary.
+    const idList = hashToBlankNodes.get(hash);
+    if(!idList) {
+      hashToBlankNodes.set(hash, [id]);
+    } else {
+      idList.push(id);
+    }
+  }
+
+  _addBlankNodeQuadInfo({quad, component}) {
+    if(component.termType !== 'BlankNode') {
+      return;
+    }
+    const id = component.value;
+    const info = this.blankNodeInfo.get(id);
+    if(info) {
+      info.quads.add(quad);
+    } else {
+      this.blankNodeInfo.set(id, {quads: new Set([quad]), hash: null});
+    }
+  }
+
+  async _addRelatedBlankNodeHash(
+    {quad, component, position, id, issuer, hashToRelated}) {
+    if(!(component.termType === 'BlankNode' && component.value !== id)) {
+      return;
+    }
+    // 3.1.1) Set hash to the result of the Hash Related Blank Node
+    // algorithm, passing the blank node identifier for component as
+    // related, quad, path identifier issuer as issuer, and position as
+    // either s, o, or g based on whether component is a subject, object,
+    // graph name, respectively.
+    const related = component.value;
+    const hash = await this.hashRelatedBlankNode(
+      related, quad, issuer, position);
+
+    // 3.1.2) Add a mapping of hash to the blank node identifier for
+    // component to hash to related blank nodes map, adding an entry as
+    // necessary.
+    const entries = hashToRelated.get(hash);
+    if(entries) {
+      entries.push(related);
+    } else {
+      hashToRelated.set(hash, [related]);
+    }
+  }
+
+  // canonical ids for 7.1
+  _componentWithCanonicalId(component) {
+    if(component.termType === 'BlankNode' &&
+      !component.value.startsWith(this.canonicalIssuer.prefix)) {
+      // create new BlankNode
+      return {
+        termType: 'BlankNode',
+        value: this.canonicalIssuer.getId(component.value)
+      };
+    }
+    return component;
+  }
+
+  async _yield() {
+    return new Promise(resolve => setImmediate(resolve));
+  }
+};
+
+function _stringHashCompare(a, b) {
+  return a.hash < b.hash ? -1 : a.hash > b.hash ? 1 : 0;
+}
+
+
+/***/ },
+
+/***/ 202
+(module, __unused_webpack_exports, __webpack_require__) {
+
+"use strict";
+/*!
+ * Copyright (c) 2016-2023 Digital Bazaar, Inc. All rights reserved.
+ */
+
+
+const IdentifierIssuer = __webpack_require__(2985);
+// FIXME: do not import; convert to requiring a
+// hash factory
+const MessageDigest = __webpack_require__(7920);
+const Permuter = __webpack_require__(9925);
+const NQuads = __webpack_require__(1227);
+
+module.exports = class RDFC10Sync {
+  constructor({
+    createMessageDigest = null,
+    messageDigestAlgorithm = 'sha256',
+    canonicalIdMap = new Map(),
+    maxWorkFactor = 1,
+    maxDeepIterations = -1,
+    timeout = 0
+  } = {}) {
+    this.name = 'RDFC-1.0';
+    this.blankNodeInfo = new Map();
+    this.canonicalIssuer = new IdentifierIssuer('c14n', canonicalIdMap);
+    this.createMessageDigest = createMessageDigest ||
+      (() => new MessageDigest(messageDigestAlgorithm));
+    this.maxWorkFactor = maxWorkFactor;
+    this.maxDeepIterations = maxDeepIterations;
+    this.remainingDeepIterations = 0;
+    this.timeout = timeout;
+    if(timeout > 0) {
+      this.startTime = Date.now();
+    }
+    this.quads = null;
+  }
+
+  // 4.4) Normalization Algorithm
+  main(dataset) {
+    this.quads = dataset;
+
+    // 1) Create the normalization state.
+    // 2) For every quad in input dataset:
+    for(const quad of dataset) {
+      // 2.1) For each blank node that occurs in the quad, add a reference
+      // to the quad using the blank node identifier in the blank node to
+      // quads map, creating a new entry if necessary.
+      this._addBlankNodeQuadInfo({quad, component: quad.subject});
+      this._addBlankNodeQuadInfo({quad, component: quad.object});
+      this._addBlankNodeQuadInfo({quad, component: quad.graph});
+    }
+
+    // 3) Create a list of non-normalized blank node identifiers
+    // non-normalized identifiers and populate it using the keys from the
+    // blank node to quads map.
+    // Note: We use a map here and it was generated during step 2.
+
+    // 4) `simple` flag is skipped -- loop is optimized away. This optimization
+    // is permitted because there was a typo in the hash first degree quads
+    // algorithm in the RDFC-1.0 spec that was implemented widely making it
+    // such that it could not be fixed; the result was that the loop only
+    // needs to be run once and the first degree quad hashes will never change.
+    // 5.1-5.2 are skipped; first degree quad hashes are generated just once
+    // for all non-normalized blank nodes.
+
+    // 5.3) For each blank node identifier identifier in non-normalized
+    // identifiers:
+    const hashToBlankNodes = new Map();
+    const nonNormalized = [...this.blankNodeInfo.keys()];
+    for(const id of nonNormalized) {
+      // steps 5.3.1 and 5.3.2:
+      this._hashAndTrackBlankNode({id, hashToBlankNodes});
+    }
+
+    // 5.4) For each hash to identifier list mapping in hash to blank
+    // nodes map, lexicographically-sorted by hash:
+    const hashes = [...hashToBlankNodes.keys()].sort();
+    // optimize away second sort, gather non-unique hashes in order as we go
+    const nonUnique = [];
+    for(const hash of hashes) {
+      // 5.4.1) If the length of identifier list is greater than 1,
+      // continue to the next mapping.
+      const idList = hashToBlankNodes.get(hash);
+      if(idList.length > 1) {
+        nonUnique.push(idList);
+        continue;
+      }
+
+      // 5.4.2) Use the Issue Identifier algorithm, passing canonical
+      // issuer and the single blank node identifier in identifier
+      // list, identifier, to issue a canonical replacement identifier
+      // for identifier.
+      const id = idList[0];
+      this.canonicalIssuer.getId(id);
+
+      // Note: These steps are skipped, optimized away since the loop
+      // only needs to be run once.
+      // 5.4.3) Remove identifier from non-normalized identifiers.
+      // 5.4.4) Remove hash from the hash to blank nodes map.
+      // 5.4.5) Set simple to true.
+    }
+
+    if(this.maxDeepIterations < 0) {
+      // calculate maxDeepIterations if not explicit
+      if(this.maxWorkFactor === 0) {
+        this.maxDeepIterations = 0;
+      } else if(this.maxWorkFactor === Infinity) {
+        this.maxDeepIterations = Infinity;
+      } else {
+        const nonUniqueCount =
+          nonUnique.reduce((count, v) => count + v.length, 0);
+        this.maxDeepIterations = nonUniqueCount ** this.maxWorkFactor;
+      }
+    }
+    // handle any large inputs as Infinity
+    if(this.maxDeepIterations > Number.MAX_SAFE_INTEGER) {
+      this.maxDeepIterations = Infinity;
+    }
+    this.remainingDeepIterations = this.maxDeepIterations;
+
+    // 6) For each hash to identifier list mapping in hash to blank nodes map,
+    // lexicographically-sorted by hash:
+    // Note: sort optimized away, use `nonUnique`.
+    for(const idList of nonUnique) {
+      // 6.1) Create hash path list where each item will be a result of
+      // running the Hash N-Degree Quads algorithm.
+      const hashPathList = [];
+
+      // 6.2) For each blank node identifier identifier in identifier list:
+      for(const id of idList) {
+        // 6.2.1) If a canonical identifier has already been issued for
+        // identifier, continue to the next identifier.
+        if(this.canonicalIssuer.hasId(id)) {
+          continue;
+        }
+
+        // 6.2.2) Create temporary issuer, an identifier issuer
+        // initialized with the prefix _:b.
+        const issuer = new IdentifierIssuer('b');
+
+        // 6.2.3) Use the Issue Identifier algorithm, passing temporary
+        // issuer and identifier, to issue a new temporary blank node
+        // identifier for identifier.
+        issuer.getId(id);
+
+        // 6.2.4) Run the Hash N-Degree Quads algorithm, passing
+        // temporary issuer, and append the result to the hash path list.
+        const result = this.hashNDegreeQuads(id, issuer);
+        hashPathList.push(result);
+      }
+
+      // 6.3) For each result in the hash path list,
+      // lexicographically-sorted by the hash in result:
+      hashPathList.sort(_stringHashCompare);
+      for(const result of hashPathList) {
+        // 6.3.1) For each blank node identifier, existing identifier,
+        // that was issued a temporary identifier by identifier issuer
+        // in result, issue a canonical identifier, in the same order,
+        // using the Issue Identifier algorithm, passing canonical
+        // issuer and existing identifier.
+        const oldIds = result.issuer.getOldIds();
+        for(const id of oldIds) {
+          this.canonicalIssuer.getId(id);
+        }
+      }
+    }
+
+    /* Note: At this point all blank nodes in the set of RDF quads have been
+    assigned canonical identifiers, which have been stored in the canonical
+    issuer. Here each quad is updated by assigning each of its blank nodes
+    its new identifier. */
+
+    // 7) For each quad, quad, in input dataset:
+    const normalized = [];
+    for(const quad of this.quads) {
+      // 7.1) Create a copy, quad copy, of quad and replace any existing
+      // blank node identifiers using the canonical identifiers
+      // previously issued by canonical issuer.
+      // Note: We optimize away the copy here.
+      const nQuad = NQuads.serializeQuadComponents(
+        this._componentWithCanonicalId(quad.subject),
+        quad.predicate,
+        this._componentWithCanonicalId(quad.object),
+        this._componentWithCanonicalId(quad.graph)
+      );
+      // 7.2) Add quad copy to the normalized dataset.
+      normalized.push(nQuad);
+    }
+
+    // sort normalized output
+    normalized.sort();
+
+    // 8) Return the normalized dataset.
+    return normalized.join('');
+  }
+
+  // 4.6) Hash First Degree Quads
+  hashFirstDegreeQuads(id) {
+    // 1) Initialize nquads to an empty list. It will be used to store quads in
+    // N-Quads format.
+    const nquads = [];
+
+    // 2) Get the list of quads `quads` associated with the reference blank node
+    // identifier in the blank node to quads map.
+    const info = this.blankNodeInfo.get(id);
+    const quads = info.quads;
+
+    // 3) For each quad `quad` in `quads`:
+    for(const quad of quads) {
+      // 3.1) Serialize the quad in N-Quads format with the following special
+      // rule:
+
+      // 3.1.1) If any component in quad is an blank node, then serialize it
+      // using a special identifier as follows:
+      // 3.1.2) If the blank node's existing blank node identifier matches
+      // the reference blank node identifier then use the blank node
+      // identifier _:a, otherwise, use the blank node identifier _:z.
+      nquads.push(NQuads.serializeQuadComponents(
+        this.modifyFirstDegreeComponent(id, quad.subject, 'subject'),
+        quad.predicate,
+        this.modifyFirstDegreeComponent(id, quad.object, 'object'),
+        this.modifyFirstDegreeComponent(id, quad.graph, 'graph')
+      ));
+    }
+
+    // 4) Sort nquads in lexicographical order.
+    nquads.sort();
+
+    // 5) Return the hash that results from passing the sorted, joined nquads
+    // through the hash algorithm.
+    const md = this.createMessageDigest();
+    for(const nquad of nquads) {
+      md.update(nquad);
+    }
+    info.hash = md.digest();
+    return info.hash;
+  }
+
+  // 4.7) Hash Related Blank Node
+  hashRelatedBlankNode(related, quad, issuer, position) {
+    // 1) Initialize a string input to the value of position.
+    // Note: We use a hash object instead.
+    const md = this.createMessageDigest();
+    md.update(position);
+
+    // 2) If position is not g, append <, the value of the predicate in quad,
+    // and > to input.
+    if(position !== 'g') {
+      md.update(this.getRelatedPredicate(quad));
+    }
+
+    // 3) Set the identifier to use for related, preferring first the canonical
+    // identifier for related if issued, second the identifier issued by issuer
+    // if issued, and last, if necessary, the result of the Hash First Degree
+    // Quads algorithm, passing related.
+    let id;
+    if(this.canonicalIssuer.hasId(related)) {
+      id = '_:' + this.canonicalIssuer.getId(related);
+    } else if(issuer.hasId(related)) {
+      id = '_:' + issuer.getId(related);
+    } else {
+      id = this.blankNodeInfo.get(related).hash;
+    }
+
+    // 4) Append identifier to input.
+    md.update(id);
+
+    // 5) Return the hash that results from passing input through the hash
+    // algorithm.
+    return md.digest();
+  }
+
+  // 4.8) Hash N-Degree Quads
+  hashNDegreeQuads(id, issuer) {
+    if(this.remainingDeepIterations === 0) {
+      throw new Error(
+        `Maximum deep iterations exceeded (${this.maxDeepIterations}).`);
+    }
+    this.remainingDeepIterations--;
+
+    // 1) Create a hash to related blank nodes map for storing hashes that
+    // identify related blank nodes.
+    // Note: 2) and 3) handled within `createHashToRelated`
+    const md = this.createMessageDigest();
+    const hashToRelated = this.createHashToRelated(id, issuer);
+
+    // 4) Create an empty string, data to hash.
+    // Note: We created a hash object `md` above instead.
+
+    // 5) For each related hash to blank node list mapping in hash to related
+    // blank nodes map, sorted lexicographically by related hash:
+    const hashes = [...hashToRelated.keys()].sort();
+    for(const hash of hashes) {
+      // 5.1) Append the related hash to the data to hash.
+      md.update(hash);
+
+      // 5.2) Create a string chosen path.
+      let chosenPath = '';
+
+      // 5.3) Create an unset chosen issuer variable.
+      let chosenIssuer;
+
+      // 5.4) For each permutation of blank node list:
+      const permuter = new Permuter(hashToRelated.get(hash));
+      let i = 0;
+      while(permuter.hasNext()) {
+        const permutation = permuter.next();
+        // Note: batch permutations 3 at a time
+        if(++i % 3 === 0) {
+          if(this.timeout > 0 && Date.now() - this.startTime > this.timeout) {
+            throw new Error('Canonize timeout.');
+          }
+        }
+
+        // 5.4.1) Create a copy of issuer, issuer copy.
+        let issuerCopy = issuer.clone();
+
+        // 5.4.2) Create a string path.
+        let path = '';
+
+        // 5.4.3) Create a recursion list, to store blank node identifiers
+        // that must be recursively processed by this algorithm.
+        const recursionList = [];
+
+        // 5.4.4) For each related in permutation:
+        let nextPermutation = false;
+        for(const related of permutation) {
+          // 5.4.4.1) If a canonical identifier has been issued for
+          // related, append it to path.
+          if(this.canonicalIssuer.hasId(related)) {
+            path += '_:' + this.canonicalIssuer.getId(related);
+          } else {
+            // 5.4.4.2) Otherwise:
+            // 5.4.4.2.1) If issuer copy has not issued an identifier for
+            // related, append related to recursion list.
+            if(!issuerCopy.hasId(related)) {
+              recursionList.push(related);
+            }
+            // 5.4.4.2.2) Use the Issue Identifier algorithm, passing
+            // issuer copy and related and append the result to path.
+            path += '_:' + issuerCopy.getId(related);
+          }
+
+          // 5.4.4.3) If chosen path is not empty and the length of path
+          // is greater than or equal to the length of chosen path and
+          // path is lexicographically greater than chosen path, then
+          // skip to the next permutation.
+          // Note: Comparing path length to chosen path length can be optimized
+          // away; only compare lexicographically.
+          if(chosenPath.length !== 0 && path > chosenPath) {
+            nextPermutation = true;
+            break;
+          }
+        }
+
+        if(nextPermutation) {
+          continue;
+        }
+
+        // 5.4.5) For each related in recursion list:
+        for(const related of recursionList) {
+          // 5.4.5.1) Set result to the result of recursively executing
+          // the Hash N-Degree Quads algorithm, passing related for
+          // identifier and issuer copy for path identifier issuer.
+          const result = this.hashNDegreeQuads(related, issuerCopy);
+
+          // 5.4.5.2) Use the Issue Identifier algorithm, passing issuer
+          // copy and related and append the result to path.
+          path += '_:' + issuerCopy.getId(related);
+
+          // 5.4.5.3) Append <, the hash in result, and > to path.
+          path += `<${result.hash}>`;
+
+          // 5.4.5.4) Set issuer copy to the identifier issuer in
+          // result.
+          issuerCopy = result.issuer;
+
+          // 5.4.5.5) If chosen path is not empty and the length of path
+          // is greater than or equal to the length of chosen path and
+          // path is lexicographically greater than chosen path, then
+          // skip to the next permutation.
+          // Note: Comparing path length to chosen path length can be optimized
+          // away; only compare lexicographically.
+          if(chosenPath.length !== 0 && path > chosenPath) {
+            nextPermutation = true;
+            break;
+          }
+        }
+
+        if(nextPermutation) {
+          continue;
+        }
+
+        // 5.4.6) If chosen path is empty or path is lexicographically
+        // less than chosen path, set chosen path to path and chosen
+        // issuer to issuer copy.
+        if(chosenPath.length === 0 || path < chosenPath) {
+          chosenPath = path;
+          chosenIssuer = issuerCopy;
+        }
+      }
+
+      // 5.5) Append chosen path to data to hash.
+      md.update(chosenPath);
+
+      // 5.6) Replace issuer, by reference, with chosen issuer.
+      issuer = chosenIssuer;
+    }
+
+    // 6) Return issuer and the hash that results from passing data to hash
+    // through the hash algorithm.
+    return {hash: md.digest(), issuer};
+  }
+
+  // helper for modifying component during Hash First Degree Quads
+  modifyFirstDegreeComponent(id, component) {
+    if(component.termType !== 'BlankNode') {
+      return component;
+    }
+    /* Note: A mistake in the RDFC-1.0 spec that made its way into
+    implementations (and therefore must stay to avoid interop breakage)
+    resulted in an assigned canonical ID, if available for
+    `component.value`, not being used in place of `_:a`/`_:z`, so
+    we don't use it here. */
+    return {
+      termType: 'BlankNode',
+      value: component.value === id ? 'a' : 'z'
+    };
+  }
+
+  // helper for getting a related predicate
+  getRelatedPredicate(quad) {
+    return `<${quad.predicate.value}>`;
+  }
+
+  // helper for creating hash to related blank nodes map
+  createHashToRelated(id, issuer) {
+    // 1) Create a hash to related blank nodes map for storing hashes that
+    // identify related blank nodes.
+    const hashToRelated = new Map();
+
+    // 2) Get a reference, quads, to the list of quads in the blank node to
+    // quads map for the key identifier.
+    const quads = this.blankNodeInfo.get(id).quads;
+
+    // 3) For each quad in quads:
+    for(const quad of quads) {
+      // 3.1) For each component in quad, if component is the subject, object,
+      // or graph name and it is a blank node that is not identified by
+      // identifier:
+      // steps 3.1.1 and 3.1.2 occur in helpers:
+      this._addRelatedBlankNodeHash({
+        quad, component: quad.subject, position: 's',
+        id, issuer, hashToRelated
+      });
+      this._addRelatedBlankNodeHash({
+        quad, component: quad.object, position: 'o',
+        id, issuer, hashToRelated
+      });
+      this._addRelatedBlankNodeHash({
+        quad, component: quad.graph, position: 'g',
+        id, issuer, hashToRelated
+      });
+    }
+
+    return hashToRelated;
+  }
+
+  _hashAndTrackBlankNode({id, hashToBlankNodes}) {
+    // 5.3.1) Create a hash, hash, according to the Hash First Degree
+    // Quads algorithm.
+    const hash = this.hashFirstDegreeQuads(id);
+
+    // 5.3.2) Add hash and identifier to hash to blank nodes map,
+    // creating a new entry if necessary.
+    const idList = hashToBlankNodes.get(hash);
+    if(!idList) {
+      hashToBlankNodes.set(hash, [id]);
+    } else {
+      idList.push(id);
+    }
+  }
+
+  _addBlankNodeQuadInfo({quad, component}) {
+    if(component.termType !== 'BlankNode') {
+      return;
+    }
+    const id = component.value;
+    const info = this.blankNodeInfo.get(id);
+    if(info) {
+      info.quads.add(quad);
+    } else {
+      this.blankNodeInfo.set(id, {quads: new Set([quad]), hash: null});
+    }
+  }
+
+  _addRelatedBlankNodeHash(
+    {quad, component, position, id, issuer, hashToRelated}) {
+    if(!(component.termType === 'BlankNode' && component.value !== id)) {
+      return;
+    }
+    // 3.1.1) Set hash to the result of the Hash Related Blank Node
+    // algorithm, passing the blank node identifier for component as
+    // related, quad, path identifier issuer as issuer, and position as
+    // either s, o, or g based on whether component is a subject, object,
+    // graph name, respectively.
+    const related = component.value;
+    const hash = this.hashRelatedBlankNode(
+      related, quad, issuer, position);
+
+    // 3.1.2) Add a mapping of hash to the blank node identifier for
+    // component to hash to related blank nodes map, adding an entry as
+    // necessary.
+    const entries = hashToRelated.get(hash);
+    if(entries) {
+      entries.push(related);
+    } else {
+      hashToRelated.set(hash, [related]);
+    }
+  }
+
+  // canonical ids for 7.1
+  _componentWithCanonicalId(component) {
+    if(component.termType === 'BlankNode' &&
+      !component.value.startsWith(this.canonicalIssuer.prefix)) {
+      // create new BlankNode
+      return {
+        termType: 'BlankNode',
+        value: this.canonicalIssuer.getId(component.value)
+      };
+    }
+    return component;
+  }
+};
+
+function _stringHashCompare(a, b) {
+  return a.hash < b.hash ? -1 : a.hash > b.hash ? 1 : 0;
+}
+
+
+/***/ },
+
+/***/ 4005
+(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * An implementation of the RDF Dataset Normalization specification.
+ * This library works in the browser and node.js.
+ *
+ * BSD 3-Clause License
+ * Copyright (c) 2016-2023 Digital Bazaar, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ *
+ * Neither the name of the Digital Bazaar, Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+ * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+ * PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
+const RDFC10 = __webpack_require__(4229);
+const RDFC10Sync = __webpack_require__(202);
+
+// return a dataset from input dataset or n-quads
+function _inputToDataset(input, options) {
+  if(options.inputFormat) {
+    if(options.inputFormat === 'application/n-quads') {
+      if(typeof input !== 'string') {
+        throw new Error('N-Quads input must be a string.');
+      }
+      return exports.NQuads.parse(input);
+    }
+    throw new Error(
+      `Unknown canonicalization input format: "${options.inputFormat}".`);
+  }
+  return input;
+}
+
+// check for valid output format
+function _checkOutputFormat(options) {
+  // only N-Quads supported
+  if(options.format) {
+    if(options.format !== 'application/n-quads') {
+      throw new Error(
+        `Unknown canonicalization output format: "${options.format}".`);
+    }
+  }
+}
+
+// helper to trace URDNA2015 usage
+function _traceURDNA2015() {
+  if(!!globalThis.RDF_CANONIZE_TRACE_URDNA2015) {
+    console.trace('[rdf-canonize] URDNA2015 is deprecated, use RDFC-1.0');
+  }
+}
+
+// expose helpers
+exports.NQuads = __webpack_require__(1227);
+exports.IdentifierIssuer = __webpack_require__(2985);
+
+/**
+ * Asynchronously canonizes an RDF dataset.
+ *
+ * @param {Array|object|string} input - The input to canonize given as a
+ *   dataset or format specified by 'inputFormat' option.
+ * @param {object} options - The options to use:
+ *   {string} algorithm - The canonicalization algorithm to use, `RDFC-1.0`.
+ *   {Function} [createMessageDigest] - A factory function for creating a
+ *     `MessageDigest` interface that overrides the built-in message digest
+ *     implementation used by the canonize algorithm; note that using a hash
+ *     algorithm (or HMAC algorithm) that differs from the one specified by
+ *     the canonize algorithm will result in different output.
+ *   {string} [messageDigestAlgorithm=sha256] - Message digest algorithm used
+ *     by the default implementation of `createMessageDigest`. Supported
+ *     algorithms are: 'sha256', 'sha384', 'sha512', and the 'SHA###' and
+ *     'SHA-###' variations.
+ *   {Map} [canonicalIdMap] - An optional Map to be populated by the canonical
+ *     identifier issuer with the bnode identifier mapping generated by the
+ *     canonicalization algorithm.
+ *   {string} [inputFormat] - The format of the input. Use
+ *     'application/n-quads' for a N-Quads string that will be parsed. Omit or
+ *     falsy for a JSON dataset.
+ *   {string} [format] - The format of the output. Omit or use
+ *     'application/n-quads' for a N-Quads string.
+ *   {number} [maxWorkFactor=1] - Control of the maximum number of times to run
+ *     deep comparison algorithms (such as the N-Degree Hash Quads algorithm
+ *     used in RDFC-1.0) before bailing out and throwing an error; this is a
+ *     useful setting for preventing wasted CPU cycles or DoS when canonizing
+ *     meaningless or potentially malicious datasets. This parameter sets the
+ *     maximum number of iterations based on the number of non-unique blank
+ *     nodes. `0` to disable iterations, `1` for a O(n) limit, `2` for a O(n^2)
+ *     limit, `3` and higher may handle "poison" graphs but may take
+ *     significant computational resources, `Infinity` for no limitation.
+ *     Defaults to `1` which can handle many common inputs.
+ *   {number} [maxDeepIterations=-1] - The maximum number of times to run
+ *     deep comparison algorithms (such as the N-Degree Hash Quads algorithm
+ *     used in RDFC-1.0) before bailing out and throwing an error; this is a
+ *     useful setting for preventing wasted CPU cycles or DoS when canonizing
+ *     meaningless or potentially malicious datasets. If set to a value other
+ *     than `-1` it will explicitly set the number of iterations and override
+ *     `maxWorkFactor`. It is recommended to use `maxWorkFactor`.
+ *   {AbortSignal} [signal] - An AbortSignal used to abort the operation. The
+ *     aborted status is only periodically checked for performance reasons.
+ *   {boolean} [rejectURDNA2015=false] - Reject the "URDNA2015" algorithm name
+ *     instead of treating it as an alias for "RDFC-1.0".
+ *
+ * @returns {Promise<object>} - A Promise that resolves to the canonicalized
+ *   RDF Dataset.
+ */
+exports.canonize = async function(input, options = {}) {
+  const dataset = _inputToDataset(input, options);
+  _checkOutputFormat(options);
+
+  if(!('algorithm' in options)) {
+    throw new Error('No RDF Dataset Canonicalization algorithm specified.');
+  }
+  if(options.algorithm === 'RDFC-1.0') {
+    return new RDFC10(options).main(dataset);
+  }
+  // URDNA2015 deprecated, handled as alias for RDFC-1.0 if allowed
+  if(options.algorithm === 'URDNA2015' && !options.rejectURDNA2015) {
+    _traceURDNA2015();
+    return new RDFC10(options).main(dataset);
+  }
+  throw new Error(
+    'Invalid RDF Dataset Canonicalization algorithm: ' + options.algorithm);
+};
+
+/**
+ * This method is no longer available in the public API, it is for testing
+ * only. It synchronously canonizes an RDF dataset and does not work in the
+ * browser.
+ *
+ * @param {Array|object|string} input - The input to canonize given as a
+ *   dataset or format specified by 'inputFormat' option.
+ * @param {object} options - The options to use:
+ *   {string} algorithm - The canonicalization algorithm to use, `RDFC-1.0`.
+ *   {Function} [createMessageDigest] - A factory function for creating a
+ *     `MessageDigest` interface that overrides the built-in message digest
+ *     implementation used by the canonize algorithm; note that using a hash
+ *     algorithm (or HMAC algorithm) that differs from the one specified by
+ *     the canonize algorithm will result in different output.
+ *   {string} [messageDigestAlgorithm=sha256] - Message digest algorithm used
+ *     by the default implementation of `createMessageDigest`. Supported
+ *     algorithms are: 'sha256', 'sha384', 'sha512', and the 'SHA###' and
+ *     'SHA-###' variations.
+ *   {Map} [canonicalIdMap] - An optional Map to be populated by the canonical
+ *     identifier issuer with the bnode identifier mapping generated by the
+ *     canonicalization algorithm.
+ *   {string} [inputFormat] - The format of the input. Use
+ *     'application/n-quads' for a N-Quads string that will be parsed. Omit or
+ *     falsy for a JSON dataset.
+ *   {string} [format] - The format of the output. Omit or use
+ *     'application/n-quads' for a N-Quads string.
+ *   {number} [maxWorkFactor=1] - Control of the maximum number of times to run
+ *     deep comparison algorithms (such as the N-Degree Hash Quads algorithm
+ *     used in RDFC-1.0) before bailing out and throwing an error; this is a
+ *     useful setting for preventing wasted CPU cycles or DoS when canonizing
+ *     meaningless or potentially malicious datasets. This parameter sets the
+ *     maximum number of iterations based on the number of non-unique blank
+ *     nodes. `0` to disable iterations, `1` for a O(n) limit, `2` for a O(n^2)
+ *     limit, `3` and higher may handle "poison" graphs but may take
+ *     significant computational resources, `Infinity` for no limitation.
+ *     Defaults to `1` which can handle many common inputs.
+ *   {number} [maxDeepIterations=-1] - The maximum number of times to run
+ *     deep comparison algorithms (such as the N-Degree Hash Quads algorithm
+ *     used in RDFC-1.0) before bailing out and throwing an error; this is a
+ *     useful setting for preventing wasted CPU cycles or DoS when canonizing
+ *     meaningless or potentially malicious datasets. If set to a value other
+ *     than `-1` it will explicitly set the number of iterations and override
+ *     `maxWorkFactor`. It is recommended to use `maxWorkFactor`.
+ *   {number} [timeout=1000] - The maximum number of milliseconds before the
+ *     operation will timeout. This is only periodically checked for
+ *     performance reasons. Use 0 to disable. Note: This is a replacement for
+ *     the async canonize `signal` option common timeout use case. If complex
+ *     abort logic is required, use the async function and the `signal`
+ *     parameter.
+ *   {boolean} [rejectURDNA2015=false] - Reject the "URDNA2015" algorithm name
+ *     instead of treating it as an alias for "RDFC-1.0".
+ *
+ * @returns {Promise<object>} - A Promise that resolves to the canonicalized
+ *   RDF Dataset.
+ */
+exports._canonizeSync = function(input, options = {}) {
+  const dataset = _inputToDataset(input, options);
+  _checkOutputFormat(options);
+
+  if(!('algorithm' in options)) {
+    throw new Error('No RDF Dataset Canonicalization algorithm specified.');
+  }
+  if(options.algorithm === 'RDFC-1.0') {
+    return new RDFC10Sync(options).main(dataset);
+  }
+  // URDNA2015 deprecated, handled as alias for RDFC-1.0 if allowed
+  if(options.algorithm === 'URDNA2015' && !options.rejectURDNA2015) {
+    _traceURDNA2015();
+    return new RDFC10Sync(options).main(dataset);
+  }
+  throw new Error(
+    'Invalid RDF Dataset Canonicalization algorithm: ' + options.algorithm);
+};
+
+
+/***/ },
+
+/***/ 4991
+(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+/*!
+ * Copyright (c) 2023 Digital Bazaar, Inc. All rights reserved.
+ */
+
+
+__webpack_require__(2791);
+
+exports.setImmediate = setImmediate;
+
+// WebCrypto
+exports.crypto = globalThis.crypto;
+
+// precompute byte to hex table
+const byteToHex = [];
+for(let n = 0; n <= 0xff; ++n) {
+  byteToHex.push(n.toString(16).padStart(2, '0'));
+}
+
+exports.bufferToHex = function bufferToHex(buffer) {
+  let hex = '';
+  const bytes = new Uint8Array(buffer);
+  for(let i = 0; i < bytes.length; ++i) {
+    hex += byteToHex[bytes[i]];
+  }
+  return hex;
+};
+
+
+/***/ },
+
+/***/ 2791
+(__unused_webpack_module, __unused_webpack_exports, __webpack_require__) {
+
+(function (global, undefined) {
+    "use strict";
+
+    if (global.setImmediate) {
+        return;
+    }
+
+    var nextHandle = 1; // Spec says greater than zero
+    var tasksByHandle = {};
+    var currentlyRunningATask = false;
+    var doc = global.document;
+    var registerImmediate;
+
+    function setImmediate(callback) {
+      // Callback can either be a function or a string
+      if (typeof callback !== "function") {
+        callback = new Function("" + callback);
+      }
+      // Copy function arguments
+      var args = new Array(arguments.length - 1);
+      for (var i = 0; i < args.length; i++) {
+          args[i] = arguments[i + 1];
+      }
+      // Store and register the task
+      var task = { callback: callback, args: args };
+      tasksByHandle[nextHandle] = task;
+      registerImmediate(nextHandle);
+      return nextHandle++;
+    }
+
+    function clearImmediate(handle) {
+        delete tasksByHandle[handle];
+    }
+
+    function run(task) {
+        var callback = task.callback;
+        var args = task.args;
+        switch (args.length) {
+        case 0:
+            callback();
+            break;
+        case 1:
+            callback(args[0]);
+            break;
+        case 2:
+            callback(args[0], args[1]);
+            break;
+        case 3:
+            callback(args[0], args[1], args[2]);
+            break;
+        default:
+            callback.apply(undefined, args);
+            break;
+        }
+    }
+
+    function runIfPresent(handle) {
+        // From the spec: "Wait until any invocations of this algorithm started before this one have completed."
+        // So if we're currently running a task, we'll need to delay this invocation.
+        if (currentlyRunningATask) {
+            // Delay by doing a setTimeout. setImmediate was tried instead, but in Firefox 7 it generated a
+            // "too much recursion" error.
+            setTimeout(runIfPresent, 0, handle);
+        } else {
+            var task = tasksByHandle[handle];
+            if (task) {
+                currentlyRunningATask = true;
+                try {
+                    run(task);
+                } finally {
+                    clearImmediate(handle);
+                    currentlyRunningATask = false;
+                }
+            }
+        }
+    }
+
+    function installNextTickImplementation() {
+        registerImmediate = function(handle) {
+            process.nextTick(function () { runIfPresent(handle); });
+        };
+    }
+
+    function canUsePostMessage() {
+        // The test against `importScripts` prevents this implementation from being installed inside a web worker,
+        // where `global.postMessage` means something completely different and can't be used for this purpose.
+        if (global.postMessage && !global.importScripts) {
+            var postMessageIsAsynchronous = true;
+            var oldOnMessage = global.onmessage;
+            global.onmessage = function() {
+                postMessageIsAsynchronous = false;
+            };
+            global.postMessage("", "*");
+            global.onmessage = oldOnMessage;
+            return postMessageIsAsynchronous;
+        }
+    }
+
+    function installPostMessageImplementation() {
+        // Installs an event handler on `global` for the `message` event: see
+        // * https://developer.mozilla.org/en/DOM/window.postMessage
+        // * http://www.whatwg.org/specs/web-apps/current-work/multipage/comms.html#crossDocumentMessages
+
+        var messagePrefix = "setImmediate$" + Math.random() + "$";
+        var onGlobalMessage = function(event) {
+            if (event.source === global &&
+                typeof event.data === "string" &&
+                event.data.indexOf(messagePrefix) === 0) {
+                runIfPresent(+event.data.slice(messagePrefix.length));
+            }
+        };
+
+        if (global.addEventListener) {
+            global.addEventListener("message", onGlobalMessage, false);
+        } else {
+            global.attachEvent("onmessage", onGlobalMessage);
+        }
+
+        registerImmediate = function(handle) {
+            global.postMessage(messagePrefix + handle, "*");
+        };
+    }
+
+    function installMessageChannelImplementation() {
+        var channel = new MessageChannel();
+        channel.port1.onmessage = function(event) {
+            var handle = event.data;
+            runIfPresent(handle);
+        };
+
+        registerImmediate = function(handle) {
+            channel.port2.postMessage(handle);
+        };
+    }
+
+    function installReadyStateChangeImplementation() {
+        var html = doc.documentElement;
+        registerImmediate = function(handle) {
+            // Create a <script> element; its readystatechange event will be fired asynchronously once it is inserted
+            // into the document. Do so, thus queuing up the task. Remember to clean up once it's been called.
+            var script = doc.createElement("script");
+            script.onreadystatechange = function () {
+                runIfPresent(handle);
+                script.onreadystatechange = null;
+                html.removeChild(script);
+                script = null;
+            };
+            html.appendChild(script);
+        };
+    }
+
+    function installSetTimeoutImplementation() {
+        registerImmediate = function(handle) {
+            setTimeout(runIfPresent, 0, handle);
+        };
+    }
+
+    // If supported, we should attach to the prototype of global, since that is where setTimeout et al. live.
+    var attachTo = Object.getPrototypeOf && Object.getPrototypeOf(global);
+    attachTo = attachTo && attachTo.setTimeout ? attachTo : global;
+
+    // Don't get fooled by e.g. browserify environments.
+    if ({}.toString.call(global.process) === "[object process]") {
+        // For Node.js before 0.9
+        installNextTickImplementation();
+
+    } else if (canUsePostMessage()) {
+        // For non-IE10 modern browsers
+        installPostMessageImplementation();
+
+    } else if (global.MessageChannel) {
+        // For web workers, where supported
+        installMessageChannelImplementation();
+
+    } else if (doc && "onreadystatechange" in doc.createElement("script")) {
+        // For IE 6–8
+        installReadyStateChangeImplementation();
+
+    } else {
+        // For older browsers
+        installSetTimeoutImplementation();
+    }
+
+    attachTo.setImmediate = setImmediate;
+    attachTo.clearImmediate = clearImmediate;
+}(typeof self === "undefined" ? typeof __webpack_require__.g === "undefined" ? this : __webpack_require__.g : self));
 
 
 /***/ }

@@ -437,6 +437,11 @@
   outline: none;
 }
 
+.no-focus-ring:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
 /* ARIA live regions */
 .live-region {
   position: absolute;
@@ -473,6 +478,17 @@
 .text-contrast-high {
   color: var(--color-text);
   font-weight: 600;
+}
+
+:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 1px var(--color-background);
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
 }
 
 /* Better focus for text elements */
@@ -586,6 +602,7 @@
   padding: var(--spacing-md);
 }
 
+
 /* Transparent button override (for solid-ui integration) */
 .btn-transparent {
   background-color: transparent;
@@ -593,6 +610,193 @@
 
 .btn-transparent:hover {
   background-color: transparent;
+}
+
+/* Solid-UI form sizing fixes scoped to Edit CV section */
+.profile-form .hoverControl:not(:has(> img:first-child)) {
+  border: 0.1em solid rgb(136, 136, 136) !important;
+}
+
+.profile-form .hoverControl:has(> img:first-child) {
+  background-color: transparent !important;
+  border: none !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  padding: 0.7em !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-form .hoverControlHide {
+  width: 1.5em !important;
+  height: 1.5em !important;
+  display: block;
+  margin-top: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  margin-bottom: 0.3em !important;
+}
+
+.profile-form .hoverControl:has(> img:first-child) > span {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.3em;
+}
+
+.profile-form div[style*="padding: 0.5em"]:has(> img) {
+  display: inline-flex;
+  align-items: center;
+}
+
+.profile-form div[style*="padding: 0.5em"]:has(> img) > span {
+  margin-left: 0.3em;
+}
+
+.profile-form .hoverControl:has(> img:first-child):hover {
+  background-color: transparent !important;
+}
+
+.profile-form button:has(> img[src$=".svg"]) {
+  background-color: transparent !important;
+  border: none !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+
+.profile-form button {
+
+}
+
+.profile-form input:not([type="color"]),
+.profile-form textarea,
+.profile-form select {
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box ;
+  background-color: #eef !important;
+  border: .05em solid #88c
+}
+
+.profile-form input[type="url"] {
+  width: 100%;
+}
+
+.profile-form .formFieldValue {
+  min-width: 0;
+  margin-bottom: var(--spacing-sm);
+}
+
+.profile-form .formFieldValue table {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.profile-form .formFieldValue td {
+  padding: 0 !important;
+}
+
+.profile-form .formFieldValue input:not([type="color"]),
+.profile-form .formFieldValue textarea,
+.profile-form .formFieldValue select {
+  width: 100%;
+  max-width: 100%;
+}
+
+.profile-form select#formSelect {
+  width: 100%;
+  max-width: 97%;
+  box-sizing: border-box;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.profile-form span select {
+  max-width: 96% !important;
+  box-sizing: border-box;
+}
+
+/* Remove border/padding from the first wrapper div (and its first child wrapper). */
+.profile-form > div:first-of-type,
+.profile-form > div:first-of-type > div:first-of-type {
+  border: none !important;
+  padding: 0 !important;
+}
+
+/* Remove border/padding from the inner div of the first wrapper in the contact section. */
+section[aria-labelledby="edit-profile-contact-heading"] .profile-form > div:first-of-type > div:first-of-type {
+  border: none !important;
+  padding: 0 !important;
+}
+
+/* In contactPane, remove border/padding from all direct child divs. */
+.contactPane > div {
+  border: none !important;
+  padding: 0 !important;
+}
+
+/* Align schema.org, solid terms, FOAF, vCard, and org field labels with their input values. */
+.profile-form :not(.choiceBox) > .formFieldName:has(a[href*="http://schema.org/"]),
+.profile-form :not(.choiceBox) > .formFieldName:has(a[href*="http://www.w3.org/ns/solid/terms#"]),
+.profile-form :not(.choiceBox) > .formFieldName:has(a[href*="http://xmlns.com/foaf/0.1/"]),
+.profile-form :not(.choiceBox) > .formFieldName:has(a[href*="http://www.w3.org/2006/vcard/ns"]),
+.profile-form :not(.choiceBox) > .formFieldName:has(a[href*="http://www.w3.org/ns/org#"]) {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.profile-form :not(.choiceBox) > .formFieldName:has(a[href*="http://schema.org/"]) + .formFieldValue,
+.profile-form :not(.choiceBox) > .formFieldName:has(a[href*="http://www.w3.org/ns/solid/terms#"]) + .formFieldValue,
+.profile-form :not(.choiceBox) > .formFieldName:has(a[href*="http://xmlns.com/foaf/0.1/"]) + .formFieldValue,
+.profile-form :not(.choiceBox) > .formFieldName:has(a[href*="http://www.w3.org/2006/vcard/ns"]) + .formFieldValue,
+.profile-form :not(.choiceBox) > .formFieldName:has(a[href*="http://www.w3.org/ns/org#"]) + .formFieldValue {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.profile-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: var(--spacing-xs);
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Add horizontal gap between label and textarea for all label+textarea pairs. */
+.profile-form div:has(> a) + div:has(textarea) {
+  margin-left: var(--spacing-sm);
+}
+
+/* Center textarea label vertically in flex rows. */
+.profile-form div[style*="display: flex"][style*="flex-direction: row"]:has(textarea) {
+  align-items: flex-start;
+}
+
+.profile-form div[style*="display: flex"][style*="flex-direction: row"]:has(textarea) > div:has(> a) {
+  padding-top: var(--spacing-xs);
+}
+
+.profile-form input:not([type="color"]) {
+  width: 100%;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Remove padding from table cells within webidControl */
+.webidControl table td {
+  padding: 0 !important;
+}
+
+/* Remove padding from contactPane divs inside webidControl table cells */
+.webidControl table td div.contactPane.namedPane.fullWidth.individualPane {
+  padding: 0 !important;
+}
+
+.webidControl table td div.contactPane.namedPane {
+  border: none !important;
 }
 
 /*

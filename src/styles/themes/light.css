@@ -6,6 +6,8 @@
 :root {
   /* Background and Text */
   --color-background: white;
+  --color-background-row-default: white;
+  --color-background-row-alternate: #f0f0f0;
   --color-text: #1A1A1A;
   --color-text-secondary: #666;
   --color-text-light: #aaa;

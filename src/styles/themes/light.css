@@ -148,6 +148,9 @@
   --border-radius-lg: 0.75em;
   --border-radius-full: 1em;
   
+  /* icons */
+  --icon-base: 2em;
+
   /* Primary/Accent Colors */
   --color-primary: #7C4DFF;
   --color-primary-alpha: rgba(124, 77, 255, 0.25);

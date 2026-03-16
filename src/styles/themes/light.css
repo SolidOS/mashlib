@@ -151,6 +151,7 @@
   --border-radius-full: 1em;
   
   /* icons */
+  --icon-xxs: 1em;
   --icon-xs: 1.5em;
   --icon-sm: 1.8em;
   --icon-base: 2em;

@@ -70,7 +70,7 @@
     "@webpack-cli/serve": "^3.0.1",
     "babel-loader": "^10.0.0",
     "bundlesize2": "^0.0.35",
-    "copy-webpack-plugin": "^13.0.1",
+    "copy-webpack-plugin": "^14.0.0",
     "css-loader": "^7.1.4",
     "eslint": "^10.0.3",
     "file-loader": "^6.2.0",

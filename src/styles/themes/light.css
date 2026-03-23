@@ -6,6 +6,8 @@
 :root {
   /* Background and Text */
   --color-background: white;
+  --color-background-row-default: white;
+  --color-background-row-alternate: #f0f0f0;
   --color-text: #1A1A1A;
   --color-text-secondary: #666;
   --color-text-light: #aaa;
@@ -156,6 +158,13 @@
   --border-radius-lg: 0.75em;
   --border-radius-full: 1em;
   
+  /* icons */
+  --icon-xxs: 1em;
+  --icon-xs: 1.5em;
+  --icon-sm: 1.8em;
+  --icon-base: 2em;
+  --icon-xl: 3.1em;
+
   /* Primary/Accent Colors */
   --color-primary: #7C4DFF;
   --color-primary-alpha: rgba(124, 77, 255, 0.25);

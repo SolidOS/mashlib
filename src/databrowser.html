@@ -2,6 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
     <title><%= htmlWebpackPlugin.options.title %></title>
     <script>
       document.addEventListener('DOMContentLoaded', function() {
@@ -9,10 +10,10 @@
       })
     </script>
   </head>
-    <body id="PageBody">
+    <body id="PageBody" data-app-shell="databrowser">
       <!-- solid-panes' OutlineManager injects into this element -->
       <header id="PageHeader" role="banner"></header>
-      <main id="mainContent" tabindex="-1">
+      <main id="MainContent" tabindex="-1">
         <div class="TabulatorOutline" id="DummyUUID">
           <table id="outline">
             <thead>

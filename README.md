@@ -15,6 +15,7 @@ A colorful dependency tree can be seen [here](https://github.com/solidos/solidos
 - [Developing mashlib](#developing-mashlib)
 - [Goals](#goals)
 - [Typical uses](#typical-uses)
+- [Generative AI usage](#generative-ai-usage)
 
 ### Documentation
 
@@ -151,3 +152,9 @@ The mashlib part of SolidOS Databrowser Frontend is *read-write;* that is, the u
 
 A major limitation of this data browser hack is that current web browsers are made to distrust any code loaded from one domain that uses data from another domain. This makes it hard, strangely complicated, and sometimes impossible to do some things.
 
+## Generative AI usage
+The SolidOS team is using GitHub Copilot integrated in Visual Studio Code. 
+We have added comments in the code to make it explicit which parts are 100% written by AI. 
+
+### Prompt usage hitory:
+* Auto model: Looking at these 2 files (databrowser.html and index.ts), I want to redesign mashlib and underlying panes. I have a design for web and one for mobile. How would I go about making sure I can also have a mobile version?

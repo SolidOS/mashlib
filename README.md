@@ -158,7 +158,7 @@ A major limitation of this data browser hack is that current web browsers are ma
 The SolidOS team is using GitHub Copilot integrated in Visual Studio Code. 
 We have added comments in the code to make it explicit which parts are 100% written by AI. 
 
-### Prompt usage hitory:
+### Prompt usage history:
 * Auto model: Looking at these 2 files (databrowser.html and index.ts), I want to redesign mashlib and underlying panes. I have a design for web and one for mobile. How would I go about making sure I can also have a mobile version? 
 
 * Claude-Opes 4.6: I don't think this is correct. Mashlib is bundling together all the panes. I do not need to add mashlib.layout or theme to the globals. I can just call the render of each pane with an interface of values or?

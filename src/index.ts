@@ -69,7 +69,6 @@ global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
   }
 
   window.addEventListener('load', syncEnvironmentToContext)
-  window.addEventListener('resize', syncEnvironmentToContext)
 
   // Authenticate the user
   authn.checkUser()

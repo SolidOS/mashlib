@@ -52,7 +52,7 @@ body {
   z-index: 1000;
   padding: 0.5rem 1rem;
   background: var( --color-info-bg);
-  color: var(--color-background);
+  color: var(--color-text);
   text-decoration: none;
   font-weight: var(--font-weight-bold);
 }

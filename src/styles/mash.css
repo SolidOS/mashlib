@@ -5,13 +5,6 @@
 @import url("./themes.css");
 @import url("./mash-utilities.css");
 
-/* I couldn't find the code for the collapse image. this is a quick work around
-to make the collapsing easier to use ( the triangles dont jump 20 pixels). ~cm2
-*/
-img[title="Hide details."] {
-  float: left;
-}
-
 html, body {
   margin: 0;
   padding: 0;
@@ -23,6 +16,85 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+/* ── App layout ── */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;        /* dvh = dynamic viewport for mobile chrome */
+}
+
+#PageHeader {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+#MainContent {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;   /* smooth iOS scroll */
+  container-type: inline-size;          /* enable @container queries */
+}
+
+#PageFooter {
+  flex-shrink: 0;
+}
+
+/* ── Skip link ── */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 1000;
+  padding: 0.5rem 1rem;
+  background: var( --color-info-bg);
+  color: var(--color-background);
+  text-decoration: none;
+  font-weight: var(--font-weight-bold);
+}
+.skip-link:focus {
+  top: 0;
+}
+
+/* ── Pane icon tray (responsive) ── */
+.pane-icon-tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  overflow-x: auto;         /* horizontal scroll on very narrow screens */
+  -webkit-overflow-scrolling: touch;
+}
+
+.pane-icon-tray img {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  transition: outline 0.15s;
+}
+.pane-icon-tray img:focus-visible {
+  outline: 2px solid #005a9c;
+  outline-offset: 2px;
+}
+
+/* ── Subject blocks ── */
+.subject-block {
+  border-bottom: 1px solid #e0e0e0;
+  padding-block: 0.75rem;
+}
+
+/* ── Responsive breakpoints via container queries ── */
+@container (max-width: 40rem) {
+  .pane-icon-tray {
+    justify-content: center;
+  }
+  .subject-block h1 {
+    font-size: 1.15rem;
+  }
 }
 
 /* Improved heading hierarchy */
@@ -57,21 +129,6 @@ a {
 
 a:hover, a:focus {
   text-decoration-thickness: 0.125em;
-}
-
-/* Main page elements in databrowser.html */
-#PageBody {
-  display: flex;
-  flex-direction: column;
-}
-#DummyUUID {
-  flex: 1 0 auto;
-}
-#PageHeader {
-  flex-shrink: 0;
-}
-#PageFooter {
-  flex-shrink: 0;
 }
 
 .warning {

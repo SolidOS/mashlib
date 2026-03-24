@@ -37,6 +37,7 @@ const common = {
         'rdflib': path.resolve('./node_modules/rdflib'),
         'solid-logic': path.resolve('./node_modules/solid-logic'),
         'solid-ui': path.resolve('./node_modules/solid-ui'),
+        'pane-registry': path.resolve('./node_modules/pane-registry'),
         UI: path.resolve('./node_modules/solid-ui'),
         // Handle $rdf alias used by solid-logic
         '$rdf': path.resolve('./node_modules/rdflib'),

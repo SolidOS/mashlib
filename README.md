@@ -37,6 +37,8 @@ A colorful dependency tree can be seen [here](https://github.com/solidos/solidos
     - [Solid-ui & Solid-logic related:](#solid-ui--solid-logic-related)
   - [The databrowser hack: upgrading your browser](#the-databrowser-hack-upgrading-your-browser)
 
+### [Generative AI usage](#generative-ai-usage)
+
 ## Developing mashlib
 
 As part of the SolidOS stack, mashlib can be developed locally by setting up the SolidOS code. Read more about that on the [SolidOS Readme](https://github.com/solidos/solidos#-getting-started-with-the-solidos-code).
@@ -157,4 +159,6 @@ The SolidOS team is using GitHub Copilot integrated in Visual Studio Code.
 We have added comments in the code to make it explicit which parts are 100% written by AI. 
 
 ### Prompt usage hitory:
-* Auto model: Looking at these 2 files (databrowser.html and index.ts), I want to redesign mashlib and underlying panes. I have a design for web and one for mobile. How would I go about making sure I can also have a mobile version?
+* Auto model: Looking at these 2 files (databrowser.html and index.ts), I want to redesign mashlib and underlying panes. I have a design for web and one for mobile. How would I go about making sure I can also have a mobile version? 
+
+* Claude-Opes 4.6: I don't think this is correct. Mashlib is bundling together all the panes. I do not need to add mashlib.layout or theme to the globals. I can just call the render of each pane with an interface of values or?

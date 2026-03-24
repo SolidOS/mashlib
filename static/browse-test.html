@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
   <header id="PageHeader" role="banner" class="header-mash">
     The SolidOS Databrowser
   </header>
-  <main id="MainContent" tabindex="-1">
+  <main id="MainContent" role="main" tabindex="-1" aria-live="polite">
 
     <div class="input-row" id="inputArea">
         Viewing <input id="uriField" type="text" class="uri-field" placeholder="enter a pod address e.g. https://you.solidcommunity.net/"/> <input type="button" id="goButton" value="Go" />
@@ -111,22 +111,22 @@ document.addEventListener('DOMContentLoaded', function() {
       As user <span id="webId">&lt;public user></span> 
       <span id="loginButtonArea"></span>
     </div>
-  </div>
 
-    <div class="TabulatorOutline" id="DummyUUID">
-      <table id="outline">
-        <thead>
-          <tr>
-            <th id="outlineHeader" scope="col"></th>
-            <!-- Add more <th> as needed for columns -->
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Table rows injected by JS -->
-        </tbody>
-      </table>
-      <div id="GlobalDashboard" aria-label="Global Dashboard"></div>
-    </div>
+    <section
+          id="OutlineView"
+          class="outline-view"
+          aria-label="Resource browser"
+    >
+    </section>
+
+    <section
+        id="GlobalDashboard"
+        class="global-dashboard"
+        aria-label="Dashboard"
+        hidden
+    >
+    </section>
+
   </main>
 
   <footer id="PageFooter" role="contentinfo"></footer>
@@ -163,4 +163,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   </style>
 
-</body></html>
+</body>
+</html>

@@ -10,25 +10,57 @@
       })
     </script>
   </head>
-    <body id="PageBody" data-app-shell="databrowser">
-      <!-- solid-panes' OutlineManager injects into this element -->
-      <header id="PageHeader" role="banner"></header>
-      <main id="MainContent" tabindex="-1">
-        <div class="TabulatorOutline" id="DummyUUID">
-          <table id="outline">
-            <thead>
-              <tr>
-                <th id="outlineHeader" scope="col"></th>
-                <!-- Add more <th> as needed for columns -->
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Table rows injected by JS -->
-            </tbody>
-          </table>
-          <div id="GlobalDashboard" aria-label="Global Dashboard"></div>
-        </div>
-      </main>
-      <footer id="PageFooter" role="contentinfo"></footer>
+  <body id="PageBody" data-app-shell="databrowser">
+
+    <!-- Skip-navigation link (accessibility) -->
+    <a href="#MainContent" class="skip-link">Skip to main content</a>
+
+    <!--  Header — populated by solid-ui initHeader() -->
+    <header id="PageHeader" role="banner">
+      <!--
+      solid-ui injects: logo, address/URI bar, user menu, help menu.
+      The nav bar inside should get role="navigation" and aria-label="Main".
+    -->
+    </header>
+
+    <!-- Main content area — single visible region at a time -->
+    <main id="MainContent" role="main" tabindex="-1" aria-live="polite">
+
+      <!--
+        Outline view: the primary RDF-subject browser.
+        Replaces the old <table id="outline"> with a semantic <section>.
+        JS appends property-table <div>s (not <tr>s) here.
+      -->
+      <section
+        id="OutlineView"
+        class="outline-view"
+        aria-label="Resource browser"
+      >
+        <!-- 
+          Pane icon tray (nav) and pane content are injected here by
+          OutlineManager.GotoSubject / propertyTable / outlineExpand.
+          Each subject block is a <article class="subject-block">.
+        -->
+      </section>
+      
+      <!--
+        Global Dashboard: preferences, profile, contacts, etc.
+        Hidden by default; toggled by showDashboard / closeDashboard.
+      -->
+      <section
+        id="GlobalDashboard"
+        class="global-dashboard"
+        aria-label="Dashboard"
+        hidden
+      >
+      <!-- globalAppTabs appends tab widget here -->
+    </section>
+
+    </main>
+
+    <!-- Footer — populated by solid-ui initFooter() -->
+    <footer id="PageFooter" role="contentinfo">
+      <!-- solid-ui injects: "Powered by Solid" link -->
+    </footer>
   </body>
 </html>

@@ -91,7 +91,6 @@ const common = {
     plugins: [
       new webpack.DefinePlugin({ 'global.IS_BROWSER': true }),
       new HtmlWebpackPlugin({
-        title: 'SolidOS Web App',
         template: './src/databrowser.html',
         filename: 'databrowser.html'
       }),

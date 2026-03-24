@@ -1,6 +1,9 @@
 import * as $rdf from 'rdflib'
 import * as panes from 'solid-panes'
 import { authn, solidLogicSingleton, authSession, store } from 'solid-logic'
+import { layout } from './layout'
+import { theme } from './theme'
+import type { RenderEnvironment } from 'pane-registry'
 import versionInfo from './versionInfo'
 import './styles/mash.css'
 
@@ -12,28 +15,50 @@ type ThemeMode = 'light' | 'dark'
 type LayoutMode = 'desktop' | 'mobile'
 type LayoutPreference = LayoutMode | 'auto'
 
+<<<<<<< HEAD
 // Theme Management
 const initializeTheme = () => {
   const savedTheme = localStorage.getItem('mashlib-theme')
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
   const theme = (savedTheme || (prefersDark ? 'dark' : 'light')) as ThemeMode
-  
-  if (theme === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark')
-  } else {
-    document.documentElement.removeAttribute('data-theme')
-  }
-}
+=======
+// Build a snapshot of the current render environment
+const buildRenderEnvironment = (): RenderEnvironment => ({
+  layout: layout.get(),
+  layoutPreference: layout.getPreference(),
+  inputMode: layout.getInputMode(),
+  theme: theme.get(),
+  viewport: layout.getViewport()
+})
 
+// Inject or update the environment on the pane context
+const syncEnvironmentToContext = () => {
+>>>>>>> 97728df (cnosolidation of mobile options)
+  
+  const outliner = panes.getOutliner(document) as any
+
+  if (!outliner) {
+    console.warn('outliner not ready yet')
+    return
+  }
+
+<<<<<<< HEAD
 const setTheme = (theme: ThemeMode) => {
   if (theme === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark')
   } else {
     document.documentElement.removeAttribute('data-theme')
+=======
+  if (!outliner.context) {
+    console.warn('outliner.context missing: creating fallback context')
+    outliner.context = {}
+>>>>>>> 97728df (cnosolidation of mobile options)
   }
-  localStorage.setItem('mashlib-theme', theme)
+
+  outliner.context.environment = buildRenderEnvironment()
 }
 
+<<<<<<< HEAD
 const getTheme = (): ThemeMode => {
   return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'
 }
@@ -137,6 +162,14 @@ const initializeLayout = () => {
 // Initialize theme on load
 initializeTheme()
 initializeLayout()
+=======
+// Initialize theme and layout
+theme.init()
+layout.init()
+
+// Keep environment in sync on layout/theme changes
+window.addEventListener('mashlib:layoutchange', syncEnvironmentToContext)
+>>>>>>> 97728df (cnosolidation of mobile options)
 
 global.$rdf = $rdf
 global.panes = panes
@@ -146,6 +179,7 @@ global.SolidLogic = {
   store,
   solidLogicSingleton
 }
+<<<<<<< HEAD
 global.mashlib = {
   versionInfo,
   layout: {
@@ -160,6 +194,9 @@ global.mashlib = {
     init: initializeTheme
   }
 }
+=======
+global.mashlib = { versionInfo }
+>>>>>>> 97728df (cnosolidation of mobile options)
 
 global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
   // Set up cross-site proxy
@@ -176,11 +213,21 @@ global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
     console.error('Failed to add web monetization tag to page header')
   }
 
+  window.addEventListener('load', syncEnvironmentToContext)
+  window.addEventListener('resize', syncEnvironmentToContext)
+
   // Authenticate the user
-  authn.checkUser().then(function (_profile: any) {
-    const mainPage = panes.initMainPage(solidLogicSingleton.store, uri)
-    return mainPage
-  })
+  authn.checkUser()
+    .then(() => panes.initMainPage(solidLogicSingleton.store, uri))
+    .then(() => {
+      // Inject render environment into pane context after outliner exists
+      syncEnvironmentToContext()
+      window.requestAnimationFrame(syncEnvironmentToContext)
+    })
+    .catch((err: any) => {
+      console.error('runDataBrowser failed', err)
+    })
+
 }
 
 window.onpopstate = function (_event: any) {
@@ -194,5 +241,6 @@ window.onpopstate = function (_event: any) {
 }
 
 export {
-  versionInfo
+  versionInfo,
+  buildRenderEnvironment
 }

@@ -102,12 +102,11 @@ document.addEventListener('DOMContentLoaded', function() {
 <body>
   <header id="PageHeader" role="banner" class="header-mash">
     SolidOS Databrowser
-  </header>
-  <main id="MainContent" role="main" tabindex="-1" aria-live="polite">
-
     <div class="input-row" id="inputArea">
         Viewing <input id="uriField" type="text" class="uri-field" placeholder="enter a pod address e.g. https://you.solidcommunity.net/"/> <input type="button" id="goButton" value="Go" />
     </div>
+  </header>
+  <main id="MainContent" role="main" tabindex="-1" aria-live="polite" class="browser-main">
     <div class="user-row">
       As user <span id="webId">&lt;public user></span> 
       <span id="loginButtonArea"></span>
@@ -133,26 +132,13 @@ document.addEventListener('DOMContentLoaded', function() {
   <footer id="PageFooter" role="contentinfo"></footer>
   <style>
     .header-mash {
-      width:100%;
       padding:1em !important;
       background-color:#ccbbbb !important;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 110;
-      height: fit-content !important;
     }
     .input-row {
-      padding-left: 1em;
-      padding-bottom: 1em;
-      padding-top: 0.5em;
-      position: fixed;
-      top: calc(3.2rem + 2.8rem);
-      left: 0;
-      right: 0;
-      z-index: 105;
-      gap: 0.5em;
+    }
+    .browser-main {
+      margin-top: 5.5rem !important;
     }
     .user-row {
       padding-top: 1.5em;

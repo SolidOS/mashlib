@@ -134,15 +134,28 @@ document.addEventListener('DOMContentLoaded', function() {
   <style>
     .header-mash {
       width:100%;
-      padding:1em;
-      background-color:#ccbbbb;
+      padding:1em !important;
+      background-color:#ccbbbb !important;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 110;
+      height: fit-content !important;
     }
     .input-row {
-      padding-left:1em;
-      padding-bottom:1em;
+      padding-left: 1em;
+      padding-bottom: 1em;
+      padding-top: 0.5em;
+      position: fixed;
+      top: calc(3.2rem + 2.8rem);
+      left: 0;
+      right: 0;
+      z-index: 105;
+      gap: 0.5em;
     }
     .user-row {
-      margin-top:0.5em;
+      padding-top: 1.5em;
       margin-left:1em;
     }
     #loginButtonArea input {
@@ -162,6 +175,21 @@ document.addEventListener('DOMContentLoaded', function() {
       width:70%;
       margin-top:0.6em !important;
     }
+
+    /* Local fix: make full-screen idp popup overlay appear above all fixed page elements */
+    div[style*="position: fixed"][style*="justify-content: center"][style*="align-items: center"],
+    div[style*="min-width: 400px"][style*="box-shadow"],
+    div[style*="z-index : 10"],
+    div[style*="z-index: 10"] {
+      z-index: 2147483647 !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      justify-content: center !important;
+      align-items: center !important;
+    }
+
   </style>
 
 </body>

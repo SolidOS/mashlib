@@ -27,14 +27,20 @@ body {
 }
 
 #PageHeader {
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 100;
-  flex-shrink: 0;
+  left: 0;
+  right: 0;
+  height: 3.2rem;
+  padding: 0.75rem 1rem;
+  z-index: 110;
+  background: white;
 }
 
 #MainContent {
   flex: 1 1 auto;
+  min-height: 0;
+  margin-top: calc(3.2rem + 2.8rem);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;   /* smooth iOS scroll */
   container-type: inline-size;          /* enable @container queries */

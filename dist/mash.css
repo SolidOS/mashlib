@@ -208,6 +208,12 @@
   min-width: 0;
 }
 
+/* Ensure prompt inputs stretch to fit their container */
+.add-friend-button-container input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .qrCodeSection {
   color: var(--color-text-secondary);
   font-size: 1em;
@@ -233,22 +239,20 @@
 /* ProfileView.css */
 /* Uses utilities: .section-bg, .text-center */
 
-.profileSection {
-  
-}
-
 /* Horizontal layout for cards */
 .profile-grid .profileSection {
   width: 100%;
   max-width: 100%;
+  min-width: 0;
   box-sizing: border-box;
   margin-bottom: var(--spacing-md);
   box-sizing: border-box;
   margin-bottom: var(--spacing-md);
+  overflow-wrap: anywhere;
 }
 
 @media (min-width: 900px) {
-  .profileSection {
+  .profile-grid .profileSection {
     margin-bottom: 0;
   }
 }
@@ -365,6 +369,27 @@
 
 /* Utility-first CSS classes for layout, spacing, and responsiveness */
 
+:root {
+  --profile-image-size: 3em;
+}
+
+@media (max-width: 1000px) {
+  .profile-grid,
+  .profile-grid * {
+    font-size: 2rem !important;
+  }
+
+  .profile-grid .actionButton,
+  .profile-grid .searchInput,
+  .profile-grid .flatButton,
+  .profile-grid .buttonSection button,
+  .profile-grid .groupButtonsList button {
+    min-height: calc(var(--min-touch-target) + 0.5em) !important;
+    font-size: 2rem !important;
+    padding: 1em 1em !important;
+  }
+}
+
 .actionButton {
   width: 100%;
   min-width: 180px;
@@ -379,7 +404,8 @@
 
 .profile-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(30em, 1fr));
+  /* Allow the grid to shrink below 30em on small viewports to avoid overflow */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 30em), 1fr));
   gap: var(--spacing-lg);
   background: var(--color-background);
 }
@@ -572,6 +598,13 @@
   box-shadow: none;
 }
 
+/* Prevent labels from appearing focusable to keyboard users. */
+label:focus,
+label:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* Better focus for text elements */
 .focusable-text:focus {
   background-color: rgba(124, 77, 255, 0.1);
@@ -693,9 +726,66 @@
   background-color: transparent;
 }
 
+/* Delete pop up*/
+/* Make the Solid-UI delete confirmation popup appear near the last click position.
+   Keep the built-in Solid-UI styling (orange border, white background) so it looks like the original.
+*/
+.profile-grid div[style*="position: relative"] > div[style*="display: grid"] {
+/* only override positioning; keep styling (border/background/etc) from solid-ui */
+  position: absolute !important;
+  z-index: 9999 !important;
+  top: 0 !important;
+  right: 0 !important;
+  left: auto !important;
+  display: grid !important;
+  pointer-events: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  padding: 0.7em !important;
+  min-width: 280px !important;
+  max-width: 90vw !important;
+  background: var(--color-background) !important;
+  border: 0.1em solid var(--color-primary) !important;
+  border-radius: var(--border-radius-base) !important;
+  box-shadow: 0 0.5em 0.9em rgba(0, 0, 0, 0.2) !important;
+  grid-template-columns: auto auto !important;
+  gap: 0.3em !important;
+}
+
+/* Ensure SVG icons and their buttons inside the Solid-UI delete popup have transparent backgrounds */
+.profile-grid div[style*="position: relative"] > div[style*="display: grid"] img[src$=".svg"],
+.profile-grid div[style*="position: relative"] > div[style*="display: grid"] button {
+  background: transparent !important;
+}
+
+.profile-form .individualPane {
+  box-shadow: none !important;
+}
+
+.profile-form p {
+  padding: 0 !important;
+}
+
+.profile-form .mb-md {
+  margin-bottom: 0 !important;
+}
+
+.profile-form h2 {
+  margin-bottom: 1em !important;
+}
+
+.profile-form h3 {
+  color: var(--color-primary) !important;
+  padding: 0 !important;
+  font-size: 1em !important;
+  font-weight: 600 !important;
+}
+
+/* Shared form layout rules are imported from rdfFormsCommon.css */
 /* Solid-UI form sizing fixes scoped to Edit CV section */
 .profile-form .hoverControl:not(:has(> img:first-child)) {
   border: 0.1em solid rgb(136, 136, 136) !important;
+  flex-direction: column !important;
 }
 
 .profile-form .hoverControl:has(> img:first-child) {
@@ -704,85 +794,164 @@
   margin: 0 !important;
   border-radius: 0 !important;
   padding: 0.7em !important;
+  min-height: var(--min-touch-target);
+  min-width: var(--min-touch-target);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
-.profile-form .hoverControlHide {
+/* Make sure the delete icon floats in the top-right corner of the full hoverControl wrapper */
+.profile-form .hoverControl,
+.profile-grid .hoverControl {
+  position: relative !important;
+}
+
+.hoverControl > img.hoverControlHide,
+.hoverControl > [data-testid="deleteButtonWithCheck"] {
+  position: absolute !important;
+  top: 0.2em !important;
+  right: 0.2em !important;
   width: 1.5em !important;
   height: 1.5em !important;
-  display: block;
-  margin-top: 0 !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  margin-bottom: 0.3em !important;
+  align-items: center;
+  justify-content: center;
+  margin: 0 !important;
+  float: none !important;
+  transform: none !important;
 }
 
-.profile-form .hoverControl:has(> img:first-child) > span {
+/* When icon is 2nd or 3rd child (i.e. sibling elements exist), align it vertically to the previous item */
+.hoverControl > img.hoverControlHide:nth-child(1),
+.hoverControl > img.hoverControlHide:nth-child(2),
+.hoverControl > [data-testid="deleteButtonWithCheck"]:nth-child(1),
+.hoverControl > [data-testid="deleteButtonWithCheck"]:nth-child(2) {
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  display: inline-flex !important;
+}
+
+/* Show the delete icon only when the container is hovered */
+.profile-grid .hoverControl:hover > img.hoverControlHide,
+.profile-grid .hoverControl:hover > [data-testid="deleteButtonWithCheck"] {
+  display: inline-flex !important;
+}
+
+/* Also show the delete icon when the entire row is hovered */
+.profile-grid .attachmentTable tr:hover .hoverControl > img.hoverControlHide,
+.profile-grid .attachmentTable tr:hover .hoverControl > [data-testid="deleteButtonWithCheck"] {
+  display: inline-flex !important;
+}
+
+/* Make the hover-control cell easier to hit */
+.profile-grid .hoverControl {
+  padding: 0.75em !important;
+  min-width: 2.5em !important;
+  min-height: 2.5em !important;
+}
+
+/* When the hoverControl only contains the hidden delete icon, keep it out of layout so it doesn't create empty space */
+.profile-form .formFieldValue .hoverControl:has(> img.hoverControlHide) {
+  min-width: 0 !important;
+  min-height: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: visible !important;
+}
+
+/* Hide delete icon only in autocomplete fields */
+.profile-grid .formFieldValue:has(input[data-testid="autocomplete-input"]) [data-testid="delete-button"] {
+  display: none !important;
+}
+
+/* Keep autocomplete cancel button hidden when the user is not interacting.
+   This avoids the cancel button remaining visible when focus moves away. */
+.profile-grid .formFieldValue:not(:focus-within) [data-testid="cancel-button"] {
+  display: none !important;
+}
+
+.profile-grid .hoverControl:has(> img:first-child) > span {
   display: inline-flex;
   align-items: center;
   margin-left: 0.3em;
 }
 
-.profile-form div[style*="padding: 0.5em"]:has(> img) {
-  display: inline-flex;
-  align-items: center;
-}
-
-.profile-form div[style*="padding: 0.5em"]:has(> img) > span {
+.profile-grid div[style*="padding: 0.5em"]:has(> img) > span {
   margin-left: 0.3em;
+  vertical-align: super !important;
 }
 
-.profile-form .hoverControl:has(> img:first-child):hover {
+.profile-grid .hoverControl:has(> img:first-child):hover {
   background-color: transparent !important;
 }
 
-.profile-form button:has(> img[src$=".svg"]) {
-  background-color: transparent !important;
+.profile-grid button:has(> img[src$=".svg"]),
+.profile-grid .formFieldValue input[type ="color"] {
+  background-color: var(--color-section-bg) !important;
   border: none !important;
   margin: 0 !important;
   border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0.5em !important;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  padding: 0 !important;
+}
+
+/* Specific icon button should have no extra padding */
+.profile-grid button:has(> img[src="https://solidos.github.io/solid-ui/src/icons/noun_1369241.svg"]) {
+  padding: 0 !important;
 }
 
 .profile-form button {
+  min-height: var(--min-touch-target);
+  min-width: var(--min-touch-target);
+}
 
+.profile-form input:not([type="color"]) {
+  width: 99%;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
 
 .profile-form input:not([type="color"]),
 .profile-form textarea,
 .profile-form select {
-  max-width: 100%;
+  max-width: 96%;
   min-width: 0;
   box-sizing: border-box ;
-  background-color: #eef !important;
-  border: .05em solid #88c
+  font: inherit;
+  color: var(--color-text);
+  background-color: var(--color-card-bg) !important;
+  border: 1px solid var(--color-border-pale);
+}
+
+.profile-form textarea {
+  border-color: var(--color-border-pale) !important;
+}
+
+.profile-form input[type="date"],
+.profile-form input[type="month"],
+.profile-form input[type="week"],
+.profile-form input[type="time"],
+.profile-form input[type="datetime-local"] {
+  min-height: var(--min-touch-target);
+}
+
+.profile-form .hoverControl:has(> img:first-child):focus-visible,
+.profile-form button:focus-visible,
+.profile-form input:not([type="color"]):focus-visible,
+.profile-form textarea:focus-visible,
+.profile-form select:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-primary) !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 1px var(--color-background);
 }
 
 .profile-form input[type="url"] {
   width: 100%;
-}
-
-.profile-form .formFieldValue {
-  min-width: 0;
-  margin-bottom: var(--spacing-sm);
-}
-
-.profile-form .formFieldValue table {
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.profile-form .formFieldValue td {
-  padding: 0 !important;
-}
-
-.profile-form .formFieldValue input:not([type="color"]),
-.profile-form .formFieldValue textarea,
-.profile-form .formFieldValue select {
-  width: 100%;
-  max-width: 100%;
 }
 
 .profile-form select#formSelect {
@@ -791,11 +960,6 @@
   box-sizing: border-box;
   margin-left: 0 !important;
   margin-right: 0 !important;
-}
-
-.profile-form span select {
-  max-width: 96% !important;
-  box-sizing: border-box;
 }
 
 /* Remove border/padding from the first wrapper div (and its first child wrapper). */
@@ -818,6 +982,54 @@ section[aria-labelledby="edit-profile-contact-heading"] .profile-form > div:firs
 }
 
 /* Align schema.org, solid terms, FOAF, vCard, and org field labels with their input values. */
+.profile-form :not(.choiceBox):has(> .formFieldName):has(> .formFieldValue) {
+  display: flex;
+}
+
+/* for the Resume inside corporation choice */
+/* Add space between classifierBox label and select box */
+.profile-form .choiceBox .classifierBox-label {
+  /* Optional: ensure label doesn't have extra margin */
+  margin-right: 0;
+  padding-left: 0.3em;
+}
+.profile-form .choiceBox .choiceBox-selectBox select {
+  margin-left: 2.1em !important;
+}
+
+/* for the Resume orga details */
+/* Add space between classifierBox label and select box */
+.profile-form .classifierBox .classifierBox-label {
+  /* Match .formFieldName for alignment */
+  margin-right: 0;
+  padding-left: 0.3em;
+  width: 8em;
+  padding: 0.3em;
+  vertical-align: middle;
+}
+.profile-form .classifierBox .classifierBox-selectBox {
+  margin-left: 0 !important;
+}
+
+.profile-form .classifierBox .classifierBox-selectBox select {
+  margin-left: 0 !important;
+}
+
+/* for the social media */
+/* Add space between classifierBox label and select box */
+section[data-testid="edit-social-section"] .classifierBox-label {
+  /* Optional: ensure label doesn't have extra margin */
+  margin-right: 0;
+  padding-left: 0.3em;
+}
+section[data-testid="edit-social-section"] .classifierBox-selectBox select {
+  margin-left: 0.7em !important;
+}
+
+.profile-form :not(.choiceBox):has(> .formFieldName):has(> .formFieldValue) > .formFieldValue {
+  margin-bottom: 0;
+}
+
 .profile-form :not(.choiceBox) > .formFieldName:has(a[href*="http://schema.org/"]),
 .profile-form :not(.choiceBox) > .formFieldName:has(a[href*="http://www.w3.org/ns/solid/terms#"]),
 .profile-form :not(.choiceBox) > .formFieldName:has(a[href*="http://xmlns.com/foaf/0.1/"]),
@@ -836,10 +1048,20 @@ section[aria-labelledby="edit-profile-contact-heading"] .profile-form > div:firs
   display: inline-flex;
   align-items: center;
   vertical-align: middle;
+  flex: 1;
+  min-width: 0;
 }
 
-.profile-form textarea {
-  width: 100%;
+.profile-form textarea,
+.profile-form .formFieldValue textarea {
+  appearance: none;
+  -webkit-appearance: none;
+  border: .05em solid #88c !important;
+  border-style: solid !important;
+  border-width: .05em !important;
+  border-color: #88c !important;
+  border-radius: 0.2em !important;
+  width: 99%;
   box-sizing: border-box;
   margin-top: var(--spacing-xs);
   margin-left: 0 !important;
@@ -857,29 +1079,143 @@ section[aria-labelledby="edit-profile-contact-heading"] .profile-form > div:firs
 }
 
 .profile-form div[style*="display: flex"][style*="flex-direction: row"]:has(textarea) > div:has(> a) {
-  padding-top: var(--spacing-xs);
+  padding-left: var(--spacing-xs);
+  padding-top: var(--spacing-sm);
 }
 
-.profile-form input:not([type="color"]) {
-  width: 100%;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
+
+.profile-form :not(.choiceBox):has(> .formFieldValue input[data-testid="autocomplete-input"]) > .formFieldName {
+  padding-top: 0.55em !important;
 }
 
-/* Remove padding from table cells within webidControl */
-.webidControl table td {
-  padding: 0 !important;
-}
 
-/* Remove padding from contactPane divs inside webidControl table cells */
-.webidControl table td div.contactPane.namedPane.fullWidth.individualPane {
-  padding: 0 !important;
+.profile-form input:disabled,
+.profile-form textarea:disabled,
+.profile-form select:disabled,
+.profile-form input[readonly],
+.profile-form textarea[readonly],
+.profile-form input:read-only,
+.profile-form textarea:read-only {
+  background-color: var(--color-background) !important;
+  cursor: not-allowed;
+  opacity: 0.75;
+  border: 0.05em solid white !important;
 }
 
 .webidControl table td div.contactPane.namedPane {
   border: none !important;
 }
 
+/* Hide the edit icon used by solid-ui (noun_253504.svg and noun_1180158.svg) when it appears as an <img> */
+img[src*="noun_253504.svg"],
+img[src*="noun_1180158.svg"] {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Ensure the parent button for that icon doesn't add padding/margin or affect layout */
+button:has(> img[src*="noun_253504.svg"]),
+button:has(> img[src*="noun_1180158.svg"]) {
+  display: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Exceptions: allow these icons (and their buttons) when they're part of the add-friend or add-community flows. */
+.profile-grid .profileSection .add-friend-button-container img[src="https://solidos.github.io/solid-ui/src/icons/noun_253504.svg"],
+.profile-grid .profileSection .add-community-button-container img[src="https://solidos.github.io/solid-ui/src/icons/noun_253504.svg"],
+.profile-grid .profileSection .add-friend-button-container button:has(> img[src="https://solidos.github.io/solid-ui/src/icons/noun_253504.svg"]),
+.profile-grid .profileSection .add-community-button-container button:has(> img[src="https://solidos.github.io/solid-ui/src/icons/noun_253504.svg"]) {
+  display: inline-flex !important;
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+
+/* Exception: allow “Continue” buttons inside add-friend and add-community button containers. */
+.profile-grid .profileSection .add-friend-button-container button:has(> img[title="Continue"]),
+.profile-grid .profileSection .add-community-button-container button:has(> img[title="Continue"]),
+.profile-grid .profileSection .add-friend-button-container button:has(> img[src="https://solidos.github.io/solid-ui/src/icons/noun_1180158.svg"]),
+.profile-grid .profileSection .add-community-button-container button:has(> img[src="https://solidos.github.io/solid-ui/src/icons/noun_1180158.svg"]),
+.profile-grid .profileSection .add-friend-button-container img[src="https://solidos.github.io/solid-ui/src/icons/noun_1180158.svg"],
+.profile-grid .profileSection .add-community-button-container img[src="https://solidos.github.io/solid-ui/src/icons/noun_1180158.svg"] {
+  display: inline-flex !important;
+  width: 2em !important;
+  height: 2em !important;
+  overflow: visible !important;
+}
+
+.profile-grid .add-friend-button-container,
+.profile-grid .add-community-button-container {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xxs);
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+/* Ensure the button container can shrink properly in narrow layouts */
+.profile-grid .add-community-button-container {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Allow any direct children to shrink so no element forces overflow */
+.profile-grid .add-community-button-container > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.profile-grid table {
+  margin: 0 !important;
+}
+
+.profile-grid td {
+  padding: 0;
+}
+
+.profile-grid .add-friend-button-container .span,
+.profile-grid .add-community-button-container .span {
+  display: inline-flex;
+  align-items: center;
+}
+
+.profile-grid .add-friend-button-container > div,
+.profile-grid .add-community-button-container > div {
+  flex-basis: 100%;
+}
+
+/* Prevent the add-community input from overflowing its flex container */
+.profile-grid .add-community-button-container input {
+  min-width: 0;
+  max-width: 96%;
+  flex: 1 1 0;
+  word-break: break-word;
+}
+
+.profile-grid .profile-image {
+  width: var( --profile-image-size);
+  height: var( --profile-image-size);
+  margin: var(--spacing-xxxs);
+  border-radius: var(--spacing-lg);
+}
+
+.profile-grid .default-profile-image {
+  width: 140%;
+  height: 140%;
+  object-fit: cover;
+  margin-left: -0.6em;
+  border-radius: var(--spacing-lg);
+}
 /*
 ** Light Theme (Default)
 ** Default color scheme for SolidOS

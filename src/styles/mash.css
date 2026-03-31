@@ -27,9 +27,8 @@ html, body {
   top: 0;
   left: 0;
   right: 0;
-  padding: 0.75rem 1rem;
   z-index: 110;
-  background: white;
+  background: var(--color-header-row-bg);
 }
 
 #MainContent {
@@ -58,7 +57,7 @@ html, body {
   max-width: 280px;
   width: 240px;
   flex-shrink: 0;
-  background: var(--color-surface);
+  background: var(--color-background);
   border-right: 1px solid var(--color-border);
   padding: 0.75rem;
   box-sizing: border-box;

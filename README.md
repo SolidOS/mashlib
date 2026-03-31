@@ -15,7 +15,6 @@ A colorful dependency tree can be seen [here](https://github.com/solidos/solidos
 - [Developing mashlib](#developing-mashlib)
 - [Goals](#goals)
 - [Typical uses](#typical-uses)
-- [Generative AI usage](#generative-ai-usage)
 
 ### Documentation
 

@@ -93,6 +93,9 @@
   --color-photo-tag-highlight-border: #DDBB99;
   --color-photo-thumb-border: #CCCCCC;
   
+  /* Header */
+  --color-header-row-bg: #332746;
+  
   /* Menu and Tab Colors */
   --color-menu-bg: #FFFFFF;
   --color-menu-item-text: #654d6c;

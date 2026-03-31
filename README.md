@@ -162,3 +162,5 @@ We have added comments in the code to make it explicit which parts are 100% writ
 * Auto model: Looking at these 2 files (databrowser.html and index.ts), I want to redesign mashlib and underlying panes. I have a design for web and one for mobile. How would I go about making sure I can also have a mobile version? 
 
 * Claude-Opes 4.6: I don't think this is correct. Mashlib is bundling together all the panes. I do not need to add mashlib.layout or theme to the globals. I can just call the render of each pane with an interface of values or?
+
+* Raptor mini: I want to rdesign the main page which contains GlobalDashboard and OtlineView. I keep the header and footer and I want to have a left side menu that chnages content base on logged in or not and also chnages if it is mobile or not. If it is mobile it should fold up in the header menu if it is web it should be rendered on the left side. I want a menu placeholder that changes according to mobile or not. Its functionality I want to implement in solid-panes.

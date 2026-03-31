@@ -33,12 +33,8 @@ const syncEnvironmentToContext = () => {
     outliner.context = {}
   }
 
-  outliner.context.environment = buildRenderEnvironment()
+  panes.updateEnvironment(outliner, buildRenderEnvironment())
 }
-
-// Initialize theme and layout
-theme.init()
-layout.init()
 
 // Keep environment in sync on layout/theme changes
 window.addEventListener('mashlib:layoutchange', syncEnvironmentToContext)
@@ -77,6 +73,10 @@ global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
       // Inject render environment into pane context after outliner exists
       syncEnvironmentToContext()
       window.requestAnimationFrame(syncEnvironmentToContext)
+
+      // Set up menu depending on whether mobile or desktop
+      panes.updateMenuLayout(layout.get())
+      
     })
     .catch((err: any) => {
       console.error('runDataBrowser failed', err)

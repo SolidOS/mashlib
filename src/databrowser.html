@@ -15,47 +15,57 @@
     <!-- Skip-navigation link (accessibility) -->
     <a href="#MainContent" class="skip-link">Skip to main content</a>
 
-    <!--  Header — populated by solid-ui initHeader() -->
+    <!--  Header — populated by solid-ui initHeader(), plus responsive menu toggle -->
     <header id="PageHeader" role="banner">
-      <!--
-      solid-ui injects: logo, address/URI bar, user menu, help menu.
-      The nav bar inside should get role="navigation" and aria-label="Main".
-    -->
+      <div class="page-header-inner">
+        <button id="MenuToggleBtn" class="menu-toggle" aria-controls="NavMenu" aria-expanded="false" hidden>
+          ☰
+          <span class="sr-only">Menu</span>
+        </button>
+      </div>
     </header>
 
     <!-- Main content area — single visible region at a time -->
     <main id="MainContent" role="main" tabindex="-1" aria-live="polite">
+      <div class="app-shell">
+        <aside id="NavMenu" class="app-nav" aria-label="Application menu" hidden>
+          <div id="NavMenuContent" class="menu-content">Menu placeholder</div>
+        </aside>
 
-      <!--
-        Outline view: the primary RDF-subject browser.
-        Replaces the old <table id="outline"> with a semantic <section>.
-        JS appends property-table <div>s (not <tr>s) here.
-      -->
-      <section
-        id="OutlineView"
-        class="outline-view"
-        aria-label="Resource browser"
-      >
-        <!-- 
-          Pane icon tray (nav) and pane content are injected here by
-          OutlineManager.GotoSubject / propertyTable / outlineExpand.
-          Each subject block is a <article class="subject-block">.
-        -->
-      </section>
-      
-      <!--
-        Global Dashboard: preferences, profile, contacts, etc.
-        Hidden by default; toggled by showDashboard / closeDashboard.
-      -->
-      <section
-        id="GlobalDashboard"
-        class="global-dashboard"
-        aria-label="Dashboard"
-        hidden
-      >
-      <!-- globalAppTabs appends tab widget here -->
-    </section>
+        <div class="app-view">
+          <!--
+            Outline view: the primary RDF-subject browser.
+            Replaces the old <table id="outline"> with a semantic <section>.
+            JS appends property-table <div>s (not <tr>s) here.
+          -->
+          <section
+            id="OutlineView"
+            class="outline-view"
+            aria-label="Resource browser"
+          >
+            <!-- 
+              Pane icon tray (nav) and pane content are injected here by
+              OutlineManager.GotoSubject / propertyTable / outlineExpand.
+              Each subject block is a <article class="subject-block">.
+            -->
+          </section>
+          
+          <!--
+            Global Dashboard: preferences, profile, contacts, etc.
+            Hidden by default; toggled by showDashboard / closeDashboard.
+          -->
+          <section
+            id="GlobalDashboard"
+            class="global-dashboard"
+            aria-label="Dashboard"
+            hidden
+          >
+          <!-- globalAppTabs appends tab widget here -->
+          </section>
+        </div> <!-- .app-view -->
+      </div> <!-- .app-shell -->
 
+      <div id="MenuOverlay" class="menu-overlay" hidden aria-hidden="true"></div>
     </main>
 
     <!-- Footer — populated by solid-ui initFooter() -->

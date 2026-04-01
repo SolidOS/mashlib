@@ -84,13 +84,6 @@ window.onpopstate = function (_event: any) {
   )
 }
 
-// It's not clear where this function is used, so unfortunately we cannot remove it:
-function dump (msg: string[]) {
-  console.log(msg.slice(0, -1))
-}
-
-global.dump = dump
-
 export {
   versionInfo
 }

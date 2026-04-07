@@ -808,8 +808,8 @@ label:focus-visible {
   position: relative !important;
 }
 
-.hoverControl > img.hoverControlHide,
-.hoverControl > [data-testid="deleteButtonWithCheck"] {
+.profile-grid .hoverControl > img.hoverControlHide,
+.profile-grid .hoverControl > [data-testid="deleteButtonWithCheck"] {
   position: absolute !important;
   top: 0.2em !important;
   right: 0.2em !important;
@@ -823,10 +823,10 @@ label:focus-visible {
 }
 
 /* When icon is 2nd or 3rd child (i.e. sibling elements exist), align it vertically to the previous item */
-.hoverControl > img.hoverControlHide:nth-child(1),
-.hoverControl > img.hoverControlHide:nth-child(2),
-.hoverControl > [data-testid="deleteButtonWithCheck"]:nth-child(1),
-.hoverControl > [data-testid="deleteButtonWithCheck"]:nth-child(2) {
+.profile-grid .hoverControl > img.hoverControlHide:nth-child(1),
+.profile-grid .hoverControl > img.hoverControlHide:nth-child(2),
+.profile-grid .hoverControl > [data-testid="deleteButtonWithCheck"]:nth-child(1),
+.profile-grid .hoverControl > [data-testid="deleteButtonWithCheck"]:nth-child(2) {
   top: 50% !important;
   transform: translateY(-50%) !important;
   display: inline-flex !important;
@@ -1017,12 +1017,12 @@ section[aria-labelledby="edit-profile-contact-heading"] .profile-form > div:firs
 
 /* for the social media */
 /* Add space between classifierBox label and select box */
-section[data-testid="edit-social-section"] .classifierBox-label {
+.profile-grid section[data-testid="edit-social-section"] .classifierBox-label {
   /* Optional: ensure label doesn't have extra margin */
   margin-right: 0;
   padding-left: 0.3em;
 }
-section[data-testid="edit-social-section"] .classifierBox-selectBox select {
+.profile-grid section[data-testid="edit-social-section"] .classifierBox-selectBox select {
   margin-left: 0.7em !important;
 }
 
@@ -1107,8 +1107,10 @@ section[data-testid="edit-social-section"] .classifierBox-selectBox select {
 }
 
 /* Hide the edit icon used by solid-ui (noun_253504.svg and noun_1180158.svg) when it appears as an <img> */
-img[src*="noun_253504.svg"],
-img[src*="noun_1180158.svg"] {
+.profile-form img[src*="noun_253504.svg"],
+.profile-form img[src*="noun_1180158.svg"],
+.webidControl img[src*="noun_253504.svg"],
+.webidControl img[src*="noun_1180158.svg"] {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
@@ -1117,8 +1119,10 @@ img[src*="noun_1180158.svg"] {
 }
 
 /* Ensure the parent button for that icon doesn't add padding/margin or affect layout */
-button:has(> img[src*="noun_253504.svg"]),
-button:has(> img[src*="noun_1180158.svg"]) {
+.profile-form button:has(> img[src*="noun_253504.svg"]),
+.profile-form button:has(> img[src*="noun_1180158.svg"]),
+.webidControl button:has(> img[src*="noun_253504.svg"]),
+.webidControl button:has(> img[src*="noun_1180158.svg"]) {
   display: none !important;
   padding: 0 !important;
   margin: 0 !important;

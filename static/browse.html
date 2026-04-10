@@ -30,8 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function go (event) {
       let uri = $rdf.uri.join(uriField.value, window.location.href)
-      console.log("User field " + uriField.value)
-      console.log("User requests " + uri)
 
       const params = new URLSearchParams(location.search)
       params.set('uri', uri);
@@ -59,8 +57,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (initial) {
       uriField.value = initial
       go()
-    } else {
-      console.log('ready for user input')
     }
     async function mungeLoginArea(){
       loginButtonArea.innerHTML="";

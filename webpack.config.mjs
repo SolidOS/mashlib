@@ -36,6 +36,7 @@ const common = {
         // Ensure consistent versions of core libraries
         'rdflib': path.resolve('./node_modules/rdflib'),
         'solid-logic': path.resolve('./node_modules/solid-logic'),
+        'solid-ui/components/header': path.resolve('./node_modules/solid-ui/dist/components/header/index.esm.js'),
         'solid-ui': path.resolve('./node_modules/solid-ui'),
         'pane-registry': path.resolve('./node_modules/pane-registry'),
         UI: path.resolve('./node_modules/solid-ui'),

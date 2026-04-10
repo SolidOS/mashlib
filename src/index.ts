@@ -1,11 +1,15 @@
 import * as $rdf from 'rdflib'
 import * as panes from 'solid-panes'
 import { authn, solidLogicSingleton, authSession, store } from 'solid-logic'
+import'solid-ui/components/header'
 import { layout } from './layout'
 import { theme } from './theme'
 import type { RenderEnvironment } from 'pane-registry'
 import versionInfo from './versionInfo'
 import './styles/mash.css'
+
+layout.init()
+theme.init()
 
 const global: any = window
 
@@ -19,25 +23,24 @@ const buildRenderEnvironment = (): RenderEnvironment => ({
 })
 
 // Inject or update the environment on the pane context
-const syncEnvironmentToContext = () => {
-  
+const syncEnvironmentToContext = async (_trigger?: Event | string) => {
   const outliner = panes.getOutliner(document) as any
 
   if (!outliner) {
-    console.warn('outliner not ready yet')
     return
   }
 
   if (!outliner.context) {
-    console.warn('outliner.context missing: creating fallback context')
     outliner.context = {}
   }
 
   panes.updateEnvironment(outliner, buildRenderEnvironment())
+  await panes.refreshUI(outliner)
 }
 
 // Keep environment in sync on layout/theme changes
 window.addEventListener('mashlib:layoutchange', syncEnvironmentToContext)
+window.addEventListener('mashlib:themechange', syncEnvironmentToContext)
 
 global.$rdf = $rdf
 global.panes = panes
@@ -60,9 +63,7 @@ global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
     webMonetizationTag.setAttribute('name', 'monetization')
     webMonetizationTag.setAttribute('content', `$${window.location.host}`)
     document.head.appendChild(webMonetizationTag)
-  } catch (e) {
-    console.error('Failed to add web monetization tag to page header')
-  }
+  } catch {}
 
   window.addEventListener('load', syncEnvironmentToContext)
 
@@ -71,16 +72,10 @@ global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
     .then(() => panes.initMainPage(solidLogicSingleton.store, uri))
     .then(() => {
       // Inject render environment into pane context after outliner exists
-      syncEnvironmentToContext()
-      window.requestAnimationFrame(syncEnvironmentToContext)
-
-      // Set up menu depending on whether mobile or desktop
-      panes.updateMenuLayout(layout.get())
+      syncEnvironmentToContext('initMainPage')
       
     })
-    .catch((err: any) => {
-      console.error('runDataBrowser failed', err)
-    })
+    .catch(() => undefined)
 
 }
 

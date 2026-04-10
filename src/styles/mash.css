@@ -5,6 +5,10 @@
 @import url("./themes.css");
 @import url("./mash-utilities.css");
 
+:root {
+  --app-header-height: 4.5rem;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -22,13 +26,18 @@ html, body {
   min-height: 100dvh;        /* dvh = dynamic viewport for mobile chrome */
 }
 
-#PageHeader {
+#PageHeader,
+#mainSolidUiHeader {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 110;
   background: var(--color-header-row-bg);
+}
+
+#mainSolidUiHeader {
+  display: block;
 }
 
 #MainContent {
@@ -48,8 +57,8 @@ html, body {
 /* ── New responsive app nav layout ── */
 .app-shell {
   display: flex;
-  min-height: calc(100vh - 4.5rem - 2.5rem); /* header + footer space */
-  margin-top: 4.5rem;
+  min-height: calc(100vh - var(--app-header-height) - 2.5rem); /* header + footer space */
+  margin-top: var(--app-header-height);
 }
 
 .app-nav {
@@ -62,7 +71,7 @@ html, body {
   padding: 0.75rem;
   box-sizing: border-box;
   overflow-y: auto;
-  height: calc(100vh - 4.5rem); /* header height */
+  height: calc(100vh - var(--app-header-height)); /* header height */
   transition: transform 0.25s ease-in-out;
 }
 
@@ -83,7 +92,7 @@ html, body {
 
   .app-nav {
     position: fixed;
-    top: 4.5rem;
+    top: var(--app-header-height);
     left: 0;
     bottom: 0;
     z-index: 110;
@@ -131,9 +140,11 @@ html, body {
   color: var(--color-text);
   text-decoration: none;
   font-weight: var(--font-weight-bold);
+  display: none;
 }
 .skip-link:focus {
   top: 0;
+  display: none;
 }
 
 /* ── Pane icon tray (responsive) ── */

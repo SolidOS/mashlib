@@ -8,12 +8,24 @@ const applyTheme = (theme: ThemeMode) => {
   } else {
     document.documentElement.removeAttribute('data-theme')
   }
+
+  window.dispatchEvent(new CustomEvent('mashlib:themechange', {
+    detail: { theme }
+  }))
 }
 
 const initializeTheme = () => {
   const savedTheme = localStorage.getItem(THEME_STORAGE_KEY)
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-  const theme = (savedTheme || (prefersDark ? 'dark' : 'light')) as ThemeMode
+  const prefersDark = typeof window.matchMedia === 'function'
+    ? window.matchMedia('(prefers-color-scheme: dark)').matches
+    : false
+  const theme = (
+    savedTheme === 'dark' || savedTheme === 'light'
+      ? savedTheme
+      : prefersDark
+        ? 'dark'
+        : 'light'
+  ) as ThemeMode
 
   applyTheme(theme)
 }

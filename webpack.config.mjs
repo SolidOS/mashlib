@@ -6,6 +6,42 @@ import CopyPlugin from 'copy-webpack-plugin'
 import NodePolyfillPlugin from 'node-polyfill-webpack-plugin'
 import TerserPlugin from 'terser-webpack-plugin'
 
+const PACKAGE_RESOLUTION_MODE = 'package'
+const WORKSPACE_RESOLUTION_MODE = 'workspace'
+
+const packageAliases = {
+  'rdflib': path.resolve('./node_modules/rdflib'),
+  'solid-logic': path.resolve('./node_modules/solid-logic'),
+  'pane-registry': path.resolve('./node_modules/pane-registry'),
+  '$rdf': path.resolve('./node_modules/rdflib'),
+  'SolidLogic': path.resolve('./node_modules/solid-logic')
+}
+
+const workspaceAliases = {
+  'solid-panes$': path.resolve('../solid-panes/src/index.ts'),
+  'solid-ui$': path.resolve('../solid-ui/src/index.ts'),
+  'solid-ui/components/header$': path.resolve('../solid-ui/src/v2/components/header/index.ts'),
+  'UI$': path.resolve('../solid-ui/src/index.ts')
+}
+
+function getResolutionMode (env = {}) {
+  const resolutionMode = env.resolutionMode || process.env.MASHLIB_RESOLUTION_MODE || PACKAGE_RESOLUTION_MODE
+  if (resolutionMode !== PACKAGE_RESOLUTION_MODE && resolutionMode !== WORKSPACE_RESOLUTION_MODE) {
+    throw new Error(`Invalid mashlib webpack resolution mode: ${resolutionMode}. Use "${PACKAGE_RESOLUTION_MODE}" or "${WORKSPACE_RESOLUTION_MODE}".`)
+  }
+  return resolutionMode
+}
+
+function getResolveConfig (resolutionMode) {
+  return {
+    extensions: ['.js', '.ts'],
+    alias: {
+      ...packageAliases,
+      ...(resolutionMode === WORKSPACE_RESOLUTION_MODE ? workspaceAliases : {})
+    }
+  }
+}
+
 const externalsBase = {
   'fs': 'null',
   'node-fetch': 'fetch',
@@ -16,7 +52,8 @@ const externalsBase = {
   '@trust/webcrypto': 'crypto'
 }
 
-const common = {
+function createCommonConfig (resolutionMode) {
+  return {
     entry: [
       './src/index.ts'
     ],
@@ -30,22 +67,7 @@ const common = {
         type: 'umd'
       },
     },
-    resolve: {
-      extensions: ['.js', '.ts'],
-      alias: {
-        // Ensure consistent versions of core libraries
-        'rdflib': path.resolve('./node_modules/rdflib'),
-        'solid-logic': path.resolve('./node_modules/solid-logic'),
-        'solid-ui/components/header': path.resolve('./node_modules/solid-ui/dist/components/header/index.esm.js'),
-        'solid-ui': path.resolve('./node_modules/solid-ui'),
-        'pane-registry': path.resolve('./node_modules/pane-registry'),
-        UI: path.resolve('./node_modules/solid-ui'),
-        // Handle $rdf alias used by solid-logic
-        '$rdf': path.resolve('./node_modules/rdflib'),
-        // Handle SolidLogic global reference in solid-ui
-        'SolidLogic': path.resolve('./node_modules/solid-logic')
-      }
-    },
+    resolve: getResolveConfig(resolutionMode),
     module: {
       rules: [
         {
@@ -135,9 +157,13 @@ const common = {
     },
     devtool: 'source-map',
     performance: { hints: false }
+  }
 }
 
 export default (env, args) => {
+  const resolutionMode = getResolutionMode(env)
+  const common = createCommonConfig(resolutionMode)
+
   // Shared optimization configuration
   const sharedOptimization = {
     providedExports: true,

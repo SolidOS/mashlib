@@ -11,9 +11,11 @@
   "scripts": {
     "clean": "rm -rf dist ./src/versionInfo.ts",
     "build": "npm run clean && npm run build-version && npm run typecheck && npm run build-dist && npm run postbuild-js",
+    "build:workspace": "npm run clean && npm run build-version && npm run typecheck && npm run build-dist:workspace && npm run postbuild-js",
     "build:ghpages": "npm run clean && npm run build-version && npm run typecheck && PUBLIC_PATH=/mashlib/dist/ npm run build-dist && npm run postbuild-js",
     "build-version": "./timestamp.sh > src/versionInfo.ts && eslint 'src/versionInfo.ts' --fix",
     "build-dist": "webpack --progress --mode=production",
+    "build-dist:workspace": "webpack --progress --mode=production --env resolutionMode=workspace",
     "postbuild-js": "rm -f dist/versionInfo.d.ts dist/versionInfo.d.ts.map",
     "lint": "eslint",
     "lint-fix": "eslint --fix",
@@ -24,7 +26,9 @@
     "preversion": "npm run lint && npm run typecheck && npm test",
     "postpublish": "git push origin main --follow-tags",
     "watch": "npm run build-version && webpack --watch",
-    "start": "npm run build-version && webpack serve --config webpack.config.mjs"
+    "watch:workspace": "npm run build-version && webpack --watch --env resolutionMode=workspace",
+    "start": "npm run build-version && webpack serve --config webpack.config.mjs",
+    "start:workspace": "npm run build-version && webpack serve --config webpack.config.mjs --env resolutionMode=workspace"
   },
   "repository": {
     "type": "git",
@@ -50,9 +54,9 @@
   },
   "homepage": "https://github.com/solidos/mashlib",
   "dependencies": {
+    "pane-registry": "^3.1.0",
     "rdflib": "^2.3.6",
     "solid-logic": "^4.0.6",
-    "pane-registry": "^3.1.0",
     "solid-panes": "^4.2.6",
     "solid-ui": "^3.0.6"
   },

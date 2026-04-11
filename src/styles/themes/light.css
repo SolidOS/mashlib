@@ -22,7 +22,13 @@
   --color-background-row-default: white;
   --color-background-row-alternate: #f0f0f0;
   --color-text: #1A1A1A;
-  --color-text-secondary: #666;
+  --color-text-primary: var(--gray-700, #364153); /* new design */
+  --color-text-secondary-old: #666;
+  --color-text-secondary: var(--gray-600, #4A5565);
+  --color-text-heading: var(--black, #000000); /* New design uses pure black for headings */
+  --color-text-subheading: var(--gray-900, #101828); /* new design */
+  --color-text-strong: var(--slate-900, #0F172B); /* new design */
+  --color-text-strong-secondary: var(--slate-800, #1D293D); /* new design */
   --color-text-light: #aaa;
   --color-text-link: #3B5998;
   --color-text-link-visited: #3B5998;
@@ -138,32 +144,42 @@
   /* Typography */
   --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-family-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-size-base: 100%;
+  --font-size-base-old: 100%;
+  --font-size-base: 1rem;      /* 16px */
   --font-size-strong: 120%;
   --font-weight-normal: normal;
-  --font-weight-bold: bold;
+  --font-weight-bold-old: bold;
+  --font-weight-bold: 600; /* New design uses 600 for headings was 700 */
   --line-height-base: 1.5;
   --line-height-tight: 1.4;
   --line-height-loose: 1.6;
   --letter-spacing-wide: 0.025em;
-  --font-size-sm: 0.875rem;
-  --font-size-lg: 1.125rem;
-  --font-size-xl: 1.25rem;
-  
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl-old: 1.25rem; /* 20px */
+  --font-size-xl: 1.375rem;     /* 22px */
+  --font-size-xxl: 1.75rem;    /* 28px */
+
   /* Spacing and Sizing */
   --spacing-tiny: 0.05em;
   --spacing-small: 0.1em;
-  --spacing-xxxs: 0.2em;
-  --spacing-xxs: 0.3em;
-  --spacing-xs: 0.5rem;
-  --spacing-sm: 0.75em;
-  --spacing-btn: 0.7em;
-  --spacing-base: 0.5em;
-  --spacing-md: 1em;
-  --spacing-lg: 1.5em;
-  --spacing-xl: 2em;
-  --spacing-2xl: 3em;
-  --border-width-xthin: 0.05em;
+  --spacing-xxxs: 0.2rem; /* was em */
+  --spacing-xxs-old: 0.3rem; /* was em */
+  --spacing-xxs: 0.3125rem;  /* 5px */
+  --spacing-2xs: 0.625rem; /* 10px new design uses this */
+  --spacing-xs-old: 0.5rem;
+  --spacing-xs: 0.75rem;   /* 12px new design uses this */
+  --spacing-sm-old: 0.75rem; /* was em */
+  --spacing-sm: 0.938rem;  /* 15px new design uses this */
+  --spacing-btn: 0.7rem; /* was em */
+  --spacing-base: 0.5rem; /* was em */
+  --spacing-md-old: 1rem; /* was em */
+  --spacing-md: 1.25rem;   /* 20px new design uses this */
+  --spacing-lg-old: 1.5rem; /* was em */
+  --spacing-lg: 1.5625rem;   /* 25px new design uses this */
+  --spacing-xl: 2rem; /* was em */
+  --spacing-2xl: 3rem; /* was em */
+  --border-width-xthin: 0.05rem; /* was em */
   --border-width-sm: 0.1rem; /* was em */
   --border-width-thin-old: 1px;
   --border-width-thin: 0.1rem; /* changed from 1px */

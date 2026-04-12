@@ -1622,6 +1622,8 @@ End of styles for tableViewPane
 }
 
 /* Accessibility: Improved focus management */
+/* SAM wondering about the outline, it's affecting the
+cancel button. Maybe should just be for inputs ? */
 :focus-visible {
   outline: var(--focus-ring-width) solid var(--color-primary);
   outline-offset: 2px;

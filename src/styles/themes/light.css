@@ -12,9 +12,11 @@
   --gray-700: #364153; /* Used for: text */
   --gray-900: #101828; /* Used for: text  */
   --slate-200: #E2E8F0; /* Used for: border of sections */
+  --slate-400: #90A1B9; /* Used for: edit dialog cancel */
   --slate-800: #1D293D; /* Used for: text  */
   --slate-900: #0F172B; /* Used for: text  */
   --black: #000;  /* Used for: text heading */
+  --white: #FFF;
 
   /* Background and Text */
   --color-background-old: #FFFFFF; /* White */
@@ -43,7 +45,7 @@
   /* Borders */
   --color-border: #ccc;
   --color-border-dark: #777;
-  --color-border-darker: #444;
+  --color-border-darker: var(--gray-600, #4A5565); /* old #444 */
   --color-border-light: #aaa;
   --color-border-pale: #eee;
   --color-border-accent: #88c;
@@ -154,6 +156,7 @@
   --line-height-tight: 1.4;
   --line-height-loose: 1.6;
   --letter-spacing-wide: 0.025em;
+  --font-size-xs: 0.813rem; /* 13px */
   --font-size-sm: 0.875rem; /* 14px */
   --font-size-lg: 1.125rem; /* 18px */
   --font-size-xl-old: 1.25rem; /* 20px */
@@ -178,11 +181,12 @@
   --spacing-lg-old: 1.5rem; /* was em */
   --spacing-lg: 1.5625rem;   /* 25px new design uses this */
   --spacing-xl: 2rem; /* was em */
+  --spacing-1xl: 2.5rem; /* 40px new design uses this */
   --spacing-2xl: 3rem; /* was em */
   --border-width-xthin: 0.05rem; /* was em */
-  --border-width-sm: 0.1rem; /* was em */
   --border-width-thin-old: 1px;
   --border-width-thin: 0.1rem; /* changed from 1px */
+  --border-width-sm: 0.1rem; /* was em */
   --border-width-medium: 2px;
   --border-width-bold: 5px;
    
@@ -218,7 +222,6 @@
   --color-section-bg: #FFFFFF; /* White for outer sections to match new design */
 
   --color-card-bg: #FFFFFF; /* White for inner cards */
-  --color-section-bg: #F5F5F5;
   --color-zebra-stripe: rgba(0, 0, 0, 0.02);
   --color-hover-bg: rgba(0, 0, 0, 0.05);
   

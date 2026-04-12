@@ -42,6 +42,21 @@ A colorful dependency tree can be seen [here](https://github.com/solidos/solidos
 
 As part of the SolidOS stack, mashlib can be developed locally by setting up the SolidOS code. Read more about that on the [SolidOS Readme](https://github.com/solidos/solidos#-getting-started-with-the-solidos-code).
 
+### Webpack Resolution Modes
+
+Mashlib webpack now supports two explicit resolution modes:
+
+- `package` mode: default. Resolves `solid-ui` and `solid-panes` from `node_modules`, which is the correct behavior for npm installs and published builds.
+- `workspace` mode: opt-in. Resolves selected SolidOS packages from sibling workspace source trees for local linked development.
+
+Use these scripts for local workspace builds:
+
+- `npm run build:workspace`
+- `npm run watch:workspace`
+- `npm run start:workspace`
+
+`npm run build`, `npm run watch`, and `npm run start` stay on default package resolution.
+
 ## Goals
 
 The goals of mashlib overlap with the [SolidOS Goals](https://solidos.solidcommunity.net/Team/docs/SolidOSNorthStar.html).

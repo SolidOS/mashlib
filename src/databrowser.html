@@ -16,10 +16,6 @@
     <a href="#MainContent" class="skip-link">Skip to main content</a>
 
     <!--  Header — populated by solid-panes createHeader(), plus responsive menu toggle -->
-    <solid-ui-header id="mainSolidUiHeader" theme="" layout="" brand-link="/">
-      <span slot="title"></span>
-    </solid-ui-header>
-<!--
     <header id="PageHeader" role="banner">
       <div class="page-header-inner">
         <button id="MenuToggleBtn" class="menu-toggle" aria-controls="NavMenu" aria-expanded="false" hidden>
@@ -27,8 +23,7 @@
           <span class="sr-only">Menu</span>
         </button>
       </div>
-    </header
-    -->
+    </header>
 
     <!-- Main content area — single visible region at a time -->
     <main id="MainContent" role="main" tabindex="-1" aria-live="polite">
@@ -48,6 +43,7 @@
             class="outline-view"
             aria-label="Resource browser"
           >
+            <table id="outline" style="width: 100%"></table>
             <!-- 
               Pane icon tray (nav) and pane content are injected here by
               OutlineManager.GotoSubject / propertyTable / outlineExpand.

@@ -8,8 +8,10 @@
   /* Adding used for comment so we can decide later */
   --gray-200: #E5E7EB; /* Used for: border of sections */
   --gray-400: #99A1AF; /* Used for: input borders */
+  --gray-500: #6A7282; /* Used for: text */
   --gray-600: #4A5565; /* Used for: text  */
   --gray-700: #364153; /* Used for: text */
+  --gray-800: #1E2939; /* Used for: text  */
   --gray-900: #101828; /* Used for: text  */
   --slate-200: #E2E8F0; /* Used for: border of sections */
   --slate-400: #90A1B9; /* Used for: edit dialog cancel */
@@ -43,7 +45,8 @@
   --color-text-brown: #440;
   
   /* Borders */
-  --color-border: #ccc;
+  --color-border: var(--gray-200, #E5E7EB); /* used to be #ccc */
+  --color-border-lighter: var(--slate-200, #E2E8F0);
   --color-border-dark: #777;
   --color-border-darker: var(--gray-600, #4A5565); /* old #444 */
   --color-border-light: #aaa;

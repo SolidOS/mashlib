@@ -129,30 +129,6 @@ html, body {
   }
 }
 
-/* ── Skip link ── */
-.skip-link {
-  position: absolute;
-  top: -40px; /* was -100% */
-  left: 6px; /* was 0 */
-  z-index: 1000;
-  padding: var(--spacing-sm) var(--spacing-md); /* was padding: 0.5rem 1rem; */
-  border-radius: var(--border-radius-base); /* new */
-  background: var(--color-primary); /* was background: var( --color-info-bg); */
-  color: white; /* was var(--color-text); */
-  text-decoration: none;
-  font-weight: var(--font-weight-bold, 600);
-  display: none;
-  font-size: var(--font-size-base); /* new */
-  line-height: 1; /* new */
-}
-
-.skip-link:focus {
-  top: 6px; /* was top: 0; */
-  /* old display: none; */   
-  outline: 2px solid white; /* new */
-  outline-offset: 2px; /* new */
-}
-
 /* HTML improvements - profile pane */
 /* Semantic HTML5 improvements */
 article, aside, section {

@@ -117,27 +117,6 @@
   overflow: hidden;
 }
 
-/* Skip links for keyboard navigation */
- .skip-link {
-  position: absolute;
-  left: -999px;
-  top: auto;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-}
-
-.skip-link:focus {
-  position: static;
-  width: auto;
-  height: auto;
-  padding: 0.5em 1em;
-  background: var(--color-primary);
-  color: #fff;
-  z-index: var(--z-index-skip-links);
-  outline: none;
-}
-
 /* ===========================================
    LAYOUT UTILITIES
    =========================================== */

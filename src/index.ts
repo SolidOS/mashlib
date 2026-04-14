@@ -1,6 +1,7 @@
 import * as $rdf from 'rdflib'
 import * as panes from 'solid-panes'
 import { authn, solidLogicSingleton, authSession, store } from 'solid-logic'
+import 'solid-ui/components/header'
 import { layout } from './layout'
 import { theme } from './theme'
 import type { RenderEnvironment } from 'pane-registry'
@@ -22,7 +23,7 @@ const buildRenderEnvironment = (): RenderEnvironment => ({
 })
 
 // Inject or update the environment on the pane context
-const syncEnvironmentToContext = (_trigger?: Event | string) => {
+const syncEnvironmentToContext = async (_trigger?: Event | string) => {
   const outliner = panes.getOutliner(document) as any
 
   if (!outliner) {
@@ -33,7 +34,8 @@ const syncEnvironmentToContext = (_trigger?: Event | string) => {
     outliner.context = {}
   }
 
-  outliner.context.environment = buildRenderEnvironment()
+  panes.updateEnvironment(outliner, buildRenderEnvironment())
+  await panes.refreshUI(outliner)
 }
 
 // Keep environment in sync on layout/theme changes

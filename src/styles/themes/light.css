@@ -6,6 +6,7 @@
 :root {
   /* New Design: Colors (possibly change to primary secondary etc for now add here  */
   /* Adding used for comment so we can decide later */
+  --gray-100: #F3F4F6;
   --gray-200: #E5E7EB; /* Used for: border of sections */
   --gray-400: #99A1AF; /* Used for: input borders */
   --gray-500: #6A7282; /* Used for: text */
@@ -181,14 +182,17 @@
   --font-size-base: 1rem;      /* 16px */
   --font-size-strong: 120%;
   --font-weight-normal: normal;
+  --font-weight-md: 500; /* New design uses 500 for body text was normal */
   --font-weight-bold-old: bold;
   --font-weight-bold: 600; /* New design uses 600 for headings was 700 */
   --line-height-base: 1.5;
   --line-height-tight: 1.4;
   --line-height-loose: 1.6;
   --letter-spacing-wide: 0.025em;
+  --font-size-xxs: 0.75rem; /* 12px */
   --font-size-xs: 0.813rem; /* 13px */
   --font-size-sm: 0.875rem; /* 14px */
+  --font-size-md: 1rem;     /* 16px */
   --font-size-lg: 1.125rem; /* 18px */
   --font-size-xl-old: 1.25rem; /* 20px */
   --font-size-xl: 1.375rem;     /* 22px */
@@ -233,11 +237,13 @@
 
   
   /* icons */
-  --icon-xxs: 1em;
-  --icon-xs: 1.5em;
-  --icon-sm: 1.8em;
-  --icon-base: 2em;
-  --icon-xl: 3.1em;
+  --icon-xxxs: 0.75rem; /* 12px new design uses this */
+  --icon-xxs: 1rem; /* 16px new design uses this */
+  --icon-xs: 1.5rem; /* 24px new design uses this */
+  --icon-sm: 1.8rem; /* 28px new design uses this */
+  --icon-base: 2rem; /* 32px new design uses this */
+  --icon-md: 2.5rem; /* 40px new design uses this */
+  --icon-xl: 3.1rem; /* 50px new design uses this */
 
   /* Primary/Accent Colors */
   --color-primary: #7C4DFF;

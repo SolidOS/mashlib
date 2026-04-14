@@ -212,6 +212,7 @@
    =========================================== */
 
 /* Gap utilities */
+.gap-xxs { gap: var(--spacing-xxs, 0.3125rem); } /* 5px */
 .gap-2xs { gap: var(--spacing-2xs, 0.625rem); } /* 10px new design uses this */
 .gap-xs { gap: var(--spacing-xs, 0.75rem); }
 .gap-sm { gap: var(--spacing-sm, 0.938rem); }

@@ -12,6 +12,8 @@ const WORKSPACE_RESOLUTION_MODE = 'workspace'
 const packageAliases = {
   'rdflib': path.resolve('./node_modules/rdflib'),
   'solid-logic': path.resolve('./node_modules/solid-logic'),
+  'solid-ui': path.resolve('./node_modules/solid-ui'),
+  'UI': path.resolve('./node_modules/solid-ui'),
   'pane-registry': path.resolve('./node_modules/pane-registry'),
   '$rdf': path.resolve('./node_modules/rdflib'),
   'SolidLogic': path.resolve('./node_modules/solid-logic')
@@ -20,8 +22,8 @@ const packageAliases = {
 const workspaceAliases = {
   'solid-panes$': path.resolve('../solid-panes/src/index.ts'),
   'solid-ui$': path.resolve('../solid-ui/src/index.ts'),
+  'UI$': path.resolve('../solid-ui/src/index.ts'),
   'solid-ui/components/header$': path.resolve('../solid-ui/src/v2/components/header/index.ts'),
-  'UI$': path.resolve('../solid-ui/src/index.ts')
 }
 
 function getResolutionMode (env = {}) {

@@ -153,6 +153,7 @@
   --font-size-base: 1rem;      /* 16px */
   --font-size-strong: 120%;
   --font-weight-normal: normal;
+  --font-weight-md: 500; /* New design uses 500 for body text was normal */
   --font-weight-bold-old: bold;
   --font-weight-bold: 600; /* New design uses 600 for headings was 700 */
   --line-height-base: 1.5;

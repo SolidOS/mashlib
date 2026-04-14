@@ -161,6 +161,7 @@
   --line-height-tight: 1.4;
   --line-height-loose: 1.6;
   --letter-spacing-wide: 0.025em;
+  --font-size-xxs: 0.75rem; /* 12px */
   --font-size-xs: 0.813rem; /* 13px */
   --font-size-sm: 0.875rem; /* 14px */
   --font-size-md: 1rem;     /* 16px */

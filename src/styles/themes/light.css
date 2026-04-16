@@ -71,6 +71,7 @@
   --color-header-menu-separator-line: var(--slate-200, #E2E8F0);
   --color-header-menu-item-hover: var(--lavender-300, #e6dcff);
   --color-header-menu-item-selected: var(--lavender-400, #cbb9ff);
+  --color-header-menu-item-text-selected: var(--lavender-900, #7c4cff);
   --color-header-menu-loggedin-bg: var(--grey-purple-700, #5e546d);
   --color-header-button-text: var(--slate-900, #0F172B);
   --color-header-button-detail-text: var(--gray-400, #99A1AF);

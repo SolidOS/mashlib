@@ -1,17 +1,21 @@
 import * as $rdf from 'rdflib'
+import * as SolidLogic from 'solid-logic'
+import type { RenderEnvironment } from 'pane-registry'
+import'solid-ui/components/header'
 import * as panes from 'solid-panes'
-import { authn, solidLogicSingleton, authSession, store } from 'solid-logic'
-import 'solid-ui/components/header'
 import { layout } from './layout'
 import { theme } from './theme'
-import type { RenderEnvironment } from 'pane-registry'
 import versionInfo from './versionInfo'
 import './styles/mash.css'
 
+const global: any = window
+global.$rdf = $rdf
+global.SolidLogic = SolidLogic
+global.panes = panes
+global.mashlib = { versionInfo }
+
 layout.init()
 theme.init()
-
-const global: any = window
 
 // Build a snapshot of the current render environment
 const buildRenderEnvironment = (): RenderEnvironment => ({
@@ -42,16 +46,6 @@ const syncEnvironmentToContext = async (_trigger?: Event | string) => {
 window.addEventListener('mashlib:layoutchange', syncEnvironmentToContext)
 window.addEventListener('mashlib:themechange', syncEnvironmentToContext)
 
-global.$rdf = $rdf
-global.panes = panes
-global.SolidLogic = {
-  authn,
-  authSession, 
-  store,
-  solidLogicSingleton
-}
-global.mashlib = { versionInfo }
-
 global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
   // Set up cross-site proxy
   const fetcher: any = $rdf.Fetcher
@@ -68,8 +62,8 @@ global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
   window.addEventListener('load', syncEnvironmentToContext)
 
   // Authenticate the user
-  authn.checkUser()
-    .then(() => panes.initMainPage(solidLogicSingleton.store, uri))
+  SolidLogic.authn.checkUser()
+    .then(() => panes.initMainPage(SolidLogic.solidLogicSingleton.store, uri))
     .then(() => {
       // Inject render environment into pane context after outliner exists
       syncEnvironmentToContext('initMainPage')
@@ -91,5 +85,4 @@ window.onpopstate = function (_event: any) {
 
 export {
   versionInfo,
-  buildRenderEnvironment
 }

@@ -12,10 +12,10 @@ const WORKSPACE_RESOLUTION_MODE = 'workspace'
 const packageAliases = {
   'rdflib': path.resolve('./node_modules/rdflib'),
   'solid-logic': path.resolve('./node_modules/solid-logic'),
-  'solid-ui$': path.resolve('./node_modules/solid-ui'),
-  'UI$': path.resolve('./node_modules/solid-ui'),
-  'solid-ui/components/header$': path.resolve('./node_modules/solid-ui/dist/components/header/index.js'),
-  'solid-panes$': path.resolve('./node_modules/solid-panes/dist/solid-panes.js'),
+  'solid-ui$': path.resolve('./node_modules/solid-ui/dist/solid-ui.esm.js'),
+  'UI$': path.resolve('./node_modules/solid-ui/dist/solid-ui.esm.js'),
+  'solid-ui/components/header$': path.resolve('./node_modules/solid-ui/dist/components/header/index.esm.js'),
+  'solid-panes$': path.resolve('./node_modules/solid-panes/src/index.ts'),
   'pane-registry': path.resolve('./node_modules/pane-registry'),
   '$rdf': path.resolve('./node_modules/rdflib'),
   'SolidLogic': path.resolve('./node_modules/solid-logic')
@@ -80,7 +80,10 @@ function createCommonConfig (resolutionMode) {
         },
         {
           test: /\.(mjs|js|ts)$/,
-          exclude: /(node_modules|bower_components)/,
+          exclude: (modulePath) => {
+            if (/node_modules[\/\\]solid-panes[\/\\]src/.test(modulePath)) return false
+            return /node_modules|bower_components/.test(modulePath)
+          },
           use: {
             loader: 'babel-loader',
           }

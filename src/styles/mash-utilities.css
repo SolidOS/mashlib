@@ -515,7 +515,8 @@
 }
 
 .btn-light:hover {
-  background: color-mix(in srgb, var(--color-primary) 85%, black);
+  background: #1f22de;
+  color: var(--white, #FFF);
   box-shadow: 0 2px 4px var(--color-primary-alpha);
 }
 
@@ -527,6 +528,9 @@
 .btn-light:focus-visible {
   outline: var(--focus-indicator-width) solid var(--color-primary);
   outline-offset: var(--outline-offset-sm);
+  background: #1f22de;
+  color: var(--white, #FFF);
+  box-shadow: 0 2px 4px var(--color-primary-alpha);
   box-shadow: 0 0 0 var(--focus-ring-width) var(--color-background), 0 0 0 calc(var(--focus-ring-width) + var(--focus-indicator-width)) var(--color-primary-alpha);
 }
 
@@ -605,6 +609,18 @@
   padding: 0;
   border: 1px solid var(--gray-400, #99A1AF);
   border-radius: var(--border-radius-sm, 0.25rem);
+  align-self: auto;
+}
+
+.input--checkbox {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  min-height: 1rem;
+  padding: 0;
+  border: 1px solid var(--gray-400, #99A1AF);
+  border-radius: var(--border-radius-sm, 0.25rem);
+  accent-color: var(--color-primary, #7C4DFF);
   align-self: auto;
 }
 

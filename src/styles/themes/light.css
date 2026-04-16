@@ -6,18 +6,25 @@
 :root {
   /* New Design: Colors (possibly change to primary secondary etc for now add here  */
   /* Adding used for comment so we can decide later */
+  --gray-50: #F9FAFB; /* Used for: background of dialog buttons */
   --gray-100: #F3F4F6;
   --gray-200: #E5E7EB; /* Used for: border of sections */
+  --gray-300: #D1D5DC; /* Used for: text */
   --gray-400: #99A1AF; /* Used for: input borders */
   --gray-500: #6A7282; /* Used for: text */
   --gray-600: #4A5565; /* Used for: text  */
   --gray-700: #364153; /* Used for: text */
   --gray-800: #1E2939; /* Used for: text  */
   --gray-900: #101828; /* Used for: text  */
+  --red-600: #B00020; /* Used for: error text */
+  --slate-50: #F8FAFC;
   --slate-200: #E2E8F0; /* Used for: border of sections */
   --slate-400: #90A1B9; /* Used for: edit dialog cancel */
-  --slate-800: #1D293D; /* Used for: text  */
+  --slate-500: #62748E; /* Used for: text */
+  --slate-700: #314158; /* Used for: side menu bar text */
+  --slate-800: #1D293D; /* Used for: text and top header background */
   --slate-900: #0F172B; /* Used for: text  */
+  --utility-colours-body-grey: #666; /* used in header drop down behind the picture */
   --lavender-300: #e6dcff;
   --lavender-400: #cbb9ff;
   --lavender-500: #b295ff;
@@ -186,6 +193,7 @@
   --font-weight-md: 500; /* New design uses 500 for body text was normal */
   --font-weight-bold-old: bold;
   --font-weight-bold: 600; /* New design uses 600 for headings was 700 */
+  --font-weight-xbold: 700; /* New design uses 700 for strong text was bold */
   --line-height-base: 1.5;
   --line-height-tight: 1.4;
   --line-height-loose: 1.6;

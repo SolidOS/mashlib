@@ -16,6 +16,7 @@
   --gray-700: #364153; /* Used for: text */
   --gray-800: #1E2939; /* Used for: text  */
   --gray-900: #101828; /* Used for: text  */
+  --purple-500: #AD46FF;
   --red-600: #B00020; /* Used for: error text */
   --slate-50: #F8FAFC;
   --slate-200: #E2E8F0; /* Used for: border of sections */
@@ -25,6 +26,7 @@
   --slate-800: #1D293D; /* Used for: text and top header background */
   --slate-900: #0F172B; /* Used for: text  */
   --utility-colours-body-grey: #666; /* used in header drop down behind the picture */
+  --lavender-200: #E4DBFE; /* background of Follow button  and side menu active button */
   --lavender-300: #e6dcff;
   --lavender-400: #cbb9ff;
   --lavender-500: #b295ff;
@@ -45,6 +47,7 @@
   --pink-700: #ff98b3;
   --pink-800: #ff769a;
   --pink-900: #ff5180;
+  --yellow-700: #A65F00;
   --black: #000;  /* Used for: text heading */
   --white: #FFF;
 
@@ -78,7 +81,6 @@
   --color-header-menu-separator-line: var(--slate-200, #E2E8F0);
   --color-header-menu-item-hover: var(--lavender-300, #e6dcff);
   --color-header-menu-item-selected: var(--lavender-400, #cbb9ff);
-  --color-header-menu-item-text-selected: var(--lavender-900, #7c4cff);
   --color-header-menu-loggedin-bg: var(--grey-purple-700, #5e546d);
   --color-header-button-text: var(--slate-900, #0F172B);
   --color-header-button-detail-text: var(--gray-400, #99A1AF);

@@ -12,7 +12,6 @@
 html, body {
   margin: 0;
   padding: 0;
-  min-height: 100%;
   font-family: var(--font-family-base);
   font-size: var(--font-size-base);
   line-height: var(--line-height-base);
@@ -763,8 +762,6 @@ div.dataContentPane tr {
 .dataContentPane.embeddedText {
   white-space: pre-wrap;
 }
-.dataContentPane.embeddedXHTML {
-}
 
 /* div.dataContentPane a { text-decoration: none; color: #006} /* Only very slightly blue */
 div.dataContentPane td.pred {
@@ -793,13 +790,9 @@ div.n3Pane {
 .n3Pane pre {
   font-size: 120%;
 }
-div.n3Pane {
-}
 
 .RDFXMLPane pre {
   font-size: 120%;
-}
-div.RDFXMLPane {
 }
 
 div.RDFXMLPane {
@@ -881,10 +874,9 @@ table#sources {
 
 table {
   border-spacing: 0;
-}
-
-table {
   margin: 0em;
+  border-collapse: collapse; /* from contact-pane accessibility */
+  width: 100%; /* from contact-pane accessibility */
 }
 
 td {
@@ -1633,12 +1625,6 @@ a:focus {
   border-radius: var(--border-radius-base);
   background-color: rgba(0, 200, 83, 0.1);
   margin: var(--spacing-md) 0;
-}
-
-/* Enhanced table accessibility */
-table {
-  border-collapse: collapse;
-  width: 100%;
 }
 
 th {

@@ -88,7 +88,7 @@
 
 .skip-link:focus {
   top: 6px; /* was top: 0; */
-  display: none;
+  display: none; /* in contact-pane this isn't there */
   outline: 2px solid white; /* new */
   outline-offset: 2px; /* new */
 }

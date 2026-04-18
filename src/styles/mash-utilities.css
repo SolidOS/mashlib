@@ -692,7 +692,7 @@
 .block { display: block; }
 .inline { display: inline; }
 .inline-block { display: inline-block; }
-.hidden { display: none; }
+.hidden { display: none !important; }
 .visible { visibility: visible; }
 .invisible { visibility: hidden; }
 

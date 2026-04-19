@@ -515,7 +515,7 @@
 }
 
 .btn-light:hover {
-  background: #1f22de;
+  background: var(--blue-900, #083575);
   color: var(--white, #FFF);
   box-shadow: 0 2px 4px var(--color-primary-alpha);
 }
@@ -528,7 +528,7 @@
 .btn-light:focus-visible {
   outline: var(--focus-indicator-width) solid var(--color-primary);
   outline-offset: var(--outline-offset-sm);
-  background: #1f22de;
+  background: var(--blue-900, #083575);
   color: var(--white, #FFF);
   box-shadow: 0 2px 4px var(--color-primary-alpha);
   box-shadow: 0 0 0 var(--focus-ring-width) var(--color-background), 0 0 0 calc(var(--focus-ring-width) + var(--focus-indicator-width)) var(--color-primary-alpha);

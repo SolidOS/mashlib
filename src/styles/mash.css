@@ -111,6 +111,11 @@ html, body {
 
   #MenuToggleBtn {
     display: inline-flex;
+    background: transparent;
+    color: white;
+    border: none;
+    font-size: 2rem;
+
   }
 }
 @media (min-width: 769px) {

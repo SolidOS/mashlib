@@ -56,6 +56,8 @@ html, body {
 /* ── New responsive app nav layout ── */
 .app-shell {
   display: flex;
+  flex: 1;          /* expand to fill #MainContent (display:flex row container) */
+  min-width: 0;     /* prevent overflow in flex context */
   min-height: calc(100vh - var(--app-header-height) - 2.5rem); /* header + footer space */
   margin-top: var(--app-header-height);
 }
@@ -78,6 +80,11 @@ html, body {
   flex: 1;
   padding: 1rem;
   min-width: 0;
+}
+
+/* OutlineView is a <table> — must explicitly fill the flex parent */
+.outline-view {
+  width: 100%;
 }
 
 @media (max-width: 768px) {

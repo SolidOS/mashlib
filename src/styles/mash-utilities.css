@@ -609,17 +609,6 @@
   padding: 0;
   border: 1px solid var(--gray-400, #99A1AF);
   border-radius: var(--border-radius-sm, 0.25rem);
-  align-self: auto;
-}
-
-.input--checkbox {
-  display: inline-block;
-  width: 1rem;
-  height: 1rem;
-  min-height: 1rem;
-  padding: 0;
-  border: 1px solid var(--gray-400, #99A1AF);
-  border-radius: var(--border-radius-sm, 0.25rem);
   accent-color: var(--color-primary, #7C4DFF);
   align-self: auto;
 }

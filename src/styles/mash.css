@@ -1573,44 +1573,6 @@ End of styles for tableViewPane
   -o-box-shadow: $x-axis $y-axis $blur $color;
 }
 
-/* Accessibility: COPIED FROM PROFILE-PANE */
-/* Support for larger text preferences */
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
-  }
-}
-
-/* Accessibility: Respect user motion preferences */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-/* Accessibility: High contrast mode support */
-@media (prefers-contrast: high) {
-  :root {
-    --color-border-pale: #000;
-    --box-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    --box-shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
-  }
-}
-
-/* Accessibility: Improved focus management */
-/* SAM wondering about the outline, it's affecting the
-cancel button. Maybe should just be for inputs ? */
-:focus-visible {
-  outline: var(--focus-ring-width) solid var(--color-primary);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 1px var(--color-background);
-  border-radius: 2px; /* new */
-  transition: none; /* new Remove transitions on focus for immediate feedback */
-}
-
 /* Improve focus management for interactive elements */
 [role="button"]:focus,
 [role="link"]:focus,

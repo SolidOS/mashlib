@@ -15,7 +15,7 @@ const packageAliases = {
   'solid-ui$': path.resolve('./node_modules/solid-ui/dist/solid-ui.esm.js'),
   'UI$': path.resolve('./node_modules/solid-ui/dist/solid-ui.esm.js'),
   'solid-ui/components/header$': path.resolve('./node_modules/solid-ui/dist/components/header/index.esm.js'),
-  'solid-panes$': path.resolve('./node_modules/solid-panes/dist/index.esm.js'),
+  'solid-panes$': path.resolve('./node_modules/solid-panes/dist/index.js'),
   'pane-registry': path.resolve('./node_modules/pane-registry'),
   '$rdf': path.resolve('./node_modules/rdflib'),
   'SolidLogic': path.resolve('./node_modules/solid-logic')

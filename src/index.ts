@@ -1,3 +1,9 @@
+// IMPORTANT: must be the first import so window.SolidLogic / window.$rdf are
+// defined before solid-ui / solid-panes prebuilt bundles are evaluated
+// (they declare `solid-logic` and `rdflib` as UMD externals with
+// root: "SolidLogic" / "$rdf").
+import './globals'
+
 import * as $rdf from 'rdflib'
 import * as SolidLogic from 'solid-logic'
 import type { RenderEnvironment } from 'pane-registry'
@@ -9,8 +15,6 @@ import versionInfo from './versionInfo'
 import './styles/mash.css'
 
 const global: any = window
-global.$rdf = $rdf
-global.SolidLogic = SolidLogic
 global.panes = panes
 global.mashlib = { versionInfo }
 

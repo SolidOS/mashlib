@@ -234,8 +234,10 @@ a:hover, a:focus {
 .warning {
   color: var(--color-warning);
 }
+/* This was used in manager.js and was turning many things green.
+   Doesn't fit with new design. */
 .selected {
-  background-color: var(--color-selected-bg);
+  /* background-color: var(--color-selected-bg); */
 }
 
 /* used in profile-pane as success button */
@@ -307,6 +309,7 @@ div.instancePane {
         border-top: solid 1px #777; border-bottom: solid 1px #777;
         margin-top: 0.5em; margin-bottom: 0.5em }
 */
+
 /* ***************** For the Justification UI Panes **********/
 
 div.container {

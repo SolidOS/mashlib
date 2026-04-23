@@ -63,8 +63,6 @@ html, body {
 }
 
 .app-nav {
-  width: min(280px, 85vw);
-  max-width: 280px;
   width: 240px;
   flex-shrink: 0;
   background: var(--color-menu-bg);

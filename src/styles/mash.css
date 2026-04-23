@@ -6,7 +6,7 @@
 @import url("./mash-utilities.css");
 
 :root {
-  --app-header-height: 4.5rem;
+  --app-header-height: 3.8rem;
 }
 
 html, body {
@@ -67,8 +67,7 @@ html, body {
   max-width: 280px;
   width: 240px;
   flex-shrink: 0;
-  background: var(--color-background);
-  border-right: 1px solid var(--color-border);
+  background: var(--color-menu-bg);
   padding: 0.75rem;
   box-sizing: border-box;
   overflow-y: auto;
@@ -103,8 +102,7 @@ html, body {
     bottom: 0;
     z-index: 110;
     width: min(80vw, 320px);
-    background: var(--color-background);
-    border-right: 1px solid var(--color-border);
+    background: var(--color-menu-bg);
     padding: 0.75rem;
   }
 

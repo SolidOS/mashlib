@@ -34,13 +34,12 @@
     <main id="MainContent" role="main" tabindex="-1" aria-live="polite">
       <div class="app-shell">
         <aside id="NavMenu" class="app-nav" aria-label="Application menu" hidden>
-          <div id="NavMenuContent" class="menu-content">Profile</div>
+          <div id="NavMenuContent" class="menu-content"></div>
         </aside>
 
         <div class="app-view">
           <!--
             Outline view: the primary RDF-subject browser.
-            Replaces the old <table id="outline"> with a semantic <section>.
             JS appends property-table <div>s (not <tr>s) here.
           -->
           <table
@@ -48,14 +47,13 @@
             class="outline-view"
             aria-label="Resource browser"
           >
+          <!-- 
+            Pane icon tray (nav) and pane content are injected here by
+            OutlineManager.GotoSubject / propertyTable / outlineExpand.
+            Each subject block is a <article class="subject-block">.
+          -->
           </table>
-            <!-- 
-              Pane icon tray (nav) and pane content are injected here by
-              OutlineManager.GotoSubject / propertyTable / outlineExpand.
-              Each subject block is a <article class="subject-block">.
-            -->
-          </section>
-          
+           
           <!--
             Global Dashboard: preferences, profile, contacts, etc.
             Hidden by default; toggled by showDashboard / closeDashboard.

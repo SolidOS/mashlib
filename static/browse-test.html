@@ -45,6 +45,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginButtonArea = document.getElementById("loginButtonArea");
     const webIdArea = dom.getElementById('webId')
     const banner = dom.getElementById('inputArea')
+    const pageHeader = dom.getElementById('PageHeader')
+
+    function updateHeaderOffset () {
+      if (!pageHeader) return
+      const headerHeight = Math.ceil(pageHeader.getBoundingClientRect().height)
+      document.documentElement.style.setProperty('--browse-header-offset', `${headerHeight}px`)
+    }
+
+    window.addEventListener('resize', updateHeaderOffset)
+    updateHeaderOffset()
  
     uriField.addEventListener('keyup', function (e) {
       if (e.keyCode === 13) {
@@ -74,6 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
         banner.style.backgroundColor="#ccbbbb";                              
       }                                                                
       loginButtonArea.style.display="inline-block";                           
+      updateHeaderOffset()
     }      
 
     if (authSession) {
@@ -102,18 +113,18 @@ document.addEventListener('DOMContentLoaded', function() {
         Viewing <input id="uriField" type="text" class="uri-field" placeholder="enter a pod address e.g. https://you.solidcommunity.net/"/> <input type="button" id="goButton" value="Go" />
     </div>
   </header>
+  <div class="user-row">
+    As user <span id="webId">&lt;public user></span> 
+    <span id="loginButtonArea"></span>
+  </div>
   <main id="MainContent" role="main" tabindex="-1" aria-live="polite" class="browser-main">
-    <div class="user-row">
-      As user <span id="webId">&lt;public user></span> 
-      <span id="loginButtonArea"></span>
-    </div>
 
     <table
           id="OutlineView"
           class="outline-view"
           aria-label="Resource browser"
+          style="width: 100%"
     >
-  
     </table>
 
     <section
@@ -126,9 +137,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
   </main>
 
+  <footer id="PageFooter" role="contentinfo"></footer>
   <style>
-    .outline-view {
-      margin-top: 2rem;
+    body {
+      padding-top: calc(var(--browse-header-offset, var(--app-header-height, 3.8rem)) + 0.35rem);
     }
     .header-mash {
       padding:1em !important;
@@ -137,10 +149,12 @@ document.addEventListener('DOMContentLoaded', function() {
     .input-row {
     }
     .browser-main {
-      margin-top: 5.5rem !important;
+      margin-top: 0 !important;
     }
     .user-row {
-      padding-top: 1.5em;
+      margin-top: 0;
+      padding-top: 0.35em;
+      padding-bottom: 0.5em;
       margin-left:1em;
     }
     #loginButtonArea input {

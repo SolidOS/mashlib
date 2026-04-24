@@ -2,6 +2,7 @@
 <html id="docHTML">
 <head>
   <meta content="text/html; charset=UTF-8" http-equiv="content-type">
+   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
   <script>
     // Suppress harmless ResizeObserver loop errors that block the UI
     window.addEventListener('error', function(e) {
@@ -29,8 +30,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function go (event) {
       let uri = $rdf.uri.join(uriField.value, window.location.href)
-      console.log("User field " + uriField.value)
-      console.log("User requests " + uri)
 
       const params = new URLSearchParams(location.search)
       params.set('uri', uri);
@@ -46,6 +45,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginButtonArea = document.getElementById("loginButtonArea");
     const webIdArea = dom.getElementById('webId')
     const banner = dom.getElementById('inputArea')
+    const pageHeader = dom.getElementById('PageHeader')
+
+    function updateHeaderOffset () {
+      if (!pageHeader) return
+      const headerHeight = Math.ceil(pageHeader.getBoundingClientRect().height)
+      document.documentElement.style.setProperty('--browse-header-offset', `${headerHeight}px`)
+    }
+
+    window.addEventListener('resize', updateHeaderOffset)
+    updateHeaderOffset()
  
     uriField.addEventListener('keyup', function (e) {
       if (e.keyCode === 13) {
@@ -58,8 +67,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (initial) {
       uriField.value = initial
       go()
-    } else {
-      console.log('ready for user input')
     }
     async function mungeLoginArea(){
       loginButtonArea.innerHTML="";
@@ -77,6 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
         banner.style.backgroundColor="#ccbbbb";                              
       }                                                                
       loginButtonArea.style.display="inline-block";                           
+      updateHeaderOffset()
     }      
 
     if (authSession) {
@@ -100,48 +108,56 @@ document.addEventListener('DOMContentLoaded', function() {
 </head>
 <body>
   <header id="PageHeader" role="banner" class="header-mash">
-    The SolidOS Databrowser
-  </header>
-  <main id="mainContent" tabindex="-1">
-
+    SolidOS Databrowser
     <div class="input-row" id="inputArea">
         Viewing <input id="uriField" type="text" class="uri-field" placeholder="enter a pod address e.g. https://you.solidcommunity.net/"/> <input type="button" id="goButton" value="Go" />
     </div>
-    <div class="user-row">
-      As user <span id="webId">&lt;public user></span> 
-      <span id="loginButtonArea"></span>
-    </div>
+  </header>
+  <div class="user-row">
+    As user <span id="webId">&lt;public user></span> 
+    <span id="loginButtonArea"></span>
   </div>
+  <main id="MainContent" role="main" tabindex="-1" aria-live="polite" class="browser-main">
 
-    <div class="TabulatorOutline" id="DummyUUID">
-      <table id="outline">
-        <thead>
-          <tr>
-            <th id="outlineHeader" scope="col"></th>
-            <!-- Add more <th> as needed for columns -->
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Table rows injected by JS -->
-        </tbody>
-      </table>
-      <div id="GlobalDashboard" aria-label="Global Dashboard"></div>
-    </div>
+    <table
+          id="OutlineView"
+          class="outline-view"
+          aria-label="Resource browser"
+          style="width: 100%"
+    >
+    </table>
+
+    <section
+        id="GlobalDashboard"
+        class="global-dashboard"
+        aria-label="Dashboard"
+        hidden
+    >
+    </section>
+
   </main>
 
   <footer id="PageFooter" role="contentinfo"></footer>
   <style>
+    body {
+      padding-top: calc(var(--browse-header-offset, var(--app-header-height, 3.8rem)) + 0.35rem);
+    }
+    .outline-view {
+      width: 100%;
+    }
     .header-mash {
-      width:100%;
-      padding:1em;
-      background-color:#ccbbbb;
+      padding:1em !important;
+      background-color:#ccbbbb !important;
     }
     .input-row {
-      padding-left:1em;
-      padding-bottom:1em;
+    }
+    .browser-main {
+      margin-top: 0 !important;
     }
     .user-row {
-      margin-top:0.5em;
+      margin-top: 0;
+      padding-top: 0.35em;
+      padding-bottom: 0.5em;
       margin-left:1em;
     }
     #loginButtonArea input {
@@ -161,6 +177,22 @@ document.addEventListener('DOMContentLoaded', function() {
       width:70%;
       margin-top:0.6em !important;
     }
+
+    /* Local fix: make full-screen idp popup overlay appear above all fixed page elements */
+    div[style*="position: fixed"][style*="justify-content: center"][style*="align-items: center"],
+    div[style*="min-width: 400px"][style*="box-shadow"],
+    div[style*="z-index : 10"],
+    div[style*="z-index: 10"] {
+      z-index: 2147483647 !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      justify-content: center !important;
+      align-items: center !important;
+    }
+
   </style>
 
-</body></html>
+</body>
+</html>

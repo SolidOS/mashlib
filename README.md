@@ -36,9 +36,26 @@ A colorful dependency tree can be seen [here](https://github.com/solidos/solidos
     - [Solid-ui & Solid-logic related:](#solid-ui--solid-logic-related)
   - [The databrowser hack: upgrading your browser](#the-databrowser-hack-upgrading-your-browser)
 
+### [Generative AI usage](#generative-ai-usage)
+
 ## Developing mashlib
 
 As part of the SolidOS stack, mashlib can be developed locally by setting up the SolidOS code. Read more about that on the [SolidOS Readme](https://github.com/solidos/solidos#-getting-started-with-the-solidos-code).
+
+### Webpack Resolution Modes
+
+Mashlib webpack now supports two explicit resolution modes:
+
+- `package` mode: default. Resolves `solid-ui` and `solid-panes` from `node_modules`, which is the correct behavior for npm installs and published builds.
+- `workspace` mode: opt-in. Resolves selected SolidOS packages from sibling workspace source trees for local linked development.
+
+Use these scripts for local workspace builds:
+
+- `npm run build:workspace`
+- `npm run watch:workspace`
+- `npm run start:workspace`
+
+`npm run build`, `npm run watch`, and `npm run start` stay on default package resolution.
 
 ## Goals
 
@@ -151,3 +168,13 @@ The mashlib part of SolidOS Databrowser Frontend is *read-write;* that is, the u
 
 A major limitation of this data browser hack is that current web browsers are made to distrust any code loaded from one domain that uses data from another domain. This makes it hard, strangely complicated, and sometimes impossible to do some things.
 
+## Generative AI usage
+The SolidOS team is using GitHub Copilot integrated in Visual Studio Code. 
+We have added comments in the code to make it explicit which parts are 100% written by AI. 
+
+### Prompt usage history:
+* Auto model: Looking at these 2 files (`databrowser.html` and `index.ts`), I want to redesign mashlib and underlying panes. I have one design for web and another for mobile. How would I go about making sure I can also have a mobile version? 
+
+* Claude-Opus 4.6: I don't think this is correct. Mashlib is bundling together all the panes. I do not need to add `mashlib.layout` or theme to the globals. I can just call the render of each pane with an interface of values or ...?
+
+* Raptor mini: I want to redesign the main page which contains GlobalDashboard and OutlineView. I keep the header and footer and I want to have a left side menu that changes content based on whether logged in or not and also changes based on whether it is mobile or not. If it is mobile, it should fold up in the header menu; if it is web, it should be rendered on the left side. I want a menu placeholder that changes according to mobile or not. I want to implement its functionality in solid-panes.

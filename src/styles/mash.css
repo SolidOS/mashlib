@@ -1130,6 +1130,8 @@ td.undetermined table {
   margin: 0.2em;
 }
 
+/* The following two classes were used for defaultPane
+I'm not sure if they are used anywhere else so i'm not deleting. */
 div.bottom-border {
   border: 0.2em solid transparent;
   width: 100%;

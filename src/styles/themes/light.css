@@ -95,9 +95,11 @@
   --color-border-light: #aaa;
   --color-border-pale: #eee;
   --color-border-accent: #88c;
+  --color-border-button: var(--gray-300, #D1D5DC);
+  --color-border-button-hover: var(--gray-400, #99A1AF);
   
   /* Status Colors */
-  --color-selected-bg: #8F3;
+  --color-selected-bg: var(--lavender-300, #e6dcff);
   --color-warning: red;
   --color-success-bg: #dfd;
   --color-success-border: green;

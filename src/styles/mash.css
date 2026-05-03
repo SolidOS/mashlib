@@ -707,22 +707,9 @@ div.exceptionPane pre {
   background-color: var(--color-cv-pane-bg);
 }
 
-div.n3Pane {
-  padding: 1em;
-  border-top: solid 1px var(--color-data-pane-border-top);
-  border-left: solid 1px var(--color-data-pane-border-top);
-  border-bottom: solid 1px var(--color-data-pane-border-side);
-  border-right: solid 1px var(--color-data-pane-border-side);
-  color: var(--color-text-blue);
-}
-
 .imageView {
   border: 1em var(--color-background);
   margin: 1em;
-}
-
-.n3Pane pre {
-  font-size: 120%;
 }
 
 .RDFXMLPane pre {

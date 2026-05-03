@@ -712,19 +712,6 @@ div.exceptionPane pre {
   margin: 1em;
 }
 
-.RDFXMLPane pre {
-  font-size: 120%;
-}
-
-div.RDFXMLPane {
-  padding: 1em;
-  border-top: solid 2px var(--color-data-pane-border-top);
-  border-left: solid 2px var(--color-data-pane-border-top);
-  border-bottom: solid 2px var(--color-data-pane-border-side);
-  border-right: solid 2px var(--color-data-pane-border-side);
-  color: var(--color-text-brown);
-}
-
 /* Generic things useful anywhere */
 
 img.hideTillHover {

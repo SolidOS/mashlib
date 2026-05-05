@@ -37,6 +37,8 @@ html[data-theme="dark"] {
   --color-border-light: #666;
   --color-border-pale: #555;
   --color-border-accent: #9999dd;
+  --color-border-button: var(--gray-800, #1E2939);
+  --color-border-button-hover: var(--gray-900, #101828);
   
   /* Status Colors */
   --color-selected-bg: #4a6e3a;

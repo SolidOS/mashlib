@@ -109,7 +109,7 @@ html, body {
   }
 
   .app-view {
-    padding: 1rem 0.75rem;
+    padding: var(--spacing-sm, 0.938rem) var(--spacing-2xs, 0.625rem);
   }
 
   #MenuToggleBtn {

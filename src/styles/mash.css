@@ -1506,10 +1506,6 @@ th {
   padding: var(--spacing-sm);
 }
 
-td {
-  padding: var(--spacing-sm);
-}
-
 /* Focus trap for modals */
 .focus-trap {
   position: fixed;

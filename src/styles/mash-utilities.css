@@ -614,7 +614,7 @@
 }
 
 .label {
-  color: var(--gray-600, #4A5565);
+  color: var(--color-text-secondary, #4A5565);
   font-size: var(--font-size-sm, 0.875rem);
   font-weight: var(--font-weight-regular, 400);
 }

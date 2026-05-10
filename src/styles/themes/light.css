@@ -63,6 +63,12 @@
   --color-border-muted: var(--gray-300, #D1D5DC);
   --color-border-action: var(--color-primary, #7C4DFF);
   --color-focus-ring: var(--color-primary, #7C4DFF);
+  --dialog-cancel-button-background: transparent;
+  --dialog-cancel-button-text: var(--gray-800, #1E2939);
+  --dialog-cancel-button-border: var(--gray-300, #D1D5DC);
+  --dialog-cancel-button-hover-background: var(--blue-900, #083575);
+  --dialog-cancel-button-hover-text: var(--white, #FFF);
+  --dialog-cancel-button-hover-border: var(--blue-900, #083575);
   --color-header-menu-item-hover: var(--lavender-300, #e6dcff);
   /* END semantic button tokens */
 
@@ -114,11 +120,11 @@
   
   /* Status Colors */
   --color-selected-bg: var(--lavender-300, #e6dcff);
-  --color-warning: red;
+  --color-warning: var(--red-600, #B00020);
   --color-success-bg: #dfd;
   --color-success-border: green;
   --color-failure-bg: white;
-  --color-failure-border: red;
+  --color-failure-border: var(--red-600, #B00020);
   
   /* Info and Alert Colors */
   --color-info-bg: #ccccff;

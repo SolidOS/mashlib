@@ -19,6 +19,14 @@ html[data-theme="dark"] {
   --color-text-blue: #7cb9ff;
   --color-text-brown: #c4a660;
   
+  /* Buttons */
+  --dialog-cancel-button-background: transparent;
+  --dialog-cancel-button-text: var(--gray-100, #F3F4F6);
+  --dialog-cancel-button-border: var(--color-border-light, #666);
+  --dialog-cancel-button-hover-background: var(--color-primary, #B388FF);
+  --dialog-cancel-button-hover-text: var(--color-text-on-action, #1e1e1e);
+  --dialog-cancel-button-hover-border: var(--color-primary, #B388FF);
+
   /* Header */
   --color-header-row-bg: var(--grey-purple-900, #332746);
   --color-header-text: var(--white, #fff);

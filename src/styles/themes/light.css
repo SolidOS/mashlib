@@ -82,7 +82,9 @@
   --color-background-row-default: white;
   --color-background-row-alternate: #f0f0f0;
   --color-text: #1A1A1A; /* Used in login button */
+  --color-text-ui: var(--gray-100, #F3F4F6);
   --color-text-primary: var(--gray-700, #364153); /* new design */
+  --color-text-ui: var(--slate-700, #314158);
   --color-text-secondary-old: #666;
   --color-text-secondary: var(--gray-600, #4A5565);
   --color-text-heading: var(--black, #000000); /* New design uses pure black for headings */

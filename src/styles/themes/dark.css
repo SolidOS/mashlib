@@ -8,6 +8,8 @@ html[data-theme="dark"] {
   --color-background: #1e1e1e;
   --color-text: #e0e0e0;
   --color-text-secondary: #999;
+  --color-text-ui: var(--gray-800, #1E2939);
+  --color-text-control: var(--gray-100, #F3F4F6);
   --color-text-light: #555;
   --color-text-link: #66b3ff;
   --color-text-link-visited: #66b3ff;
@@ -19,7 +21,18 @@ html[data-theme="dark"] {
   --color-text-blue: #7cb9ff;
   --color-text-brown: #c4a660;
   
-  /* Buttons */
+   /* Button colors */
+  --color-surface-action: var(--color-primary, #B388FF);
+  --color-surface-action-hover: #c39cff;
+  --color-surface-overlay: var(--gray-800, #1E2939);
+  --color-surface-tertiary: #2a2a2a;
+  --color-surface-tertiary-hover: #333333;
+  --color-surface-subtle: rgba(255, 255, 255, 0.08);
+  --color-text-on-action: var(--gray-900, #101828);
+  --color-border-muted: var(--color-border-light, #666);
+  --color-border-action: var(--color-primary, #B388FF);
+  --color-focus-ring: var(--color-primary, #B388FF);
+  --color-focus-gap: var(--gray-900, #101828);
   --dialog-cancel-button-background: transparent;
   --dialog-cancel-button-text: var(--gray-100, #F3F4F6);
   --dialog-cancel-button-border: var(--color-border-light, #666);

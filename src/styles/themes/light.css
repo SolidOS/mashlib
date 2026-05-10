@@ -56,6 +56,7 @@
   /* Button colors */
   --color-surface-action: var(--color-primary, #7C4DFF);
   --color-surface-action-hover: #6d3cf2;
+  --color-surface-overlay: var(--white, #FFF);
   --color-surface-tertiary: var(--gray-50, #F9FAFB);
   --color-surface-tertiary-hover: var(--gray-100, #F3F4F6);
   --color-surface-subtle: rgba(15, 23, 43, 0.04);
@@ -63,6 +64,7 @@
   --color-border-muted: var(--gray-300, #D1D5DC);
   --color-border-action: var(--color-primary, #7C4DFF);
   --color-focus-ring: var(--color-primary, #7C4DFF);
+  --color-focus-gap: var(--white, #FFF);
   --dialog-cancel-button-background: transparent;
   --dialog-cancel-button-text: var(--gray-800, #1E2939);
   --dialog-cancel-button-border: var(--gray-300, #D1D5DC);
@@ -84,7 +86,7 @@
   --color-text: #1A1A1A; /* Used in login button */
   --color-text-ui: var(--gray-100, #F3F4F6);
   --color-text-primary: var(--gray-700, #364153); /* new design */
-  --color-text-ui: var(--slate-700, #314158);
+  --color-text-control: var(--slate-700, #314158);
   --color-text-secondary-old: #666;
   --color-text-secondary: var(--gray-600, #4A5565);
   --color-text-heading: var(--black, #000000); /* New design uses pure black for headings */

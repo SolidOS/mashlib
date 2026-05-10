@@ -27,6 +27,11 @@ html[data-theme="dark"] {
   --dialog-cancel-button-hover-text: var(--color-text-on-action, #1e1e1e);
   --dialog-cancel-button-hover-border: var(--color-primary, #B388FF);
 
+  /* Error dialog box colors */
+  --dialog-error-background: rgba(176, 0, 32, 0.18);
+  --dialog-error-border: rgba(255, 118, 154, 0.5);
+  --dialog-error-text: #ffbbcd;
+  
   /* Header */
   --color-header-row-bg: var(--grey-purple-900, #332746);
   --color-header-text: var(--white, #fff);

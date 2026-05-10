@@ -53,7 +53,7 @@
   --white: #FFF;
 
 
-  /* Will move later to proper places: BEGIN semantic button tokens: shared action, tertiary, and focus colors for local dev theming */
+  /* Button colors */
   --color-surface-action: var(--color-primary, #7C4DFF);
   --color-surface-action-hover: #6d3cf2;
   --color-surface-tertiary: var(--gray-50, #F9FAFB);
@@ -70,8 +70,12 @@
   --dialog-cancel-button-hover-text: var(--white, #FFF);
   --dialog-cancel-button-hover-border: var(--blue-900, #083575);
   --color-header-menu-item-hover: var(--lavender-300, #e6dcff);
-  /* END semantic button tokens */
-
+ 
+  /* Error dialog box colors */
+  --dialog-error-background: var(--pink-500, #ffdde6);
+  --dialog-error-border: var(--pink-700, #ff98b3);
+  --dialog-error-text: var(--red-600, #B00020);
+  
   /* Background and Text */
   --color-background-old: #FFFFFF; /* White */
   --color-background: #F8F9FB; /* Light grey for overall background */

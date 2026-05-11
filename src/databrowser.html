@@ -31,13 +31,13 @@
     -->
 
     <!-- Main content area — single visible region at a time -->
-    <main id="MainContent" role="main" tabindex="-1" aria-live="polite">
+    <div tabindex="-1" aria-live="polite">
       <div class="app-shell">
         <aside id="NavMenu" class="app-nav" aria-label="Application menu" hidden>
           <div id="NavMenuContent" class="menu-content"></div>
         </aside>
 
-        <div class="app-view">
+        <main id="MainContent" class="app-view">
           <!--
             Outline view: the primary RDF-subject browser.
             JS appends property-table <div>s (not <tr>s) here.
@@ -66,11 +66,11 @@
           >
           <!-- globalAppTabs appends tab widget here -->
           </section>
-        </div> <!-- .app-view -->
+        </main> <!-- .app-view -->
       </div> <!-- .app-shell -->
 
       <div id="MenuOverlay" class="menu-overlay" hidden aria-hidden="true"></div>
-    </main>
+    </div>
 
     <!-- Footer — populated by solid-ui initFooter() -->
     <footer id="PageFooter" role="contentinfo">

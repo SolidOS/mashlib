@@ -76,7 +76,6 @@
   --dialog-cancel-button-hover-background: var(--blue-900, #083575);
   --dialog-cancel-button-hover-text: var(--white, #FFF);
   --dialog-cancel-button-hover-border: var(--blue-900, #083575);
-  --color-header-menu-item-hover: var(--lavender-300, #e6dcff);
  
   /* Error dialog box colors */
   --dialog-error-background: var(--pink-500, #ffdde6);

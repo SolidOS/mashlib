@@ -41,11 +41,11 @@ html, body {
 
 #MainContent {
   flex: 1 1 auto;
+  min-width: 0;
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;   /* smooth iOS scroll */
   container-type: inline-size;          /* enable @container queries */
-  display: flex;
 }
 
 #PageFooter {
@@ -56,7 +56,7 @@ html, body {
 /* ── New responsive app nav layout ── */
 .app-shell {
   display: flex;
-  flex: 1;          /* expand to fill #MainContent (display:flex row container) */
+  flex: 1;          /* expand to fill .app-shell row */
   min-width: 0;     /* prevent overflow in flex context */
   min-height: calc(100vh - var(--app-header-height) - 2.5rem); /* header + footer space */
   margin-top: var(--app-header-height);

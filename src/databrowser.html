@@ -7,6 +7,25 @@
     <script>
       document.addEventListener('DOMContentLoaded', function() {
         panes.runDataBrowser()
+
+        var header = document.getElementById('mainSolidUiHeader')
+        if (!header) return
+
+        var syncHeaderHeight = function () {
+          var height = header.getBoundingClientRect().height
+          if (height > 0) {
+            document.documentElement.style.setProperty(
+              '--app-header-height', height + 'px'
+            )
+          }
+        }
+
+        syncHeaderHeight()
+        if ('ResizeObserver' in window) {
+          new ResizeObserver(syncHeaderHeight).observe(header)
+        } else {
+          window.addEventListener('resize', syncHeaderHeight)
+        }
       })
     </script>
   </head>
@@ -31,7 +50,7 @@
     -->
 
     <!-- Main content area — single visible region at a time -->
-    <div tabindex="-1" aria-live="polite">
+    <div class="app-main" tabindex="-1" aria-live="polite">
       <div class="app-shell">
         <aside id="NavMenu" class="app-nav" aria-label="Application menu" hidden>
           <div id="NavMenuContent" class="menu-content"></div>

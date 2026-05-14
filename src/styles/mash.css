@@ -9,7 +9,7 @@
   --app-header-height: 3.8rem;
 }
 
-html, body {
+html {
   margin: 0;
   padding: 0;
   font-family: var(--font-family-base);
@@ -20,9 +20,20 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  min-height: 100dvh;        /* dvh = dynamic viewport for mobile chrome */
+}
+
+body {
+  margin: 0;
+  padding-top: var(--app-header-height); /* reserve space for fixed header */
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;        /* dvh = dynamic viewport for mobile chrome */
+  min-height: 100dvh;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  background: inherit;
+  color: inherit;
 }
 
 #PageHeader,
@@ -41,11 +52,12 @@ html, body {
 
 #MainContent {
   flex: 1 1 auto;
-  min-width: 0;
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;   /* smooth iOS scroll */
   container-type: inline-size;          /* enable @container queries */
+  display: flex;
+  flex-direction: column;
 }
 
 #PageFooter {
@@ -54,12 +66,17 @@ html, body {
 
 
 /* ── New responsive app nav layout ── */
+.app-main {
+  display: flex;
+  flex: 1 1 auto;       /* let the wrapper grow inside body's flex column */
+  min-height: 0;
+}
+
 .app-shell {
   display: flex;
-  flex: 1;          /* expand to fill .app-shell row */
+  flex: 1;          /* expand to fill .app-main */
   min-width: 0;     /* prevent overflow in flex context */
-  min-height: calc(100vh - var(--app-header-height) - 2.5rem); /* header + footer space */
-  margin-top: var(--app-header-height);
+  min-height: 0;    /* allow children to shrink correctly */
 }
 
 .app-nav {
@@ -75,7 +92,7 @@ html, body {
 
 .app-view {
   flex: 1;
-  padding: 1rem;
+  padding: 0 1rem 1rem;  /* no top padding — sit flush under fixed header */
   min-width: 0;
 }
 
@@ -109,7 +126,7 @@ html, body {
   }
 
   .app-view {
-    padding: 1rem 0.75rem;
+    padding: 0 0.75rem 1rem;
   }
 
   #MenuToggleBtn {

@@ -20,7 +20,6 @@ html[data-theme="dark"] {
   --color-text-ui: var(--gray-800, #1E2939);
   --color-text-control: var(--gray-100, #F3F4F6);
   --color-text-primary: var(--gray-300, #D1D5DC);
-  --color-text-light: #555;
   --color-text-link: #66b3ff;
   --color-text-link-visited: #66b3ff;
   --color-text-link-hover: #66b3ff;

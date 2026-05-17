@@ -67,11 +67,14 @@ global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
 
   // Authenticate the user
   SolidLogic.authn.checkUser()
-    .then(() => panes.initMainPage(SolidLogic.solidLogicSingleton.store, uri))
+    .then(() => panes.initMainPage(
+      SolidLogic.solidLogicSingleton.store,
+      uri,
+      buildRenderEnvironment()
+    ))
     .then(() => {
-      // Inject render environment into pane context after outliner exists
+      // Re-sync in case layout/theme changed between snapshot and outliner init
       syncEnvironmentToContext('initMainPage')
-      
     })
     .catch(() => undefined)
 

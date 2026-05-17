@@ -14,8 +14,12 @@
         var syncHeaderHeight = function () {
           var height = header.getBoundingClientRect().height
           if (height > 0) {
+            var rootFontSize = parseFloat(
+              getComputedStyle(document.documentElement).fontSize
+            )
             document.documentElement.style.setProperty(
-              '--app-header-height', height + 'px'
+              '--app-header-height',
+              (height / rootFontSize) + 'rem'
             )
           }
         }

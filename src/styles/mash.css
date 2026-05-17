@@ -28,7 +28,9 @@ body {
   padding-top: 0;
   display: flex;
   flex-direction: column;
+  height: 100dvh;
   min-height: auto;
+  overflow: hidden;
   font-family: inherit;
   font-size: inherit;
   line-height: inherit;
@@ -67,11 +69,13 @@ body {
 
 /* ── New responsive app nav layout ── */
 .app-main {
-  position: relative;
+  position: static;
   display: flex;
   flex: 1 1 auto;       /* let the wrapper grow inside body's flex column */
   min-height: 0;
-  top: var(--app-header-height);
+  margin-top: var(--app-header-height);
+  height: calc(100dvh - var(--app-header-height));
+  top: auto;
 }
 
 .app-shell {

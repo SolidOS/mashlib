@@ -21,7 +21,7 @@ html {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   min-height: auto;
-  min-width: 350px;
+  min-width: 375px;
 }
 
 body {
@@ -31,7 +31,7 @@ body {
   flex-direction: column;
   height: 100dvh;
   min-height: auto;
-  min-width: 350px;
+  min-width: 375px;
   overflow: hidden;
   font-family: inherit;
   font-size: inherit;

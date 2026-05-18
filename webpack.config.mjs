@@ -66,6 +66,11 @@ function createCommonConfig (resolutionMode) {
       path: path.resolve(process.cwd(), 'dist'),
       // Use /mashlib/dist/ for GitHub Pages, / for localhost
       publicPath: process.env.PUBLIC_PATH || '/',
+      chunkFilename: 'mashlib-chunks/[contenthash].js',
+      // Worker scripts emitted via `new Worker(new URL('./x.js', import.meta.url))`
+      // are output as asset modules — direct them into /mashlib-chunks/ too so
+      // the CSS folder route serves them.
+      assetModuleFilename: 'mashlib-chunks/[hash][ext][query]',
       library: {
         name: 'Mashlib',
         type: 'umd'

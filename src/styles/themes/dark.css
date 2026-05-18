@@ -7,8 +7,19 @@ html[data-theme="dark"] {
   /* Background and Text */
   --color-background: #1e1e1e;
   --color-text: #e0e0e0;
-  --color-text-secondary: #999;
+  --color-text-secondary: var(--gray-400, #99A1AF);
+  --color-text-subheading: var(--gray-100, #F3F4F6);
+  --color-text-detail: var(--gray-300, #D1D5DC);
+  --color-text-empty-state: var(--gray-200, #E5E7EB);
+  --color-icon-muted: var(--gray-400, #99A1AF); 
+  --color-text-overlay: var(--gray-100, #F3F4F6);
+  --color-text-accent-subtle: var(--gray-100, #F3F4F6);
+  --color-text-strong: var(--gray-100, #F3F4F6);
+  --color-text-strong-secondary: var(--gray-200, #E5E7EB);
   --color-text-light: #555;
+  --color-text-ui: var(--gray-800, #1E2939);
+  --color-text-control: var(--gray-100, #F3F4F6);
+  --color-text-primary: var(--gray-300, #D1D5DC);
   --color-text-link: #66b3ff;
   --color-text-link-visited: #66b3ff;
   --color-text-link-hover: #66b3ff;
@@ -18,6 +29,36 @@ html[data-theme="dark"] {
   --color-text-dark-gray: #d4d4d4;
   --color-text-blue: #7cb9ff;
   --color-text-brown: #c4a660;
+  
+   /* Button colors */
+  --color-surface-action: var(--color-primary, #B388FF);
+  --color-surface-action-hover: #c39cff;
+  --color-surface-accent-subtle: var(--grey-purple-900, #332746);
+  --color-surface-accent-subtle-hover: var(--grey-purple-700, #5e546d);
+  --color-surface-overlay: var(--gray-800, #1E2939);
+  --color-surface-overlay-header: var(--gray-900, #101828);
+  --color-surface-tertiary: var(--gray-800, #1E2939);
+  --color-surface-tertiary-hover: var(--gray-900, #101828);
+  --color-surface-chip: var(--color-card-bg, #2a2a2a);
+  --color-surface-framed-content: var(--color-card-bg, #2a2a2a);
+  --color-surface-placeholder: var(--gray-700, #364153);
+  --color-surface-subtle: rgba(255, 255, 255, 0.08);
+  --color-text-on-action: var(--gray-900, #101828);
+  --color-border-muted: var(--color-border-light, #666);
+  --color-border-action: var(--color-primary, #B388FF);
+  --color-focus-ring: var(--color-primary, #B388FF);
+  --color-focus-gap: var(--gray-900, #101828);
+  --dialog-cancel-button-background: transparent;
+  --dialog-cancel-button-text: var(--gray-100, #F3F4F6);
+  --dialog-cancel-button-border: var(--color-border-light, #666);
+  --dialog-cancel-button-hover-background: var(--color-primary, #B388FF);
+  --dialog-cancel-button-hover-text: var(--color-text-on-action, #1e1e1e);
+  --dialog-cancel-button-hover-border: var(--color-primary, #B388FF);
+
+  /* Error dialog box colors */
+  --dialog-error-background: rgba(176, 0, 32, 0.18);
+  --dialog-error-border: rgba(255, 118, 154, 0.5);
+  --dialog-error-text: #ffbbcd;
   
   /* Header */
   --color-header-row-bg: var(--grey-purple-900, #332746);
@@ -33,10 +74,14 @@ html[data-theme="dark"] {
   /* Borders */
   --color-border: #444;
   --color-border-dark: #555;
-  --color-border-darker: #333;
+  --color-border-darker: var(--gray-800, #1E2939);
   --color-border-light: #666;
+  --color-border-lighter: var(--gray-700, #364153);
+  --color-border-subtle: var(--gray-700, #364153);
   --color-border-pale: #555;
   --color-border-accent: #9999dd;
+  --color-border-button: var(--gray-700, #364153);
+  --color-border-button-hover: var(--gray-600, #4A5565);
   
   /* Status Colors */
   --color-selected-bg: #4a6e3a;
@@ -186,6 +231,7 @@ html[data-theme="dark"] {
   --box-shadow-sm: 0 1px 4px rgba(0,0,0,0.2);
   --box-shadow-active: 0 1px 2px rgba(124, 77, 255, 0.3);
   --box-shadow-focus: 0 0 0 5px rgba(124, 77, 255, 0.35);
+  --box-shadow-focus-accessible: 0 0 0 var(--focus-ring-width) var(--color-background), 0 0 0 calc(var(--focus-ring-width) + var(--focus-indicator-width)) var(--color-primary-alpha);
   --box-shadow-hover: 0 2px 4px rgba(124, 77, 255, 0.3);
   --box-shadow-modal: 0 2px 10px rgba(0, 0, 0, 0.5);
   --box-shadow-overlay: 0 4px 24px rgba(0, 0, 0, 0.4);

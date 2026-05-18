@@ -25,7 +25,7 @@ const workspaceAliases = {
   'solid-panes$': path.resolve('../solid-panes/src/index.ts'),
   'solid-ui$': path.resolve('../solid-ui/src/index.ts'),
   'UI$': path.resolve('../solid-ui/src/index.ts'),
-  'solid-ui/components/header$': path.resolve('../solid-ui/src/v2/components/header/index.ts'),
+  'solid-ui/components/header$': path.resolve('../solid-ui/src/v2/components/layout/header/index.ts'),
 }
 
 function getResolutionMode (env = {}) {
@@ -186,7 +186,7 @@ export default (env, args) => {
 
   // For dev server or watch mode, return only unminified config (preserves console.log)
   if (process.env.WEBPACK_SERVE || args.mode === 'development' || isWatchMode) {
-    return {
+    const developmentBundle = {
       ...common,
       mode: 'development',
       output: {
@@ -199,6 +199,19 @@ export default (env, args) => {
         minimize: false
       }
     }
+
+    // Keep both bundle names in sync during watch/dev runs because downstream
+    // servers and templates may reference either path.
+    return [
+      developmentBundle,
+      {
+        ...developmentBundle,
+        output: {
+          ...developmentBundle.output,
+          filename: 'mashlib.min.js'
+        }
+      }
+    ]
   }
 
   // UMD Minified, everything bundled

@@ -595,7 +595,7 @@
   border-radius: var(--border-radius-base, 0.3125rem);
   border: 1px solid var(--gray-400, #99A1AF);
   background: var(--white, #FFF);
-  color: var(--gray-900, #101828);
+  color: var(--color-text-subheading, var(--gray-900, #101828));
   font-size: var(--font-size-sm, 0.875rem);
   font-weight: var(--font-weight-medium, 500);
   padding: var(--spacing-2xs, 0.625rem);
@@ -614,7 +614,7 @@
 }
 
 .label {
-  color: var(--gray-600, #4A5565);
+  color: var(--color-text-secondary, #4A5565);
   font-size: var(--font-size-sm, 0.875rem);
   font-weight: var(--font-weight-regular, 400);
 }

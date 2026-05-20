@@ -22,6 +22,8 @@ const packageAliases = {
 }
 
 const workspaceAliases = {
+  'solid-logic': path.resolve('../solid-logic/src/index.ts'),
+  'SolidLogic': path.resolve('../solid-logic/src/index.ts'),
   'solid-panes$': path.resolve('../solid-panes/src/index.ts'),
   'solid-ui$': path.resolve('../solid-ui/src/index.ts'),
   'UI$': path.resolve('../solid-ui/src/index.ts'),
@@ -29,7 +31,8 @@ const workspaceAliases = {
 }
 
 function getResolutionMode (env = {}) {
-  const resolutionMode = env.resolutionMode || process.env.MASHLIB_RESOLUTION_MODE || PACKAGE_RESOLUTION_MODE
+  const isDevServeOrWatch = Boolean(process.env.WEBPACK_SERVE || process.argv.includes('--watch'))
+  const resolutionMode = env.resolutionMode || process.env.MASHLIB_RESOLUTION_MODE || (isDevServeOrWatch ? WORKSPACE_RESOLUTION_MODE : PACKAGE_RESOLUTION_MODE)
   if (resolutionMode !== PACKAGE_RESOLUTION_MODE && resolutionMode !== WORKSPACE_RESOLUTION_MODE) {
     throw new Error(`Invalid mashlib webpack resolution mode: ${resolutionMode}. Use "${PACKAGE_RESOLUTION_MODE}" or "${WORKSPACE_RESOLUTION_MODE}".`)
   }

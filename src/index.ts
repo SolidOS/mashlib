@@ -67,7 +67,11 @@ global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
 
   // Authenticate the user
   SolidLogic.authn.checkUser()
-    .then(() => panes.initMainPage(SolidLogic.solidLogicSingleton.store, uri))
+    .then(() => {
+      // Avoid rdflib type identity clashes when workspace packages resolve different node_modules paths.
+      const storeForPanes = SolidLogic.solidLogicSingleton.store as unknown as Parameters<typeof panes.initMainPage>[0]
+      return panes.initMainPage(storeForPanes, uri)
+    })
     .then(() => {
       // Inject render environment into pane context after outliner exists
       syncEnvironmentToContext('initMainPage')

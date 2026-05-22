@@ -7,7 +7,7 @@ declare global {
 }
 
 if (typeof window !== 'undefined' && !window.__SOLID_LOGIC_WORKER_URL__) {
-  window.__SOLID_LOGIC_WORKER_URL__ = new URL('./RefreshWorker.js', window.location.href).toString()
+  window.__SOLID_LOGIC_WORKER_URL__ = new URL('/RefreshWorker.js', window.location.origin).toString()
 }
 
 export {}

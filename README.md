@@ -57,6 +57,16 @@ Use these scripts for local workspace builds:
 
 `npm run build`, `npm run watch`, and `npm run start` stay on default package resolution.
 
+### Authentication worker asset (solid-logic)
+
+mashlib relies on solid-logic authentication and should serve the refresh worker as a same-origin static asset.
+
+- Worker file to serve: `RefreshWorker.js`
+- Runtime override (optional): `window.__SOLID_LOGIC_WORKER_URL__`
+
+See solid-logic runtime contract details in:
+https://github.com/solidos/solid-logic#worker-asset-and-runtime-configuration
+
 ## Goals
 
 The goals of mashlib overlap with the [SolidOS Goals](https://solidos.solidcommunity.net/Team/docs/SolidOSNorthStar.html).

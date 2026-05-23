@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
     <title>SolidOS</title>
     <script>
-      if (!window.__SOLID_LOGIC_WORKER_URL__) {
-        window.__SOLID_LOGIC_WORKER_URL__ = new URL('/RefreshWorker.js', window.location.origin).toString()
-      }
-    </script>
-    <script>
       document.addEventListener('DOMContentLoaded', function() {
         panes.runDataBrowser()
       })

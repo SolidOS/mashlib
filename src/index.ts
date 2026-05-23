@@ -3,7 +3,6 @@
 // (they declare `solid-logic` and `rdflib` as UMD externals with
 // root: "SolidLogic" / "$rdf").
 import './globals'
-import './worker-config'
 
 import * as $rdf from 'rdflib'
 import * as SolidLogic from 'solid-logic'

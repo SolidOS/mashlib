@@ -133,8 +133,7 @@ function createCommonConfig (resolutionMode) {
       new NodePolyfillPlugin(),
       new CopyPlugin({
         patterns: [
-          { from: 'static', to: '.' },
-          { from: 'node_modules/solid-logic/dist/RefreshWorker.js', to: 'RefreshWorker.js' }
+          { from: 'static', to: '.' }
         ]
       })
     ],

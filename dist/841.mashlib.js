@@ -11710,6 +11710,7 @@ function _stringHashCompare(a, b) {
 (__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
+var __webpack_unused_export__;
 /**
  * An implementation of the RDF Dataset Normalization specification.
  * This library works in the browser and node.js.
@@ -11909,7 +11910,7 @@ exports.canonize = async function(input, options = {}) {
  * @returns {Promise<object>} - A Promise that resolves to the canonicalized
  *   RDF Dataset.
  */
-exports._canonizeSync = function(input, options = {}) {
+__webpack_unused_export__ = function(input, options = {}) {
   const dataset = _inputToDataset(input, options);
   _checkOutputFormat(options);
 

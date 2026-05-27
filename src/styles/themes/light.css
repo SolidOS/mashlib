@@ -52,19 +52,56 @@
   --black: #000;  /* Used for: text heading */
   --white: #FFF;
 
+
+  /* Button colors */
+  --color-surface-action: var(--color-primary, #7C4DFF);
+  --color-surface-action-hover: #6d3cf2;
+  --color-surface-accent-subtle: var(--lavender-300, #e6dcff);
+  --color-surface-accent-subtle-hover: var(--lavender-200, #E4DBFE);
+  --color-surface-overlay: var(--white, #FFF);
+  --color-surface-overlay-header: var(--slate-50, #F8FAFC);
+  --color-surface-tertiary: var(--gray-50, #F9FAFB);
+  --color-surface-tertiary-hover: var(--gray-100, #F3F4F6);
+  --color-surface-chip: var(--gray-100, #F3F4F6);
+  --color-surface-framed-content: var(--color-surface-tertiary-hover, var(--gray-100, #F3F4F6));
+  --color-surface-subtle: rgba(15, 23, 43, 0.04);
+  --color-text-on-action: var(--white, #FFF);
+  --color-border-muted: var(--gray-300, #D1D5DC);
+  --color-border-action: var(--color-primary, #7C4DFF);
+  --color-focus-ring: var(--color-primary, #7C4DFF);
+  --color-focus-gap: var(--white, #FFF);
+  --dialog-cancel-button-background: transparent;
+  --dialog-cancel-button-text: var(--gray-800, #1E2939);
+  --dialog-cancel-button-border: var(--gray-300, #D1D5DC);
+  --dialog-cancel-button-hover-background: var(--blue-900, #083575);
+  --dialog-cancel-button-hover-text: var(--white, #FFF);
+  --dialog-cancel-button-hover-border: var(--blue-900, #083575);
+ 
+  /* Error dialog box colors */
+  --dialog-error-background: var(--pink-500, #ffdde6);
+  --dialog-error-border: var(--pink-700, #ff98b3);
+  --dialog-error-text: var(--red-600, #B00020);
+  
   /* Background and Text */
   --color-background-old: #FFFFFF; /* White */
   --color-background: #F8F9FB; /* Light grey for overall background */
   --color-background-row-default: white;
   --color-background-row-alternate: #f0f0f0;
   --color-text: #1A1A1A; /* Used in login button */
+  --color-text-ui: var(--gray-100, #F3F4F6);
   --color-text-primary: var(--gray-700, #364153); /* new design */
+  --color-text-control: var(--slate-700, #314158);
   --color-text-secondary-old: #666;
   --color-text-secondary: var(--gray-600, #4A5565);
   --color-text-heading: var(--black, #000000); /* New design uses pure black for headings */
   --color-text-subheading: var(--gray-900, #101828); /* new design */
+  --color-text-overlay: var(--gray-800, #1E2939);
+  --color-text-accent-subtle: var(--color-text-control, var(--slate-700, #314158));
   --color-text-strong: var(--slate-900, #0F172B); /* new design */
   --color-text-strong-secondary: var(--slate-800, #1D293D); /* new design */
+  --color-text-detail: var(--slate-500, #62748E);
+  --color-text-empty-state: var(--gray-400, #99A1AF);
+  --color-icon-muted: var(--slate-400, #90A1B9);
   --color-text-light: #aaa;
   --color-text-link: #3B5998;
   --color-text-link-visited: #3B5998;
@@ -93,16 +130,19 @@
   --color-border-dark: #777;
   --color-border-darker: var(--gray-600, #4A5565); /* old #444 */
   --color-border-light: #aaa;
+  --color-border-subtle: var(--gray-100, #F3F4F6);
   --color-border-pale: #eee;
   --color-border-accent: #88c;
+  --color-border-button: var(--gray-300, #D1D5DC);
+  --color-border-button-hover: var(--gray-400, #99A1AF);
   
   /* Status Colors */
-  --color-selected-bg: #8F3;
-  --color-warning: red;
+  --color-selected-bg: var(--lavender-300, #e6dcff);
+  --color-warning: var(--red-600, #B00020);
   --color-success-bg: #dfd;
   --color-success-border: green;
   --color-failure-bg: white;
-  --color-failure-border: red;
+  --color-failure-border: var(--red-600, #B00020);
   
   /* Info and Alert Colors */
   --color-info-bg: #ccccff;
@@ -279,6 +319,7 @@
   --box-shadow-sm: 0 1px 4px rgba(124,77,255,0.12); /* Used in login button */
   --box-shadow-active: 0 1px 2px rgba(124, 77, 255, 0.2);
   --box-shadow-focus: 0 0 0 5px rgba(124, 77, 255, 0.25);
+  --box-shadow-focus-accessible: 0 0 0 var(--focus-ring-width) var(--color-background), 0 0 0 calc(var(--focus-ring-width) + var(--focus-indicator-width)) var(--color-primary-alpha);
   --box-shadow-hover: 0 2px 4px rgba(124, 77, 255, 0.2);
   --box-shadow-modal: 0 2px 10px rgba(0, 0, 0, 0.3);
   --box-shadow-overlay: 0 4px 24px rgba(0, 0, 0, 0.2);

@@ -12,6 +12,8 @@ import * as panes from 'solid-panes'
 import { layout } from './layout'
 import { theme } from './theme'
 import versionInfo from './versionInfo'
+import 'solid-ui/design-system.css'
+import 'solid-ui/primitives.css'
 import './styles/mash.css'
 
 const global: any = window

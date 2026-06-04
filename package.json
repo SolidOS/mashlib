@@ -1,6 +1,6 @@
 {
   "name": "mashlib",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Data mashup library",
   "main": "dist/mashlib.js",
   "files": [
@@ -57,8 +57,8 @@
     "pane-registry": "^3.1.1",
     "rdflib": "^2.3.9",
     "solid-logic": "^4.0.7",
-    "solid-panes": "^4.4.1",
-    "solid-ui": "^3.1.1"
+    "solid-panes": "^4.4.2",
+    "solid-ui": "^3.1.2"
   },
   "overrides": {
     "rdflib": "$rdflib",

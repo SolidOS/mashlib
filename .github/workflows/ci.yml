@@ -75,6 +75,9 @@ jobs:
           
   npm-publish-dev:
     needs: build
+    permissions:
+      id-token: write
+      contents: read
     uses: SolidOS/solidos/.github/workflows/publish-prerelease.yml@main
     with:
       node_version: 22

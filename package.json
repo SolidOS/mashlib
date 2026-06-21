@@ -54,11 +54,11 @@
   },
   "homepage": "https://github.com/solidos/mashlib",
   "dependencies": {
-    "pane-registry": "^3.1.1",
+    "pane-registry": "^3.1.2-test.0",
     "rdflib": "^2.3.9",
-    "solid-logic": "^4.0.7",
-    "solid-panes": "^4.4.2",
-    "solid-ui": "^3.1.2"
+    "solid-logic": "^4.0.8-test.0",
+    "solid-panes": "^4.4.2-0",
+    "solid-ui": "^3.1.3-0"
   },
   "overrides": {
     "rdflib": "$rdflib",
@@ -90,6 +90,12 @@
     "webpack-cli": "^7.0.2",
     "webpack-dev-server": "^5.2.4"
   },
+  "solidosDependencies": [
+    "rdflib",
+    "solid-logic",
+    "solid-ui",
+    "pane-registry"
+  ],
   "bundlesize": [
     {
       "path": "./dist/*.min.js",
@@ -101,11 +107,5 @@
       "maxSize": "3 MB",
       "compression": "brotli"
     }
-  ],
-  "solidosDependencies": [
-    "rdflib",
-    "solid-logic",
-    "solid-ui",
-    "pane-registry"
   ]
 }

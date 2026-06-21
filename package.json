@@ -58,7 +58,7 @@
     "patch-package": "^8.0.1",
     "rdflib": "2.3.9",
     "solid-logic": "4.0.8-0",
-    "solid-panes": "^4.4.2",
+    "solid-panes": "^4.4.2-1",
     "solid-ui": "^3.1.3-1"
   },
   "overrides": {
@@ -95,7 +95,8 @@
     "rdflib",
     "solid-logic",
     "solid-ui",
-    "pane-registry"
+    "pane-registry",
+    "solid-panes"
   ],
   "bundlesize": [
     {

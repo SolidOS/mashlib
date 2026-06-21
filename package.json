@@ -101,5 +101,11 @@
       "maxSize": "3 MB",
       "compression": "brotli"
     }
+  ],
+  "solidosDependencies": [
+    "rdflib",
+    "solid-logic",
+    "solid-ui",
+    "pane-registry"
   ]
 }

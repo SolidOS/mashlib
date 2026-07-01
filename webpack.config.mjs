@@ -60,6 +60,7 @@ function createCommonConfig (resolutionMode) {
     target: 'web',
     output: {
       path: path.resolve(process.cwd(), 'dist'),
+      chunkFilename: '[name].js',
       // Use /mashlib/dist/ for GitHub Pages, / for localhost
       publicPath: process.env.PUBLIC_PATH || '/',
       library: {

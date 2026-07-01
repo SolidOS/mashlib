@@ -34,70 +34,58 @@
     </script>
   </head>
   <body id="PageBody" data-app-shell="databrowser">
+    <solid-ui-provider>
+        <!-- Skip-navigation link (accessibility) -->
+        <a href="#MainContent" class="skip-link">Skip to main content</a>
 
-    <!-- Skip-navigation link (accessibility) -->
-    <a href="#MainContent" class="skip-link">Skip to main content</a>
+        <!--  Header — populated by solid-panes createHeader(), plus responsive menu toggle -->
 
-    <!--  Header — populated by solid-panes createHeader(), plus responsive menu toggle -->
-    <solid-ui-header id="mainSolidUiHeader" theme="" layout="" brand-link="/">
-      <span slot="title"></span>
-    </solid-ui-header>
-<!--
-    <header id="PageHeader" role="banner">
-      <div class="page-header-inner">
-        <button id="MenuToggleBtn" class="menu-toggle" aria-controls="NavMenu" aria-expanded="false" hidden>
-          ☰
-          <span class="sr-only">Menu</span>
-        </button>
-      </div>
-    </header
-    -->
+        <!-- Main content area — single visible region at a time -->
+        <div class="app-main" tabindex="-1" aria-live="polite">
+        <div class="app-shell">
+            <aside id="NavMenu" class="app-nav" aria-label="Application menu" hidden>
+            <div id="NavMenuContent" class="menu-content"></div>
+            </aside>
 
-    <!-- Main content area — single visible region at a time -->
-    <div class="app-main" tabindex="-1" aria-live="polite">
-      <div class="app-shell">
-        <aside id="NavMenu" class="app-nav" aria-label="Application menu" hidden>
-          <div id="NavMenuContent" class="menu-content"></div>
-        </aside>
+            <main id="MainContent" class="app-view">
+            <!--
+                Outline view: the primary RDF-subject browser.
+                JS appends property-table <div>s (not <tr>s) here.
+            -->
+            <table
+                id="OutlineView"
+                class="outline-view"
+                aria-label="Resource browser"
+            >
+            <!--
+                Pane icon tray (nav) and pane content are injected here by
+                OutlineManager.GotoSubject / propertyTable / outlineExpand.
+                Each subject block is a <article class="subject-block">.
+            -->
+            </table>
 
-        <main id="MainContent" class="app-view">
-          <!--
-            Outline view: the primary RDF-subject browser.
-            JS appends property-table <div>s (not <tr>s) here.
-          -->
-          <table
-            id="OutlineView"
-            class="outline-view"
-            aria-label="Resource browser"
-          >
-          <!-- 
-            Pane icon tray (nav) and pane content are injected here by
-            OutlineManager.GotoSubject / propertyTable / outlineExpand.
-            Each subject block is a <article class="subject-block">.
-          -->
-          </table>
-           
-          <!--
-            Global Dashboard: preferences, profile, contacts, etc.
-            Hidden by default; toggled by showDashboard / closeDashboard.
-          -->
-          <section
-            id="GlobalDashboard"
-            class="global-dashboard"
-            aria-label="Dashboard"
-            hidden
-          >
-          <!-- globalAppTabs appends tab widget here -->
-          </section>
-        </main> <!-- .app-view -->
-      </div> <!-- .app-shell -->
+            <!--
+                Global Dashboard: preferences, profile, contacts, etc.
+                Hidden by default; toggled by showDashboard / closeDashboard.
+            -->
+            <section
+                id="GlobalDashboard"
+                class="global-dashboard"
+                aria-label="Dashboard"
+                hidden
+            >
+            <!-- globalAppTabs appends tab widget here -->
+            </section>
+            </main> <!-- .app-view -->
+        </div> <!-- .app-shell -->
 
-      <div id="MenuOverlay" class="menu-overlay" hidden aria-hidden="true"></div>
-    </div>
+        <div id="MenuOverlay" class="menu-overlay" hidden aria-hidden="true"></div>
+        </div>
 
-    <!-- Footer — populated by solid-ui initFooter() -->
-    <footer id="PageFooter" role="contentinfo">
-      <!-- solid-ui injects: "Powered by Solid" link -->
-    </footer>
+        <!-- Footer — populated by solid-ui initFooter() -->
+        <footer id="PageFooter" role="contentinfo">
+        <!-- solid-ui injects: "Powered by Solid" link -->
+        </footer>
+    </solid-ui-provider>
   </body>
 </html>

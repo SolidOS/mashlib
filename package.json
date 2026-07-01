@@ -59,13 +59,7 @@
     "rdflib": "2.3.9",
     "solid-logic": "4.0.8-0",
     "solid-panes": "4.4.2-1",
-    "solid-ui": "3.1.3-1"
-  },
-  "overrides": {
-    "rdflib": "$rdflib",
-    "solid-logic": "$solid-logic",
-    "solid-ui": "$solid-ui",
-    "pane-registry": "$pane-registry"
+    "solid-ui": "3.1.3-5"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.6",

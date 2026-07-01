@@ -227,8 +227,6 @@
   --color-pending-edit: #bbb;
   
   /* Typography */
-  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-family-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-size-base-old: 100%;
   --font-size-base: 1rem;      /* 16px */
   --font-size-strong: 120%;

@@ -7,12 +7,12 @@ import './globals'
 import * as $rdf from 'rdflib'
 import * as SolidLogic from 'solid-logic'
 import type { RenderEnvironment } from 'pane-registry'
-import 'solid-ui/components/header'
 import * as panes from 'solid-panes'
 import { layout } from './layout'
 import { theme } from './theme'
 import versionInfo from './versionInfo'
 import './styles/mash.css'
+import 'solid-ui/components/provider'
 
 const global: any = window
 global.panes = panes

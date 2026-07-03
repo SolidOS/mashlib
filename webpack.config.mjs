@@ -13,14 +13,12 @@ const packageAliases = {
   'rdflib': path.resolve('./node_modules/rdflib'),
   'solid-logic': path.resolve('./node_modules/solid-logic'),
   'UI$': path.resolve('./node_modules/solid-ui/dist/index.esm.js'),
-  'solid-panes$': path.resolve('./node_modules/solid-panes/dist/index.js'),
   'pane-registry': path.resolve('./node_modules/pane-registry'),
   '$rdf': path.resolve('./node_modules/rdflib'),
   'SolidLogic': path.resolve('./node_modules/solid-logic')
 }
 
 const workspaceAliases = {
-  'solid-panes$': path.resolve('../solid-panes/src/index.ts'),
   'UI$': path.resolve('../solid-ui/dist/index.cjs.js'),
 }
 
@@ -78,7 +76,7 @@ function createCommonConfig (resolutionMode) {
         {
           test: /\.(mjs|js|ts)$/,
           exclude: (modulePath) => {
-            if (/node_modules[\/\\]solid-panes[\/\\]src/.test(modulePath)) return false
+            if (/node_modules[/\\]solid-panes[/\\]src/.test(modulePath)) return false
             return /node_modules|bower_components/.test(modulePath)
           },
           use: {
@@ -223,7 +221,7 @@ export default (env, args) => {
     optimization: {
       ...sharedOptimization,
       minimize: true,
-      minimizer: [new TerserPlugin({ 
+      minimizer: [new TerserPlugin({
         extractComments: false,
         terserOptions: {
           compress: {
@@ -236,7 +234,7 @@ export default (env, args) => {
     }
   }
 
-  // UMD Unminified, everything bundled  
+  // UMD Unminified, everything bundled
   const unminified = {
     ...common,
     mode: args.mode || 'production',
@@ -253,4 +251,3 @@ export default (env, args) => {
 
   return [minified, unminified]
 }
-

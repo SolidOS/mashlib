@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const goButton = dom.getElementById('goButton')
     const loginButtonArea = document.getElementById("loginButtonArea");
     const webIdArea = dom.getElementById('webId')
-    const banner = dom.getElementById('inputArea')
+    const banner = dom.getElementById('PageHeader')
     const pageHeader = dom.querySelector('solid-panes-header')
 
     function updateHeaderOffset () {
@@ -142,15 +142,11 @@ document.addEventListener('DOMContentLoaded', function() {
   </solid-ui-provider>
 
   <style>
-    body {
-      padding-top: calc(var(--browse-header-offset, var(--app-header-height, 3.8rem)) + 0.35rem);
-    }
     .outline-view {
       width: 100%;
     }
     .header-mash {
       padding:1em !important;
-      background-color:#ccbbbb !important;
     }
     .input-row {
     }

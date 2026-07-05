@@ -11,11 +11,11 @@ const WORKSPACE_RESOLUTION_MODE = 'workspace'
 
 const packageAliases = {
   'rdflib': path.resolve('./node_modules/rdflib'),
-  'solid-logic': path.resolve('./node_modules/solid-logic'),
+  'solid-logic': path.resolve('./node_modules/solid-logic/dist/index.cjs.js'),
   'UI$': path.resolve('./node_modules/solid-ui/dist/index.esm.js'),
   'pane-registry': path.resolve('./node_modules/pane-registry'),
   '$rdf': path.resolve('./node_modules/rdflib'),
-  'SolidLogic': path.resolve('./node_modules/solid-logic')
+  'SolidLogic': path.resolve('./node_modules/solid-logic/dist/index.cjs.js')
 }
 
 const workspaceAliases = {

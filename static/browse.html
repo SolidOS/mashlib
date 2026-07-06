@@ -18,9 +18,6 @@
   <script type="text/javascript" src="mashlib.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const authn = SolidLogic.authn
-    const authSession = SolidLogic.authSession
-    const store = SolidLogic.store
     const dom = document
     // Disable cross-site proxy - modern Solid servers support CORS
     // $rdf.Fetcher.crossSiteProxyTemplate = self.origin + '/xss?uri={uri}'
@@ -37,15 +34,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
       var subject = $rdf.sym(uri);
       outliner.GotoSubject(subject, true, undefined, true, undefined);
-      mungeLoginArea();
     }
 
     const uriField = dom.getElementById('uriField')
     const goButton = dom.getElementById('goButton')
-    const loginButtonArea = document.getElementById("loginButtonArea");
-    const webIdArea = dom.getElementById('webId')
-    const banner = dom.getElementById('PageHeader')
-    const pageHeader = dom.querySelector('solid-panes-header')
+    const pageHeader = dom.getElementById('PageHeader')
 
     function updateHeaderOffset () {
       if (!pageHeader) return
@@ -68,41 +61,6 @@ document.addEventListener('DOMContentLoaded', function() {
       uriField.value = initial
       go()
     }
-    async function mungeLoginArea(){
-      loginButtonArea.innerHTML="";
-      if(uriField.value) {
-        loginButtonArea.appendChild(UI.login.loginStatusBox(document, null, {}))
-      }
-      const me = authn.currentUser()
-      if (me) {
-        const logoutButton = loginButtonArea.querySelector('input');
-        logoutButton.value = "Logout";
-        let displayId = `&lt;${me.value}>`;
-        webIdArea.innerHTML = displayId;
-        banner.style.backgroundColor="#bbccbb";
-      } else {
-        banner.style.backgroundColor="#ccbbbb";
-      }
-      loginButtonArea.style.display="inline-block";
-      updateHeaderOffset()
-    }
-
-    if (authSession) {
-      authSession.events.on("login", () => {
-        mungeLoginArea();
-        go()
-      })
-      authSession.events.on("logout", () => {
-        mungeLoginArea();
-        webIdArea.innerHTML = "public user";
-        go()
-      })
-      authSession.events.on("sessionRestore", (url) => {
-        mungeLoginArea();
-        go()
-      })
-    }
-    mungeLoginArea();
 });
 </script>
 </head>
@@ -115,11 +73,9 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </header>
     <div class="user-row">
-        As user <span id="webId">&lt;public user></span>
-        <span id="loginButtonArea"></span>
+        <solid-ui-account></solid-ui-account>
     </div>
     <main id="MainContent" tabindex="-1" aria-live="polite" class="browser-main">
-
         <table
             id="OutlineView"
             class="outline-view"
@@ -142,13 +98,14 @@ document.addEventListener('DOMContentLoaded', function() {
   </solid-ui-provider>
 
   <style>
+    body {
+      padding-top: calc(var(--browse-header-offset, var(--app-header-height, 3.8rem)) + 0.35rem);
+    }
     .outline-view {
       width: 100%;
     }
     .header-mash {
       padding:1em !important;
-    }
-    .input-row {
     }
     .browser-main {
       margin-top: 0 !important;
@@ -159,16 +116,6 @@ document.addEventListener('DOMContentLoaded', function() {
       padding-bottom: 0.5em;
       margin-left:1em;
     }
-    #loginButtonArea input {
-      display:inline-block;
-      margin:0.25em !important;
-      padding:0.25em !important;
-    }
-    #webId {
-      display:inline-block;
-      padding-top:0.6em;
-      padding-bottom:0.6em;
-    }
     #uriField, .uri-field {
       font-size:100%;
       min-width:25em;
@@ -176,21 +123,6 @@ document.addEventListener('DOMContentLoaded', function() {
       width:70%;
       margin-top:0.6em !important;
     }
-
-    /* Local fix: make full-screen idp popup overlay appear above all fixed page elements */
-    div[style*="position: fixed"][style*="justify-content: center"][style*="align-items: center"],
-    div[style*="min-width: 400px"][style*="box-shadow"],
-    div[style*="z-index : 10"],
-    div[style*="z-index: 10"] {
-      z-index: 2147483647 !important;
-      top: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      bottom: 0 !important;
-      justify-content: center !important;
-      align-items: center !important;
-    }
-
   </style>
 
 </body>

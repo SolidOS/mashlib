@@ -54,7 +54,7 @@
   },
   "homepage": "https://github.com/solidos/mashlib",
   "dependencies": {
-    "pane-registry": "3.1.2-1",
+    "pane-registry": "3.1.2-2",
     "patch-package": "^8.0.1",
     "rdflib": "2.4.0",
     "solid-logic": "4.0.8-1",

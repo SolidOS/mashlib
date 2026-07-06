@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const goButton = dom.getElementById('goButton')
     const loginButtonArea = document.getElementById("loginButtonArea");
     const webIdArea = dom.getElementById('webId')
-    const banner = dom.getElementById('inputArea')
+    const banner = dom.getElementById('PageHeader')
     const pageHeader = dom.getElementById('PageHeader')
 
     function updateHeaderOffset () {
@@ -139,12 +139,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   <footer id="PageFooter" role="contentinfo"></footer>
   <style>
-    body {
-      padding-top: calc(var(--browse-header-offset, var(--app-header-height, 3.8rem)) + 0.35rem);
-    }
     .header-mash {
       padding:1em !important;
-      background-color:#ccbbbb !important;
     }
     .input-row {
     }

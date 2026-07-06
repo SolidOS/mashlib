@@ -195,18 +195,9 @@ export default (env, args) => {
       }
     }
 
-    // Keep both bundle names in sync during watch/dev runs because downstream
-    // servers and templates may reference either path.
-    return [
-      developmentBundle,
-      {
-        ...developmentBundle,
-        output: {
-          ...developmentBundle.output,
-          filename: 'mashlib.min.js'
-        }
-      }
-    ]
+    // Use a single devServer config for watch/dev runs to avoid duplicate port
+    // conflicts in webpack-dev-server.
+    return developmentBundle
   }
 
   // UMD Minified, everything bundled

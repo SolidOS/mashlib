@@ -53,7 +53,7 @@ function getResolutionMode (env = {}) {
 
 function getResolveConfig (resolutionMode) {
   return {
-    extensions: ['.js', '.ts'],
+    extensions: ['.js', '.ts', '.cjs.js', '.esm.js'],
     alias: {
       ...packageAliases,
       ...(resolutionMode === WORKSPACE_RESOLUTION_MODE ? workspaceAliases : {})

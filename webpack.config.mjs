@@ -12,13 +12,34 @@ const WORKSPACE_RESOLUTION_MODE = 'workspace'
 const packageAliases = {
   'rdflib': path.resolve('./node_modules/rdflib'),
   'solid-logic': path.resolve('./node_modules/solid-logic'),
+  'solid-ui$': path.resolve('./node_modules/solid-ui/dist/index.esm.js'),
+  'solid-ui/components$': path.resolve('./node_modules/solid-ui/dist/components/index.esm.js'),
+  // NOTE: intentionally NO prefix alias for 'solid-ui/components'. solid-ui
+  // ships two parallel outputs for each component:
+  //   dist/components/<name>.js          (shim importing a shared chunk that
+  //                                       INLINES @awesome.me/webawesome)
+  //   dist/components/<name>/index.esm.js (proper leaf entry that keeps
+  //                                        webawesome external)
+  // A prefix alias pointing at dist/components would make webpack pick the
+  // shim, causing duplicate wa-popup / wa-tooltip custom-element registrations
+  // (one from the inlined shared chunk, one from the external webawesome).
+  // Let webpack resolve solid-ui/components/<name> via solid-ui's package.json
+  // `exports` field, which correctly maps to dist/components/<name>/index.esm.js.
   'UI$': path.resolve('./node_modules/solid-ui/dist/index.esm.js'),
   'pane-registry': path.resolve('./node_modules/pane-registry'),
   '$rdf': path.resolve('./node_modules/rdflib'),
-  'SolidLogic': path.resolve('./node_modules/solid-logic')
+  'SolidLogic': path.resolve('./node_modules/solid-logic'),
+  // Force a single copy of @awesome.me/webawesome to avoid duplicate
+  // custom-element registrations (wa-popup, etc.) when both solid-ui and
+  // solid-panes have their own nested copies.
+  '@awesome.me/webawesome': path.resolve('./node_modules/solid-ui/node_modules/@awesome.me/webawesome'),
 }
 
 const workspaceAliases = {
+  'solid-ui$': path.resolve('../solid-ui/dist/index.cjs.js'),
+  'solid-ui/components$': path.resolve('../solid-ui/dist/components/index.cjs.js'),
+  // See packageAliases: no prefix alias for 'solid-ui/components' — the
+  // shim files would shadow the correctly-externalized leaf entries.
   'UI$': path.resolve('../solid-ui/dist/index.cjs.js'),
 }
 

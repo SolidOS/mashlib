@@ -40,6 +40,7 @@ const workspaceAliases = {
   // See packageAliases: no prefix alias for 'solid-ui/components' — the
   // shim files would shadow the correctly-externalized leaf entries.
   'UI$': path.resolve('../solid-ui/dist/index.cjs.js'),
+  '@awesome.me/webawesome': path.resolve('../solid-ui/node_modules/@awesome.me/webawesome'),
 }
 
 function getResolutionMode (env = {}) {

@@ -53,7 +53,8 @@ function getResolutionMode (env = {}) {
 
 function getResolveConfig (resolutionMode) {
   return {
-    extensions: ['.js', '.ts', '.cjs.js', '.esm.js'],
+    symlinks: false,
+    extensions: ['.js', '.mjs', '.ts', '.cjs.js', '.esm.js'],
     alias: {
       ...packageAliases,
       ...(resolutionMode === WORKSPACE_RESOLUTION_MODE ? workspaceAliases : {})
@@ -95,18 +96,40 @@ function createCommonConfig (resolutionMode) {
           type: 'asset/source', // Load the file's content as a string
         },
         {
-          test: /\.(mjs|js|ts)$/,
-          exclude: (modulePath) => {
-            if (/node_modules[/\\]solid-panes[/\\]src/.test(modulePath)) return false
-            return /node_modules|bower_components/.test(modulePath)
-          },
-          use: {
-            loader: 'babel-loader',
-          }
-        },
-        {
-          test: /^.*\/solid-app-set\/.*\.js$/,
-          loader: 'babel-loader'
+          oneOf: [
+            {
+              test: /\.esm\.js$/,
+              include: /solid-logic/,
+              type: 'javascript/esm',
+              use: {
+                loader: 'babel-loader'
+              },
+              parser: {
+                javascript: {
+                  sourceType: 'module'
+                }
+              }
+            },
+            {
+              test: /\.(mjs|js|ts)$/,
+              exclude: (modulePath) => {
+                if (/node_modules[/\\]solid-panes[/\\]src/.test(modulePath)) return false
+                return /node_modules|bower_components/.test(modulePath)
+              },
+              use: {
+                loader: 'babel-loader',
+              },
+              parser: {
+                javascript: {
+                  sourceType: 'unambiguous'
+                }
+              }
+            },
+            {
+              test: /^.*\/solid-app-set\/.*\.js$/,
+              loader: 'babel-loader'
+            }
+          ]
         },
         {
           test: /\.css$/,

@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
       window.history.replaceState({}, '', `${location.origin}${location.pathname}?${params}`);
 
       var subject = $rdf.sym(uri);
-      outliner.GotoSubject(subject, true, undefined, true, undefined);
+      outliner.GotoSubject(subject, true, undefined, true, undefined, false);
     }
 
     const uriField = dom.getElementById('uriField')
@@ -84,14 +84,6 @@ document.addEventListener('DOMContentLoaded', function() {
         >
         </table>
 
-        <section
-            id="GlobalDashboard"
-            class="global-dashboard"
-            aria-label="Dashboard"
-            hidden
-        >
-        </section>
-
     </main>
 
   </solid-ui-provider>
@@ -105,6 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     .header-mash {
       padding:1em !important;
+      background: #bbb !important;
     }
     .browser-main {
       margin-top: 0 !important;

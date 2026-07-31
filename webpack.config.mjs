@@ -30,9 +30,8 @@ const packageAliases = {
   '$rdf': path.resolve('./node_modules/rdflib'),
   'SolidLogic': path.resolve('./node_modules/solid-logic'),
   // Force a single copy of @awesome.me/webawesome to avoid duplicate
-  // custom-element registrations (wa-popup, etc.) when both solid-ui and
-  // solid-panes have their own nested copies.
-  '@awesome.me/webawesome': path.resolve('./node_modules/solid-ui/node_modules/@awesome.me/webawesome'),
+  // custom-element registrations (wa-popup, etc.) from the hoisted install.
+  '@awesome.me/webawesome': path.resolve('./node_modules/@awesome.me/webawesome'),
 }
 
 const workspaceAliases = {

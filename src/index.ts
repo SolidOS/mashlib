@@ -43,7 +43,6 @@ const syncEnvironmentToContext = async (_trigger?: Event | string) => {
   }
 
   panes.updateEnvironment(outliner, buildRenderEnvironment())
-  await panes.refreshUI(outliner)
 }
 
 // Keep environment in sync on layout/theme changes

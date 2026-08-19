@@ -6415,7 +6415,7 @@ api.isBlankNode = v => {
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 const canonize = __webpack_require__(989);
-const platform = __webpack_require__(3082);
+const platform = __webpack_require__(701);
 const util = __webpack_require__(9263);
 const ContextResolver = __webpack_require__(7034);
 const IdentifierIssuer = util.IdentifierIssuer;
@@ -7759,7 +7759,7 @@ api.mergeNodeMaps = graphs => {
 
 /***/ },
 
-/***/ 3082
+/***/ 701
 (module, __unused_webpack_exports, __webpack_require__) {
 
 "use strict";

@@ -202,10 +202,15 @@ export default (env, args) => {
 
     // Keep both bundle names in sync during watch/dev runs because downstream
     // servers and templates may reference either path.
+    // webpack-cli requires a unique port per devServer config.
     return [
       developmentBundle,
       {
         ...developmentBundle,
+        devServer: {
+          ...developmentBundle.devServer,
+          port: 8081
+        },
         output: {
           ...developmentBundle.output,
           filename: 'mashlib.min.js'

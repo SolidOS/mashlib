@@ -13870,10 +13870,10 @@ const shortChatPane = exports.shortChatPane = {
 
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(true)
-		module.exports = factory(__webpack_require__(820), __webpack_require__(3677), __webpack_require__(8230));
+		module.exports = factory(__webpack_require__(8230), __webpack_require__(820), __webpack_require__(3677));
 	else // removed by dead control flow
 {}
-})(globalThis, (__WEBPACK_EXTERNAL_MODULE__941__, __WEBPACK_EXTERNAL_MODULE__104__, __WEBPACK_EXTERNAL_MODULE__53__) => {
+})(globalThis, (__WEBPACK_EXTERNAL_MODULE__53__, __WEBPACK_EXTERNAL_MODULE__941__, __WEBPACK_EXTERNAL_MODULE__104__) => {
 return /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
 /******/ 	var __webpack_modules__ = ({
@@ -13881,9 +13881,6 @@ return /******/ (() => { // webpackBootstrap
 /***/ 903
 (module, __nested_webpack_exports__, __nested_webpack_require_822__) {
 
-/* harmony export */ __nested_webpack_require_822__.d(__nested_webpack_exports__, {
-/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
 /* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __nested_webpack_require_822__(354);
 /* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nested_webpack_require_822__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __nested_webpack_require_822__(314);
@@ -14521,19 +14518,20 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* Focus indicator for keyboard naviga
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
+/* harmony export */ __nested_webpack_require_822__.d(__nested_webpack_exports__, [
+/* harmony export */   "A", 0, /* export default binding */ __WEBPACK_DEFAULT_EXPORT__
+/* harmony export */ ]);
+
 
 /***/ },
 
 /***/ 686
-(module, __nested_webpack_exports__, __nested_webpack_require_41033__) {
+(module, __nested_webpack_exports__, __nested_webpack_require_41060__) {
 
-/* harmony export */ __nested_webpack_require_41033__.d(__nested_webpack_exports__, {
-/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __nested_webpack_require_41033__(354);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nested_webpack_require_41033__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __nested_webpack_require_41033__(314);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nested_webpack_require_41033__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __nested_webpack_require_41060__(354);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nested_webpack_require_41060__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __nested_webpack_require_41060__(314);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nested_webpack_require_41060__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
 // Imports
 
 
@@ -15057,19 +15055,20 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* Solid-UI form */
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
+/* harmony export */ __nested_webpack_require_41060__.d(__nested_webpack_exports__, [
+/* harmony export */   "A", 0, /* export default binding */ __WEBPACK_DEFAULT_EXPORT__
+/* harmony export */ ]);
+
 
 /***/ },
 
 /***/ 93
-(module, __nested_webpack_exports__, __nested_webpack_require_83549__) {
+(module, __nested_webpack_exports__, __nested_webpack_require_83603__) {
 
-/* harmony export */ __nested_webpack_require_83549__.d(__nested_webpack_exports__, {
-/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __nested_webpack_require_83549__(354);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nested_webpack_require_83549__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __nested_webpack_require_83549__(314);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nested_webpack_require_83549__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __nested_webpack_require_83603__(354);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nested_webpack_require_83603__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __nested_webpack_require_83603__(314);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nested_webpack_require_83603__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
 // Imports
 
 
@@ -15194,19 +15193,20 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* ── Group Membership Section ─
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
+/* harmony export */ __nested_webpack_require_83603__.d(__nested_webpack_exports__, [
+/* harmony export */   "A", 0, /* export default binding */ __WEBPACK_DEFAULT_EXPORT__
+/* harmony export */ ]);
+
 
 /***/ },
 
 /***/ 479
-(module, __nested_webpack_exports__, __nested_webpack_require_93158__) {
+(module, __nested_webpack_exports__, __nested_webpack_require_93239__) {
 
-/* harmony export */ __nested_webpack_require_93158__.d(__nested_webpack_exports__, {
-/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __nested_webpack_require_93158__(354);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nested_webpack_require_93158__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __nested_webpack_require_93158__(314);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nested_webpack_require_93158__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __nested_webpack_require_93239__(354);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nested_webpack_require_93239__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __nested_webpack_require_93239__(314);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nested_webpack_require_93239__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
 // Imports
 
 
@@ -15227,19 +15227,20 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* individual.js styles — extracted 
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
+/* harmony export */ __nested_webpack_require_93239__.d(__nested_webpack_exports__, [
+/* harmony export */   "A", 0, /* export default binding */ __WEBPACK_DEFAULT_EXPORT__
+/* harmony export */ ]);
+
 
 /***/ },
 
 /***/ 546
-(module, __nested_webpack_exports__, __nested_webpack_require_95525__) {
+(module, __nested_webpack_exports__, __nested_webpack_require_95633__) {
 
-/* harmony export */ __nested_webpack_require_95525__.d(__nested_webpack_exports__, {
-/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __nested_webpack_require_95525__(354);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nested_webpack_require_95525__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __nested_webpack_require_95525__(314);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nested_webpack_require_95525__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __nested_webpack_require_95633__(354);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nested_webpack_require_95633__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __nested_webpack_require_95633__(314);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nested_webpack_require_95633__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
 // Imports
 
 
@@ -15298,19 +15299,20 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* CSS for the accessible modal dialog
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
+/* harmony export */ __nested_webpack_require_95633__.d(__nested_webpack_exports__, [
+/* harmony export */   "A", 0, /* export default binding */ __WEBPACK_DEFAULT_EXPORT__
+/* harmony export */ ]);
+
 
 /***/ },
 
 /***/ 715
-(module, __nested_webpack_exports__, __nested_webpack_require_99977__) {
+(module, __nested_webpack_exports__, __nested_webpack_require_100112__) {
 
-/* harmony export */ __nested_webpack_require_99977__.d(__nested_webpack_exports__, {
-/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __nested_webpack_require_99977__(354);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nested_webpack_require_99977__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __nested_webpack_require_99977__(314);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nested_webpack_require_99977__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __nested_webpack_require_100112__(354);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nested_webpack_require_100112__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __nested_webpack_require_100112__(314);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nested_webpack_require_100112__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
 // Imports
 
 
@@ -15337,19 +15339,20 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* mugshotGallery.js styles — extrac
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
+/* harmony export */ __nested_webpack_require_100112__.d(__nested_webpack_exports__, [
+/* harmony export */   "A", 0, /* export default binding */ __WEBPACK_DEFAULT_EXPORT__
+/* harmony export */ ]);
+
 
 /***/ },
 
 /***/ 295
-(module, __nested_webpack_exports__, __nested_webpack_require_102674__) {
+(module, __nested_webpack_exports__, __nested_webpack_require_102836__) {
 
-/* harmony export */ __nested_webpack_require_102674__.d(__nested_webpack_exports__, {
-/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __nested_webpack_require_102674__(354);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nested_webpack_require_102674__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __nested_webpack_require_102674__(314);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nested_webpack_require_102674__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __nested_webpack_require_102836__(354);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nested_webpack_require_102836__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __nested_webpack_require_102836__(314);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nested_webpack_require_102836__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
 // Imports
 
 
@@ -15402,19 +15405,20 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* toolsPane.js styles — extracted f
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
+/* harmony export */ __nested_webpack_require_102836__.d(__nested_webpack_exports__, [
+/* harmony export */   "A", 0, /* export default binding */ __WEBPACK_DEFAULT_EXPORT__
+/* harmony export */ ]);
+
 
 /***/ },
 
 /***/ 92
-(module, __nested_webpack_exports__, __nested_webpack_require_106575__) {
+(module, __nested_webpack_exports__, __nested_webpack_require_106764__) {
 
-/* harmony export */ __nested_webpack_require_106575__.d(__nested_webpack_exports__, {
-/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __nested_webpack_require_106575__(354);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nested_webpack_require_106575__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __nested_webpack_require_106575__(314);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nested_webpack_require_106575__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __nested_webpack_require_106764__(354);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nested_webpack_require_106764__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __nested_webpack_require_106764__(314);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nested_webpack_require_106764__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
 // Imports
 
 
@@ -15434,19 +15438,20 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* Shared utility variables for compon
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
+/* harmony export */ __nested_webpack_require_106764__.d(__nested_webpack_exports__, [
+/* harmony export */   "A", 0, /* export default binding */ __WEBPACK_DEFAULT_EXPORT__
+/* harmony export */ ]);
+
 
 /***/ },
 
 /***/ 886
-(module, __nested_webpack_exports__, __nested_webpack_require_108716__) {
+(module, __nested_webpack_exports__, __nested_webpack_require_108932__) {
 
-/* harmony export */ __nested_webpack_require_108716__.d(__nested_webpack_exports__, {
-/* harmony export */   A: () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __nested_webpack_require_108716__(354);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nested_webpack_require_108716__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __nested_webpack_require_108716__(314);
-/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nested_webpack_require_108716__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__ = __nested_webpack_require_108932__(354);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nested_webpack_require_108932__.n(_node_modules_css_loader_dist_runtime_sourceMaps_js__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__ = __nested_webpack_require_108932__(314);
+/* harmony import */ var _node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nested_webpack_require_108932__.n(_node_modules_css_loader_dist_runtime_api_js__WEBPACK_IMPORTED_MODULE_1__);
 // Imports
 
 
@@ -15708,6 +15713,10 @@ ___CSS_LOADER_EXPORT___.push([module.id, `/* ── Named pane (rendered sub-pan
 // Exports
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (___CSS_LOADER_EXPORT___);
 
+/* harmony export */ __nested_webpack_require_108932__.d(__nested_webpack_exports__, [
+/* harmony export */   "A", 0, /* export default binding */ __WEBPACK_DEFAULT_EXPORT__
+/* harmony export */ ]);
+
 
 /***/ },
 
@@ -15856,9 +15865,25 @@ module.exports = function (item) {
 
 /***/ },
 
-/***/ 72
-(module) {
+/***/ 438
+(module, __nested_webpack_exports__, __nested_webpack_require_133441__) {
 
+
+// EXPORTS
+__nested_webpack_require_133441__.d(__nested_webpack_exports__, {
+  "default": () => (/* binding */ src_contactsPane)
+});
+
+// UNUSED EXPORTS: addPersonToGroup, addWebIDToContacts, getPersonas, groupMembers, removeWebIDFromContacts, saveNewContact, saveNewGroup
+
+// EXTERNAL MODULE: external {"commonjs":"solid-logic","commonjs2":"solid-logic","amd":"solid-logic","root":"SolidLogic"}
+var external_commonjs_solid_logic_commonjs2_solid_logic_amd_solid_logic_root_SolidLogic_ = __nested_webpack_require_133441__(941);
+// EXTERNAL MODULE: external {"commonjs":"solid-ui","commonjs2":"solid-ui","amd":"solid-ui","root":"UI"}
+var external_commonjs_solid_ui_commonjs2_solid_ui_amd_solid_ui_root_UI_ = __nested_webpack_require_133441__(104);
+// EXTERNAL MODULE: external {"commonjs":"rdflib","commonjs2":"rdflib","amd":"rdflib","root":"$rdf"}
+var external_commonjs_rdflib_commonjs2_rdflib_amd_rdflib_root_$rdf_ = __nested_webpack_require_133441__(53);
+;// ./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js
+var injectStylesIntoStyleTag_namespaceObject = /*#__PURE__*/__nested_webpack_require_133441__.cjs(function(module, exports) {
 
 
 var stylesInDOM = [];
@@ -15943,84 +15968,11 @@ module.exports = function (list, options) {
     lastIdentifiers = newLastIdentifiers;
   };
 };
+});
 
-/***/ },
-
-/***/ 659
-(module) {
-
-
-
-var memo = {};
-
-/* istanbul ignore next  */
-function getTarget(target) {
-  if (typeof memo[target] === "undefined") {
-    var styleTarget = document.querySelector(target);
-
-    // Special case to return head of iframe instead of iframe itself
-    if (window.HTMLIFrameElement && styleTarget instanceof window.HTMLIFrameElement) {
-      try {
-        // This will throw an exception if access to iframe is blocked
-        // due to cross-origin restrictions
-        styleTarget = styleTarget.contentDocument.head;
-      } catch (e) {
-        // istanbul ignore next
-        styleTarget = null;
-      }
-    }
-    memo[target] = styleTarget;
-  }
-  return memo[target];
-}
-
-/* istanbul ignore next  */
-function insertBySelector(insert, style) {
-  var target = getTarget(insert);
-  if (!target) {
-    throw new Error("Couldn't find a style target. This probably means that the value for the 'insert' parameter is invalid.");
-  }
-  target.appendChild(style);
-}
-module.exports = insertBySelector;
-
-/***/ },
-
-/***/ 540
-(module) {
-
-
-
-/* istanbul ignore next  */
-function insertStyleElement(options) {
-  var element = document.createElement("style");
-  options.setAttributes(element, options.attributes);
-  options.insert(element, options.options);
-  return element;
-}
-module.exports = insertStyleElement;
-
-/***/ },
-
-/***/ 56
-(module, __unused_webpack_exports, __nested_webpack_require_137032__) {
-
-
-
-/* istanbul ignore next  */
-function setAttributesWithoutAttributes(styleElement) {
-  var nonce =   true ? __nested_webpack_require_137032__.nc : 0;
-  if (nonce) {
-    styleElement.setAttribute("nonce", nonce);
-  }
-}
-module.exports = setAttributesWithoutAttributes;
-
-/***/ },
-
-/***/ 825
-(module) {
-
+var injectStylesIntoStyleTag_default = /*#__PURE__*/__nested_webpack_require_133441__.n(injectStylesIntoStyleTag_namespaceObject);
+;// ./node_modules/style-loader/dist/runtime/styleDomAPI.js
+var styleDomAPI_namespaceObject = /*#__PURE__*/__nested_webpack_require_133441__.cjs(function(module, exports) {
 
 
 /* istanbul ignore next  */
@@ -16082,12 +16034,80 @@ function domAPI(options) {
   };
 }
 module.exports = domAPI;
+});
 
-/***/ },
+var styleDomAPI_default = /*#__PURE__*/__nested_webpack_require_133441__.n(styleDomAPI_namespaceObject);
+;// ./node_modules/style-loader/dist/runtime/insertBySelector.js
+var insertBySelector_namespaceObject = /*#__PURE__*/__nested_webpack_require_133441__.cjs(function(module, exports) {
 
-/***/ 113
-(module) {
 
+var memo = {};
+
+/* istanbul ignore next  */
+function getTarget(target) {
+  if (typeof memo[target] === "undefined") {
+    var styleTarget = document.querySelector(target);
+
+    // Special case to return head of iframe instead of iframe itself
+    if (window.HTMLIFrameElement && styleTarget instanceof window.HTMLIFrameElement) {
+      try {
+        // This will throw an exception if access to iframe is blocked
+        // due to cross-origin restrictions
+        styleTarget = styleTarget.contentDocument.head;
+      } catch (e) {
+        // istanbul ignore next
+        styleTarget = null;
+      }
+    }
+    memo[target] = styleTarget;
+  }
+  return memo[target];
+}
+
+/* istanbul ignore next  */
+function insertBySelector(insert, style) {
+  var target = getTarget(insert);
+  if (!target) {
+    throw new Error("Couldn't find a style target. This probably means that the value for the 'insert' parameter is invalid.");
+  }
+  target.appendChild(style);
+}
+module.exports = insertBySelector;
+});
+
+var insertBySelector_default = /*#__PURE__*/__nested_webpack_require_133441__.n(insertBySelector_namespaceObject);
+;// ./node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js
+var setAttributesWithoutAttributes_namespaceObject = /*#__PURE__*/__nested_webpack_require_133441__.cjs(function(module, exports) {
+
+
+/* istanbul ignore next  */
+function setAttributesWithoutAttributes(styleElement) {
+  var nonce =   true ? __nested_webpack_require_133441__.nc : 0;
+  if (nonce) {
+    styleElement.setAttribute("nonce", nonce);
+  }
+}
+module.exports = setAttributesWithoutAttributes;
+});
+
+var setAttributesWithoutAttributes_default = /*#__PURE__*/__nested_webpack_require_133441__.n(setAttributesWithoutAttributes_namespaceObject);
+;// ./node_modules/style-loader/dist/runtime/insertStyleElement.js
+var insertStyleElement_namespaceObject = /*#__PURE__*/__nested_webpack_require_133441__.cjs(function(module, exports) {
+
+
+/* istanbul ignore next  */
+function insertStyleElement(options) {
+  var element = document.createElement("style");
+  options.setAttributes(element, options.attributes);
+  options.insert(element, options.options);
+  return element;
+}
+module.exports = insertStyleElement;
+});
+
+var insertStyleElement_default = /*#__PURE__*/__nested_webpack_require_133441__.n(insertStyleElement_namespaceObject);
+;// ./node_modules/style-loader/dist/runtime/styleTagTransform.js
+var styleTagTransform_namespaceObject = /*#__PURE__*/__nested_webpack_require_133441__.cjs(function(module, exports) {
 
 
 /* istanbul ignore next  */
@@ -16102,163 +16122,11 @@ function styleTagTransform(css, styleElement) {
   }
 }
 module.exports = styleTagTransform;
-
-/***/ },
-
-/***/ 102
-(module) {
-
-module.exports = "data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27%23999%27 viewBox=%270 0 24 24%27 width=%2720%27 height=%2720%27%3E%3Cpath d=%27M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99c.41.41 1.09.41 1.5 0s.41-1.09 0-1.5l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z%27/%3E%3C/svg%3E";
-
-/***/ },
-
-/***/ 53
-(module) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE__53__;
-
-/***/ },
-
-/***/ 941
-(module) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE__941__;
-
-/***/ },
-
-/***/ 104
-(module) {
-
-module.exports = __WEBPACK_EXTERNAL_MODULE__104__;
-
-/***/ }
-
-/******/ 	});
-/************************************************************************/
-/******/ 	// The module cache
-/******/ 	var __webpack_module_cache__ = {};
-/******/ 	
-/******/ 	// The require function
-/******/ 	function __nested_webpack_require_140197__(moduleId) {
-/******/ 		// Check if module is in cache
-/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
-/******/ 		if (cachedModule !== undefined) {
-/******/ 			return cachedModule.exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = __webpack_module_cache__[moduleId] = {
-/******/ 			id: moduleId,
-/******/ 			// no module.loaded needed
-/******/ 			exports: {}
-/******/ 		};
-/******/ 	
-/******/ 		// Execute the module function
-/******/ 		__webpack_modules__[moduleId](module, module.exports, __nested_webpack_require_140197__);
-/******/ 	
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/ 	
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__nested_webpack_require_140197__.m = __webpack_modules__;
-/******/ 	
-/************************************************************************/
-/******/ 	/* webpack/runtime/compat get default export */
-/******/ 	(() => {
-/******/ 		// getDefaultExport function for compatibility with non-harmony modules
-/******/ 		__nested_webpack_require_140197__.n = (module) => {
-/******/ 			var getter = module && module.__esModule ?
-/******/ 				() => (module['default']) :
-/******/ 				() => (module);
-/******/ 			__nested_webpack_require_140197__.d(getter, { a: getter });
-/******/ 			return getter;
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/define property getters */
-/******/ 	(() => {
-/******/ 		// define getter functions for harmony exports
-/******/ 		__nested_webpack_require_140197__.d = (exports, definition) => {
-/******/ 			for(var key in definition) {
-/******/ 				if(__nested_webpack_require_140197__.o(definition, key) && !__nested_webpack_require_140197__.o(exports, key)) {
-/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 				}
-/******/ 			}
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
-/******/ 	(() => {
-/******/ 		__nested_webpack_require_140197__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/jsonp chunk loading */
-/******/ 	(() => {
-/******/ 		__nested_webpack_require_140197__.b = (typeof document !== 'undefined' && document.baseURI) || self.location.href;
-/******/ 		
-/******/ 		// object to store loaded and loading chunks
-/******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
-/******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
-/******/ 		var installedChunks = {
-/******/ 			792: 0
-/******/ 		};
-/******/ 		
-/******/ 		// no chunk on demand loading
-/******/ 		
-/******/ 		// no prefetching
-/******/ 		
-/******/ 		// no preloaded
-/******/ 		
-/******/ 		// no HMR
-/******/ 		
-/******/ 		// no HMR manifest
-/******/ 		
-/******/ 		// no on chunks loaded
-/******/ 		
-/******/ 		// no jsonp function
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/nonce */
-/******/ 	(() => {
-/******/ 		__nested_webpack_require_140197__.nc = undefined;
-/******/ 	})();
-/******/ 	
-/************************************************************************/
-var __nested_webpack_exports__ = {};
-
-// EXPORTS
-__nested_webpack_require_140197__.d(__nested_webpack_exports__, {
-  "default": () => (/* binding */ src_contactsPane)
 });
 
-// UNUSED EXPORTS: addPersonToGroup, addWebIDToContacts, getPersonas, groupMembers, removeWebIDFromContacts, saveNewContact, saveNewGroup
-
-// EXTERNAL MODULE: external {"commonjs":"solid-logic","commonjs2":"solid-logic","amd":"solid-logic","root":"SolidLogic"}
-var external_commonjs_solid_logic_commonjs2_solid_logic_amd_solid_logic_root_SolidLogic_ = __nested_webpack_require_140197__(941);
-// EXTERNAL MODULE: external {"commonjs":"solid-ui","commonjs2":"solid-ui","amd":"solid-ui","root":"UI"}
-var external_commonjs_solid_ui_commonjs2_solid_ui_amd_solid_ui_root_UI_ = __nested_webpack_require_140197__(104);
-// EXTERNAL MODULE: external {"commonjs":"rdflib","commonjs2":"rdflib","amd":"rdflib","root":"$rdf"}
-var external_commonjs_rdflib_commonjs2_rdflib_amd_rdflib_root_$rdf_ = __nested_webpack_require_140197__(53);
-// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/injectStylesIntoStyleTag.js
-var injectStylesIntoStyleTag = __nested_webpack_require_140197__(72);
-var injectStylesIntoStyleTag_default = /*#__PURE__*/__nested_webpack_require_140197__.n(injectStylesIntoStyleTag);
-// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/styleDomAPI.js
-var styleDomAPI = __nested_webpack_require_140197__(825);
-var styleDomAPI_default = /*#__PURE__*/__nested_webpack_require_140197__.n(styleDomAPI);
-// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/insertBySelector.js
-var insertBySelector = __nested_webpack_require_140197__(659);
-var insertBySelector_default = /*#__PURE__*/__nested_webpack_require_140197__.n(insertBySelector);
-// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/setAttributesWithoutAttributes.js
-var setAttributesWithoutAttributes = __nested_webpack_require_140197__(56);
-var setAttributesWithoutAttributes_default = /*#__PURE__*/__nested_webpack_require_140197__.n(setAttributesWithoutAttributes);
-// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/insertStyleElement.js
-var insertStyleElement = __nested_webpack_require_140197__(540);
-var insertStyleElement_default = /*#__PURE__*/__nested_webpack_require_140197__.n(insertStyleElement);
-// EXTERNAL MODULE: ./node_modules/style-loader/dist/runtime/styleTagTransform.js
-var styleTagTransform = __nested_webpack_require_140197__(113);
-var styleTagTransform_default = /*#__PURE__*/__nested_webpack_require_140197__.n(styleTagTransform);
+var styleTagTransform_default = /*#__PURE__*/__nested_webpack_require_133441__.n(styleTagTransform_namespaceObject);
 // EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./src/styles/webidControl.css
-var webidControl = __nested_webpack_require_140197__(886);
+var webidControl = __nested_webpack_require_133441__(886);
 ;// ./src/styles/webidControl.css
 
       
@@ -16634,7 +16502,7 @@ async function renderIdControl (person, dataBrowserContext, options) {
 }
 
 // EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./src/styles/localUtils.css
-var localUtils = __nested_webpack_require_140197__(546);
+var localUtils = __nested_webpack_require_133441__(546);
 ;// ./src/styles/localUtils.css
 
       
@@ -17440,7 +17308,7 @@ function mintNewAddressBook (dataBrowserContext, context) {
 }
 
 // EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./src/styles/mugshotGallery.css
-var mugshotGallery = __nested_webpack_require_140197__(715);
+var mugshotGallery = __nested_webpack_require_133441__(715);
 ;// ./src/styles/mugshotGallery.css
 
       
@@ -17806,7 +17674,7 @@ function renderMugshotGallery (dom, subject) {
 }
 
 // EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./src/styles/groupMembership.css
-var groupMembership = __nested_webpack_require_140197__(93);
+var groupMembership = __nested_webpack_require_133441__(93);
 ;// ./src/styles/groupMembership.css
 
       
@@ -18573,7 +18441,7 @@ const individualAndOrganizationForm_namespaceObject = "# This turtle file define
 ;// ./src/ontology/vcard.ttl
 const vcard_namespaceObject = "@prefix : <http://www.w3.org/2006/vcard/ns#> .\n@prefix owl: <http://www.w3.org/2002/07/owl#> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n@prefix xml: <http://www.w3.org/XML/1998/namespace> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\n:Acquaintance a owl:Class ;\n    rdfs:label \"Acquaintance\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :RelatedType .\n\n:Agent a owl:Class ;\n    rdfs:label \"Agent\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :RelatedType .\n\n:BBS a owl:Class ;\n    rdfs:label \"BBS\"@en ;\n    rdfs:comment \"This class is deprecated\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :TelephoneType ;\n    owl:deprecated true .\n\n:Car a owl:Class ;\n    rdfs:label \"Car\"@en ;\n    rdfs:comment \"This class is deprecated\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :TelephoneType ;\n    owl:deprecated true .\n\n:Cell a owl:Class ;\n    rdfs:label \"Cell\"@en ;\n    rdfs:comment \"Also called mobile telephone\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :TelephoneType .\n\n:Child a owl:Class ;\n    rdfs:label \"Child\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :RelatedType .\n\n:Colleague a owl:Class ;\n    rdfs:label \"Colleague\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :RelatedType .\n\n:Contact a owl:Class ;\n    rdfs:label \"Contact\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :RelatedType .\n\n:Coresident a owl:Class ;\n    rdfs:label \"Coresident\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :RelatedType .\n\n:Coworker a owl:Class ;\n    rdfs:label \"Coworker\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :RelatedType .\n\n:Crush a owl:Class ;\n    rdfs:label \"Crush\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :RelatedType .\n\n:Date a owl:Class ;\n    rdfs:label \"Date\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :RelatedType .\n\n:Dom a owl:Class ;\n    rdfs:label \"Dom\"@en ;\n    rdfs:comment \"This class is deprecated\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :Type ;\n    owl:deprecated true .\n\n:Emergency a owl:Class ;\n    rdfs:label \"Emergency\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :RelatedType .\n\n:Fax a owl:Class ;\n    rdfs:label \"Fax\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :TelephoneType .\n\n:Female a owl:Class ;\n    rdfs:label \"Female\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :Gender .\n\n:Friend a owl:Class ;\n    rdfs:label \"Friend\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :RelatedType .\n\n:Home a owl:Class ;\n    rdfs:label \"Home\"@en ;\n    rdfs:comment \"This implies that the property is related to an individual's personal life\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :Type .\n\n:ISDN a owl:Class ;\n    rdfs:label \"ISDN\"@en ;\n    rdfs:comment \"This class is deprecated\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :Type ;\n    owl:deprecated true .\n\n:Internet a owl:Class ;\n    rdfs:label \"Internet\"@en ;\n    rdfs:comment \"This class is deprecated\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :Type ;\n    owl:deprecated true .\n\n:Intl a owl:Class ;\n    rdfs:label \"Intl\"@en ;\n    rdfs:comment \"This class is deprecated\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :Type ;\n    owl:deprecated true .\n\n:Kin a owl:Class ;\n    rdfs:label \"Kin\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :RelatedType .\n\n:Label a owl:Class ;\n    rdfs:label \"Label\"@en ;\n    rdfs:comment \"This class is deprecated\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :Type ;\n    owl:deprecated true .\n\n:Male a owl:Class ;\n    rdfs:label \"Male\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :Gender .\n\n:Me a owl:Class ;\n    rdfs:label \"Me\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :RelatedType .\n\n:Met a owl:Class ;\n    rdfs:label \"Met\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :RelatedType .\n\n:Modem a owl:Class ;\n    rdfs:label \"Modem\"@en ;\n    rdfs:comment \"This class is deprecated\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :TelephoneType ;\n    owl:deprecated true .\n\n:Msg a owl:Class ;\n    rdfs:label \"Msg\"@en ;\n    rdfs:comment \"This class is deprecated\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :TelephoneType ;\n    owl:deprecated true .\n\n:Muse a owl:Class ;\n    rdfs:label \"Muse\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :RelatedType .\n\n:Neighbor a owl:Class ;\n    rdfs:label \"Neighbor\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :RelatedType .\n\n:None a owl:Class ;\n    rdfs:label \"None\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :Gender .\n\n:Other a owl:Class ;\n    rdfs:label \"Other\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :Gender .\n\n:PCS a owl:Class ;\n    rdfs:label \"PCS\"@en ;\n    rdfs:comment \"This class is deprecated\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :TelephoneType ;\n    owl:deprecated true .\n\n:Pager a owl:Class ;\n    rdfs:label \"Pager\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :TelephoneType .\n\n:Parcel a owl:Class ;\n    rdfs:label \"Parcel\"@en ;\n    rdfs:comment \"This class is deprecated\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :Type ;\n    owl:deprecated true .\n\n:Parent a owl:Class ;\n    rdfs:label \"Parent\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :RelatedType .\n\n:Postal a owl:Class ;\n    rdfs:label \"Postal\"@en ;\n    rdfs:comment \"This class is deprecated\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :Type ;\n    owl:deprecated true .\n\n:Pref a owl:Class ;\n    rdfs:label \"Pref\"@en ;\n    rdfs:comment \"This class is deprecated\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :Type ;\n    owl:deprecated true .\n\n:Sibling a owl:Class ;\n    rdfs:label \"Sibling\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :RelatedType .\n\n:Spouse a owl:Class ;\n    rdfs:label \"Spouse\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :RelatedType .\n\n:Sweetheart a owl:Class ;\n    rdfs:label \"Sweetheart\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :RelatedType .\n\n:Tel a owl:Class ;\n    rdfs:label \"Tel\"@en ;\n    rdfs:comment \"This class is deprecated. Use the hasTelephone object property.\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:deprecated true .\n\n:Text a owl:Class ;\n    rdfs:label \"Text\"@en ;\n    rdfs:comment \"Also called sms telephone\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :TelephoneType .\n\n:TextPhone a owl:Class ;\n    rdfs:label \"Text phone\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :TelephoneType .\n\n:Unknown a owl:Class ;\n    rdfs:label \"Unknown\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :Gender .\n\n:Video a owl:Class ;\n    rdfs:label \"Video\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :TelephoneType .\n\n:Voice a owl:Class ;\n    rdfs:label \"Voice\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :TelephoneType .\n\n:Work a owl:Class ;\n    rdfs:label \"Work\"@en ;\n    rdfs:comment \"This implies that the property is related to an individual's work place\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :Type .\n\n:X400 a owl:Class ;\n    rdfs:label \"X400\"@en ;\n    rdfs:comment \"This class is deprecated\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :Type ;\n    owl:deprecated true .\n\n:adr a owl:ObjectProperty ;\n    rdfs:label \"address\"@en ;\n    rdfs:comment \"This object property has been mapped\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentProperty :hasAddress .\n\n:agent a owl:ObjectProperty ;\n    rdfs:label \"agent\"@en ;\n    rdfs:comment \"This object property has been deprecated\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:deprecated true .\n\n:anniversary a owl:DatatypeProperty ;\n    rdfs:label \"anniversary\"@en ;\n    rdfs:comment \"The date of marriage, or equivalent, of the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range [ a rdfs:Datatype ;\n            owl:unionOf ( xsd:dateTime xsd:gYear ) ] .\n\n:bday a owl:DatatypeProperty ;\n    rdfs:label \"birth date\"@en ;\n    rdfs:comment \"To specify the birth date of the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range [ a rdfs:Datatype ;\n            owl:unionOf ( xsd:dateTime xsd:dateTimeStamp xsd:gYear ) ] .\n\n:category a owl:DatatypeProperty ;\n    rdfs:label \"category\"@en ;\n    rdfs:comment \"The category information about the object, also known as tags\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string .\n\n:class a owl:DatatypeProperty ;\n    rdfs:label \"class\"@en ;\n    rdfs:comment \"This data property has been deprecated\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:deprecated true .\n\n:email a owl:ObjectProperty ;\n    rdfs:label \"email\"@en ;\n    rdfs:comment \"This object property has been mapped\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentProperty :hasEmail .\n\n:extended-address a owl:DatatypeProperty ;\n    rdfs:label \"extended address\"@en ;\n    rdfs:comment \"This data property has been deprecated\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:deprecated true .\n\n:geo a owl:ObjectProperty ;\n    rdfs:label \"geo\"@en ;\n    rdfs:comment \"This object property has been mapped\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentProperty :hasGeo .\n\n:hasAdditionalName a owl:ObjectProperty ;\n    rdfs:label \"has additional name\"@en ;\n    rdfs:comment \"Used to support property parameters for the additional name data property\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasCalendarBusy a owl:ObjectProperty ;\n    rdfs:label \"has calendar busy\"@en ;\n    rdfs:comment \"To specify the busy time associated with the object. (Was called FBURL in RFC6350)\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasCalendarLink a owl:ObjectProperty ;\n    rdfs:label \"has calendar link\"@en ;\n    rdfs:comment \"To specify the calendar associated with the object. (Was called CALURI in RFC6350)\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasCalendarRequest a owl:ObjectProperty ;\n    rdfs:label \"has calendar request\"@en ;\n    rdfs:comment \"To specify the calendar user address to which a scheduling request be sent for the object. (Was called CALADRURI in RFC6350)\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasCategory a owl:ObjectProperty ;\n    rdfs:label \"has category\"@en ;\n    rdfs:comment \"Used to support property parameters for the category data property\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasCountryName a owl:ObjectProperty ;\n    rdfs:label \"has country name\"@en ;\n    rdfs:comment \"Used to support property parameters for the country name data property\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasFN a owl:ObjectProperty ;\n    rdfs:label \"has formatted name\"@en ;\n    rdfs:comment \"Used to support property parameters for the formatted name data property\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasFamilyName a owl:ObjectProperty ;\n    rdfs:label \"has family name\"@en ;\n    rdfs:comment \"Used to support property parameters for the family name data property\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasGender a owl:ObjectProperty ;\n    rdfs:label \"has gender\"@en ;\n    rdfs:comment \"To specify  the sex or gender identity of the object. URIs are recommended to enable interoperable sex and gender codes to be used.\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasGivenName a owl:ObjectProperty ;\n    rdfs:label \"has given name\"@en ;\n    rdfs:comment \"Used to support property parameters for the given name data property\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasHonorificPrefix a owl:ObjectProperty ;\n    rdfs:label \"has honorific prefix\"@en ;\n    rdfs:comment \"Used to support property parameters for the honorific prefix data property\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasHonorificSuffix a owl:ObjectProperty ;\n    rdfs:label \"has honorific suffix\"@en ;\n    rdfs:comment \"Used to support property parameters for the honorific suffix data property\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasInstantMessage a owl:ObjectProperty ;\n    rdfs:label \"has messaging\"@en ;\n    rdfs:comment \"To specify the instant messaging and presence protocol communications with the object. (Was called IMPP in RFC6350)\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasLanguage a owl:ObjectProperty ;\n    rdfs:label \"has language\"@en ;\n    rdfs:comment \"Used to support property parameters for the language data property\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasLocality a owl:ObjectProperty ;\n    rdfs:label \"has locality\"@en ;\n    rdfs:comment \"Used to support property parameters for the locality data property\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasNickname a owl:ObjectProperty ;\n    rdfs:label \"has nickname\"@en ;\n    rdfs:comment \"Used to support property parameters for the nickname data property\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:seeAlso :nickname .\n\n:hasNote a owl:ObjectProperty ;\n    rdfs:label \"has note\"@en ;\n    rdfs:comment \"Used to support property parameters for the note data property\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasOrganizationName a owl:ObjectProperty ;\n    rdfs:label \"has organization name\"@en ;\n    rdfs:comment \"Used to support property parameters for the organization name data property\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasOrganizationUnit a owl:ObjectProperty ;\n    rdfs:label \"has organization unit name\"@en ;\n    rdfs:comment \"Used to support property parameters for the organization unit name data property\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasPostalCode a owl:ObjectProperty ;\n    rdfs:label \"has postal code\"@en ;\n    rdfs:comment \"Used to support property parameters for the postal code data property\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasRegion a owl:ObjectProperty ;\n    rdfs:label \"has region\"@en ;\n    rdfs:comment \"Used to support property parameters for the region data property\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasRelated a owl:ObjectProperty ;\n    rdfs:label \"has related\"@en ;\n    rdfs:comment \"To specify a relationship between another entity and the entity represented by this object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasRole a owl:ObjectProperty ;\n    rdfs:label \"has role\"@en ;\n    rdfs:comment \"Used to support property parameters for the role data property\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasSource a owl:ObjectProperty ;\n    rdfs:label \"has source\"@en ;\n    rdfs:comment \"To identify the source of directory information of the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasStreetAddress a owl:ObjectProperty ;\n    rdfs:label \"has street address\"@en ;\n    rdfs:comment \"Used to support property parameters for the street address data property\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasTitle a owl:ObjectProperty ;\n    rdfs:label \"has title\"@en ;\n    rdfs:comment \"Used to support property parameters for the title data property\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasUID a owl:ObjectProperty ;\n    rdfs:label \"has uid\"@en ;\n    rdfs:comment \"To specify a value that represents a globally unique identifier corresponding to the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasValue a owl:ObjectProperty ;\n    rdfs:label \"has value\"@en ;\n    rdfs:comment \"Used to indicate the resource value of an object property that requires property parameters\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:label a owl:DatatypeProperty ;\n    rdfs:label \"label\"@en ;\n    rdfs:comment \"This data property has been deprecated\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:deprecated true .\n\n:language a owl:DatatypeProperty ;\n    rdfs:label \"language\"@en ;\n    rdfs:comment \"To specify the language that may be used for contacting the object. May also be used as a property parameter.\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:latitude a owl:DatatypeProperty ;\n    rdfs:label \"latitude\"@en ;\n    rdfs:comment \"This data property has been deprecated. See hasGeo\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:deprecated true .\n\n:longitude a owl:DatatypeProperty ;\n    rdfs:label \"longitude\"@en ;\n    rdfs:comment \"This data property has been deprecated. See hasGeo\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:deprecated true .\n\n:mailer a owl:DatatypeProperty ;\n    rdfs:label \"mailer\"@en ;\n    rdfs:comment \"This data property has been deprecated\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:deprecated true .\n\n:note a owl:DatatypeProperty ;\n    rdfs:label \"note\"@en ;\n    rdfs:comment \"A note associated with the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string .\n\n:org a owl:ObjectProperty ;\n    rdfs:label \"organization\"@en ;\n    rdfs:comment \"This object property has been mapped. Use the organization-name data property.\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentProperty :organization-name .\n\n:organization-unit a owl:DatatypeProperty ;\n    rdfs:label \"organizational unit name\"@en ;\n    rdfs:comment \"To specify the organizational unit name associated with the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string ;\n    rdfs:subPropertyOf :organization-name .\n\n:post-office-box a owl:DatatypeProperty ;\n    rdfs:label \"post office box\"@en ;\n    rdfs:comment \"This data property has been deprecated\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:deprecated true .\n\n:prodid a owl:DatatypeProperty ;\n    rdfs:label \"product id\"@en ;\n    rdfs:comment \"To specify the identifier for the product that created the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string .\n\n:rev a owl:DatatypeProperty ;\n    rdfs:label \"revision\"@en ;\n    rdfs:comment \"To specify revision information about the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:dateTime .\n\n:role a owl:DatatypeProperty ;\n    rdfs:label \"role\"@en ;\n    rdfs:comment \"To specify the function or part played in a particular situation by the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string .\n\n:sort-string a owl:DatatypeProperty ;\n    rdfs:label \"sort as\"@en ;\n    rdfs:comment \"To specify the string to be used for national-language-specific sorting. Used as a property parameter only.\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string .\n\n:title a owl:DatatypeProperty ;\n    rdfs:label \"title\"@en ;\n    rdfs:comment \"To specify the position or job of the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string .\n\n:tz a owl:DatatypeProperty ;\n    rdfs:label \"time zone\"@en ;\n    rdfs:comment \"To indicate time zone information that is specific to the object. May also be used as a property parameter.\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string .\n\n:value a owl:DatatypeProperty ;\n    rdfs:label \"value\"@en ;\n    rdfs:comment \"Used to indicate the literal value of a data property that requires property parameters\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:Address a owl:Class ;\n    rdfs:label \"Address\"@en ;\n    rdfs:comment \"To specify the components of the delivery address for the  object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentClass [ a owl:Class ;\n            owl:unionOf ( [ a owl:Class ;\n                        owl:intersectionOf ( [ a owl:Restriction ;\n                                    owl:onProperty :country-name ;\n                                    owl:someValuesFrom xsd:string ] [ a owl:Restriction ;\n                                    owl:maxCardinality \"1\"^^xsd:nonNegativeInteger ;\n                                    owl:onProperty :country-name ] ) ] [ a owl:Class ;\n                        owl:intersectionOf ( [ a owl:Restriction ;\n                                    owl:onProperty :locality ;\n                                    owl:someValuesFrom xsd:string ] [ a owl:Restriction ;\n                                    owl:maxCardinality \"1\"^^xsd:nonNegativeInteger ;\n                                    owl:onProperty :locality ] ) ] [ a owl:Class ;\n                        owl:intersectionOf ( [ a owl:Restriction ;\n                                    owl:onProperty :postal-code ;\n                                    owl:someValuesFrom xsd:string ] [ a owl:Restriction ;\n                                    owl:maxCardinality \"1\"^^xsd:nonNegativeInteger ;\n                                    owl:onProperty :postal-code ] ) ] [ a owl:Class ;\n                        owl:intersectionOf ( [ a owl:Restriction ;\n                                    owl:onProperty :region ;\n                                    owl:someValuesFrom xsd:string ] [ a owl:Restriction ;\n                                    owl:maxCardinality \"1\"^^xsd:nonNegativeInteger ;\n                                    owl:onProperty :region ] ) ] [ a owl:Class ;\n                        owl:intersectionOf ( [ a owl:Restriction ;\n                                    owl:onProperty :street-address ;\n                                    owl:someValuesFrom xsd:string ] [ a owl:Restriction ;\n                                    owl:maxCardinality \"1\"^^xsd:nonNegativeInteger ;\n                                    owl:onProperty :street-address ] ) ] ) ] .\n\n:Email a owl:Class ;\n    rdfs:label \"Email\"@en ;\n    rdfs:comment \"To specify the electronic mail address for communication with the object the vCard represents. Use the hasEmail object property.\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:deprecated true .\n\n:Group a owl:Class ;\n    rdfs:label \"Group\"@en ;\n    rdfs:comment \"Object representing a group of persons or entities.  A group object will usually contain hasMember properties to specify the members of the group.\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :Kind ;\n    owl:disjointWith :Individual,\n        :Location,\n        :Organization ;\n    owl:equivalentClass [ a owl:Class ;\n            owl:intersectionOf ( [ a owl:Restriction ;\n                        owl:onProperty :hasMember ;\n                        owl:someValuesFrom :Kind ] [ a owl:Restriction ;\n                        owl:minQualifiedCardinality \"1\"^^xsd:nonNegativeInteger ;\n                        owl:onClass :Kind ;\n                        owl:onProperty :hasMember ] ) ] .\n\n:Individual a owl:Class ;\n    rdfs:label \"Individual\"@en ;\n    rdfs:comment \"An object representing a single person or entity\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :Kind ;\n    owl:disjointWith :Location,\n        :Organization .\n\n:Name a owl:Class ;\n    rdfs:label \"Name\"@en ;\n    rdfs:comment \"To specify the components of the name of the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentClass [ a owl:Class ;\n            owl:unionOf ( [ a owl:Class ;\n                        owl:intersectionOf ( [ a owl:Restriction ;\n                                    owl:onProperty :additional-name ;\n                                    owl:someValuesFrom xsd:string ] [ a owl:Restriction ;\n                                    owl:minCardinality \"0\"^^xsd:nonNegativeInteger ;\n                                    owl:onProperty :additional-name ] ) ] [ a owl:Class ;\n                        owl:intersectionOf ( [ a owl:Restriction ;\n                                    owl:onProperty :family-name ;\n                                    owl:someValuesFrom xsd:string ] [ a owl:Restriction ;\n                                    owl:maxCardinality \"1\"^^xsd:nonNegativeInteger ;\n                                    owl:onProperty :family-name ] ) ] [ a owl:Class ;\n                        owl:intersectionOf ( [ a owl:Restriction ;\n                                    owl:onProperty :given-name ;\n                                    owl:someValuesFrom xsd:string ] [ a owl:Restriction ;\n                                    owl:maxCardinality \"1\"^^xsd:nonNegativeInteger ;\n                                    owl:onProperty :given-name ] ) ] [ a owl:Class ;\n                        owl:intersectionOf ( [ a owl:Restriction ;\n                                    owl:onProperty :honorific-prefix ;\n                                    owl:someValuesFrom xsd:string ] [ a owl:Restriction ;\n                                    owl:minCardinality \"0\"^^xsd:nonNegativeInteger ;\n                                    owl:onProperty :honorific-prefix ] ) ] [ a owl:Class ;\n                        owl:intersectionOf ( [ a owl:Restriction ;\n                                    owl:onProperty :honorific-suffix ;\n                                    owl:someValuesFrom xsd:string ] [ a owl:Restriction ;\n                                    owl:minCardinality \"0\"^^xsd:nonNegativeInteger ;\n                                    owl:onProperty :honorific-suffix ] ) ] ) ] .\n\n:VCard a owl:Class ;\n    rdfs:label \"VCard\"@en ;\n    rdfs:comment \"The vCard class is  equivalent to the new Kind class, which is the parent for the four explicit types of vCards (Individual, Organization, Location, Group)\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentClass :Kind .\n\n:fn a owl:DatatypeProperty ;\n    rdfs:label \"formatted name\"@en ;\n    rdfs:comment \"The formatted text corresponding to the name of the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string .\n\n:hasAddress a owl:ObjectProperty ;\n    rdfs:label \"has address\"@en ;\n    rdfs:comment \"To specify the components of the delivery address for the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range :Address .\n\n:hasEmail a owl:ObjectProperty ;\n    rdfs:label \"has email\"@en ;\n    rdfs:comment \"To specify the electronic mail address for communication with the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range :Email .\n\n:hasGeo a owl:ObjectProperty ;\n    rdfs:label \"has geo\"@en ;\n    rdfs:comment \"To specify information related to the global positioning of the object. May also be used as a property parameter.\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:hasKey a owl:ObjectProperty ;\n    rdfs:label \"has key\"@en ;\n    rdfs:comment \"To specify a public key or authentication certificate associated with the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentProperty :key .\n\n:hasLogo a owl:ObjectProperty ;\n    rdfs:label \"has logo\"@en ;\n    rdfs:comment \"To specify a graphic image of a logo associated with the object \"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentProperty :logo .\n\n:hasName a owl:ObjectProperty ;\n    rdfs:label \"has name\"@en ;\n    rdfs:comment \"To specify the components of the name of the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range :Name ;\n    owl:equivalentProperty :n .\n\n:hasPhoto a owl:ObjectProperty ;\n    rdfs:label \"has photo\"@en ;\n    rdfs:comment \"To specify an image or photograph information that annotates some aspect of the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentProperty :photo .\n\n:hasSound a owl:ObjectProperty ;\n    rdfs:label \"has sound\"@en ;\n    rdfs:comment \"To specify a digital sound content information that annotates some aspect of the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentProperty :sound .\n\n:hasTelephone a owl:ObjectProperty ;\n    rdfs:label \"has telephone\"@en ;\n    rdfs:comment \"To specify the telephone number for telephony communication with the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentProperty :tel .\n\n:hasURL a owl:ObjectProperty ;\n    rdfs:label \"has url\"@en ;\n    rdfs:comment \"To specify a uniform resource locator associated with the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentProperty :url .\n\n:key a owl:ObjectProperty ;\n    rdfs:label \"key\"@en ;\n    rdfs:comment \"This object property has been mapped\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentProperty :hasKey .\n\n:logo a owl:ObjectProperty ;\n    rdfs:label \"logo\"@en ;\n    rdfs:comment \"This object property has been mapped\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentProperty :hasLogo .\n\n:n a owl:ObjectProperty ;\n    rdfs:label \"name\"@en ;\n    rdfs:comment \"This object property has been mapped\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentProperty :hasName .\n\n:nickname a owl:DatatypeProperty ;\n    rdfs:label \"nickname\"@en ;\n    rdfs:comment \"The nick name associated with the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string .\n\n:photo a owl:ObjectProperty ;\n    rdfs:label \"photo\"@en ;\n    rdfs:comment \"This object property has been mapped\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentProperty :hasPhoto .\n\n:sound a owl:ObjectProperty ;\n    rdfs:label \"sound\"@en ;\n    rdfs:comment \"This object property has been mapped\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentProperty :hasSound .\n\n:tel a owl:ObjectProperty ;\n    rdfs:label \"telephone\"@en ;\n    rdfs:comment \"This object property has been mapped\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentProperty :hasTelephone .\n\n:url a owl:ObjectProperty ;\n    rdfs:label \"url\"@en ;\n    rdfs:comment \"This object property has been mapped\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentProperty :hasURL .\n\n:Location a owl:Class ;\n    rdfs:label \"Location\"@en ;\n    rdfs:comment \"An object representing a named geographical place\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :Kind ;\n    owl:disjointWith :Organization .\n\n:additional-name a owl:DatatypeProperty ;\n    rdfs:label \"additional name\"@en ;\n    rdfs:comment \"The additional name associated with the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string .\n\n:country-name a owl:DatatypeProperty ;\n    rdfs:label \"country name\"@en ;\n    rdfs:comment \"The country name associated with the address of the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string .\n\n:family-name a owl:DatatypeProperty ;\n    rdfs:label \"family name\"@en ;\n    rdfs:comment \"The family name associated with the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string .\n\n:given-name a owl:DatatypeProperty ;\n    rdfs:label \"given name\"@en ;\n    rdfs:comment \"The given name associated with the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string .\n\n:hasMember a owl:ObjectProperty ;\n    rdfs:label \"has member\"@en ;\n    rdfs:comment \"To include a member in the group this object represents. (This property can only be used by Group individuals)\"@en ;\n    rdfs:domain :Group ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range :Kind .\n\n:honorific-prefix a owl:DatatypeProperty ;\n    rdfs:label \"honorific prefix\"@en ;\n    rdfs:comment \"The honorific prefix of the name associated with the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string .\n\n:honorific-suffix a owl:DatatypeProperty ;\n    rdfs:label \"honorific suffix\"@en ;\n    rdfs:comment \"The honorific suffix of the name associated with the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string .\n\n:locality a owl:DatatypeProperty ;\n    rdfs:label \"locality\"@en ;\n    rdfs:comment \"The locality (e.g. city or town) associated with the address of the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string .\n\n:organization-name a owl:DatatypeProperty ;\n    rdfs:label \"organization name\"@en ;\n    rdfs:comment \"To specify the organizational name associated with the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string .\n\n:postal-code a owl:DatatypeProperty ;\n    rdfs:label \"postal code\"@en ;\n    rdfs:comment \"The postal code associated with the address of the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string .\n\n:region a owl:DatatypeProperty ;\n    rdfs:label \"region\"@en ;\n    rdfs:comment \"The region (e.g. state or province) associated with the address of the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string .\n\n:street-address a owl:DatatypeProperty ;\n    rdfs:label \"street address\"@en ;\n    rdfs:comment \"The street address associated with the address of the object\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:range xsd:string .\n\n:Organization a owl:Class ;\n    rdfs:label \"Organization\"@en ;\n    rdfs:comment \"\"\"An object representing an organization.  An organization is a single entity, and might represent a business or government, a department or division within a business or government, a club, an association, or the like.\n\"\"\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    rdfs:subClassOf :Kind .\n\n:Gender a owl:Class ;\n    rdfs:label \"Gender\"@en ;\n    rdfs:comment \"Used for gender codes. The URI of the gender code must be used as the value for Gender.\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:Kind a owl:Class ;\n    rdfs:label \"Kind\"@en ;\n    rdfs:comment \"The parent class for all objects\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> ;\n    owl:equivalentClass [ a owl:Restriction ;\n            owl:minQualifiedCardinality \"1\"^^xsd:nonNegativeInteger ;\n            owl:onDataRange xsd:string ;\n            owl:onProperty :fn ],\n        :VCard .\n\n:Type a owl:Class ;\n    rdfs:label \"Type\"@en ;\n    rdfs:comment \"Used for type codes. The URI of the type code must be used as the value for Type.\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:TelephoneType a owl:Class ;\n    rdfs:label \"Phone\"@en ;\n    rdfs:comment \"Used for telephone type codes. The URI of the telephone type code must be used as the value for the Telephone Type.\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n:RelatedType a owl:Class ;\n    rdfs:label \"Relation Type\"@en ;\n    rdfs:comment \"Used for relation type codes. The URI of the relation type code must be used as the value for the Relation Type.\"@en ;\n    rdfs:isDefinedBy <http://www.w3.org/2006/vcard/ns> .\n\n<http://www.w3.org/2006/vcard/ns> a owl:Ontology ;\n    rdfs:label \"Ontology for vCard\"@en ;\n    rdfs:comment \"Ontology for vCard based on RFC6350\"@en ;\n    owl:versionInfo \"Final\"@en .\n\n\n";
 // EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./src/styles/individual.css
-var individual = __nested_webpack_require_140197__(479);
+var individual = __nested_webpack_require_133441__(479);
 ;// ./src/styles/individual.css
 
       
@@ -18602,7 +18470,7 @@ var individual_update = injectStylesIntoStyleTag_default()(individual/* default 
        /* harmony default export */ const styles_individual = (individual/* default */.A && individual/* default */.A.locals ? individual/* default */.A.locals : undefined);
 
 // EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./src/styles/contactsRDFFormsEnforced.css
-var contactsRDFFormsEnforced = __nested_webpack_require_140197__(686);
+var contactsRDFFormsEnforced = __nested_webpack_require_133441__(686);
 ;// ./src/styles/contactsRDFFormsEnforced.css
 
       
@@ -18767,7 +18635,7 @@ async function renderIndividual (dom, div, subject, dataBrowserContext) {
 } // renderIndividual
 
 // EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./src/styles/toolsPane.css
-var toolsPane = __nested_webpack_require_140197__(295);
+var toolsPane = __nested_webpack_require_133441__(295);
 ;// ./src/styles/toolsPane.css
 
       
@@ -19613,7 +19481,7 @@ async function fixToOldDataModel (book) {
   */
 
 // EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./src/styles/utilities.css
-var utilities = __nested_webpack_require_140197__(92);
+var utilities = __nested_webpack_require_133441__(92);
 ;// ./src/styles/utilities.css
 
       
@@ -19642,7 +19510,7 @@ var utilities_update = injectStylesIntoStyleTag_default()(utilities/* default */
        /* harmony default export */ const styles_utilities = (utilities/* default */.A && utilities/* default */.A.locals ? utilities/* default */.A.locals : undefined);
 
 // EXTERNAL MODULE: ./node_modules/css-loader/dist/cjs.js!./src/styles/contactsPane.css
-var contactsPane = __nested_webpack_require_140197__(903);
+var contactsPane = __nested_webpack_require_133441__(903);
 ;// ./src/styles/contactsPane.css
 
       
@@ -20555,7 +20423,160 @@ function buildFooterButtons (ctx) {
 
 
 
-__nested_webpack_exports__ = __nested_webpack_exports__["default"];
+
+/***/ },
+
+/***/ 102
+(module) {
+
+module.exports = "data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27%23999%27 viewBox=%270 0 24 24%27 width=%2720%27 height=%2720%27%3E%3Cpath d=%27M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99c.41.41 1.09.41 1.5 0s.41-1.09 0-1.5l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z%27/%3E%3C/svg%3E";
+
+/***/ },
+
+/***/ 53
+(module) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE__53__;
+
+/***/ },
+
+/***/ 941
+(module) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE__941__;
+
+/***/ },
+
+/***/ 104
+(module) {
+
+module.exports = __WEBPACK_EXTERNAL_MODULE__104__;
+
+/***/ }
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	const __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __nested_webpack_require_355659__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		const cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		const module = __webpack_module_cache__[moduleId] = {
+/******/ 			id: moduleId,
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __nested_webpack_require_355659__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__nested_webpack_require_355659__.m = __webpack_modules__;
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__nested_webpack_require_355659__.n = (module) => {
+/******/ 			const getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__nested_webpack_require_355659__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter/value functions for harmony exports
+/******/ 		__nested_webpack_require_355659__.d = (exports, definition) => {
+/******/ 			if(Array.isArray(definition)) {
+/******/ 				var i = 0;
+/******/ 				while(i < definition.length) {
+/******/ 					var key = definition[i++];
+/******/ 					var binding = definition[i++];
+/******/ 					if(!__nested_webpack_require_355659__.o(exports, key)) {
+/******/ 						if(binding === 0) {
+/******/ 							Object.defineProperty(exports, key, { enumerable: true, value: definition[i++] });
+/******/ 						} else {
+/******/ 							Object.defineProperty(exports, key, { enumerable: true, get: binding });
+/******/ 						}
+/******/ 					} else if(binding === 0) { i++; }
+/******/ 				}
+/******/ 			} else {
+/******/ 				for(var key in definition) {
+/******/ 					if(__nested_webpack_require_355659__.o(definition, key) && !__nested_webpack_require_355659__.o(exports, key)) {
+/******/ 						Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 					}
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__nested_webpack_require_355659__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/wrap commonjs module */
+/******/ 	(() => {
+/******/ 		// execute a CommonJS module body with real module/exports objects, returning the final exports
+/******/ 		__nested_webpack_require_355659__.cjs = (body) => {
+/******/ 			const mod = { exports: {} };
+/******/ 			body.call(mod.exports, mod, mod.exports);
+/******/ 			return mod.exports;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/jsonp chunk loading */
+/******/ 	(() => {
+/******/ 		__nested_webpack_require_355659__.b = (typeof document !== 'undefined' && document.baseURI) || self.location.href;
+/******/ 		
+/******/ 		// object to store loaded and loading chunks
+/******/ 		// undefined = chunk not loaded, null = chunk preloaded/prefetched
+/******/ 		// [resolve, reject, Promise] = chunk loading, 0 = chunk loaded
+/******/ 		const installedChunks = {
+/******/ 			792: 0
+/******/ 		};
+/******/ 		
+/******/ 		// no chunk on demand loading
+/******/ 		
+/******/ 		// no prefetching
+/******/ 		
+/******/ 		// no preloaded
+/******/ 		
+/******/ 		// no HMR
+/******/ 		
+/******/ 		// no HMR manifest
+/******/ 		
+/******/ 		// no on chunks loaded
+/******/ 		
+/******/ 		// no jsonp function
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/nonce */
+/******/ 	(() => {
+/******/ 		__nested_webpack_require_355659__.nc = undefined;
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module used 'module' so it can't be inlined
+/******/ 	let __nested_webpack_exports__ = __nested_webpack_require_355659__(438);
+/******/ 	__nested_webpack_exports__ = __nested_webpack_exports__["default"];
+/******/ 	
 /******/ 	return __nested_webpack_exports__;
 /******/ })()
 ;
@@ -42371,7 +42392,6 @@ const QRCodeCard = (arg1, arg2, arg3) => {
       data-value="${vCard}"
       data-testid="qrcode-card"
       aria-labelledby="qr-code-caption"
-      role="img"
       aria-describedby="qr-code-description"
     >
       <div class="qrcode-card__frame">
@@ -101410,10 +101430,10 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 var _default = exports["default"] = {
-  buildTime: '2026-08-20T21:06:16Z',
-  commit: 'd7c254c787277df31a6b95162519b837428c2033',
+  buildTime: '2026-08-21T02:17:47Z',
+  commit: '32d4e8b10609fc530cbcd14e81f29de409b16183',
   npmInfo: {
-    'solid-panes': '4.5.1',
+    'solid-panes': '4.5.2',
     npm: '11.19.0',
     node: '22.23.2',
     acorn: '8.16.0',
@@ -155189,9 +155209,7 @@ var options = {};
 
 options.styleTagTransform = (styleTagTransform_default());
 options.setAttributes = (setAttributesWithoutAttributes_default());
-
-      options.insert = insertBySelector_default().bind(null, "head");
-    
+options.insert = insertBySelector_default().bind(null, "head");
 options.domAPI = (styleDomAPI_default());
 options.insertStyleElement = (insertStyleElement_default());
 
@@ -165993,10 +166011,10 @@ const theme = {
 };
 ;// ./src/versionInfo.ts
 /* harmony default export */ const versionInfo = ({
-  buildTime: '2026-08-20T21:29:25Z',
-  commit: '02e10f519bfbc45927ea99f996514bfbaea7cca4',
+  buildTime: '2026-08-21T02:27:28Z',
+  commit: '2e6595103691f919b623213633a36db8cb592e20',
   npmInfo: {
-    'mashlib': '2.3.1',
+    'mashlib': '2.3.2',
     'npm': '11.19.0',
     'node': '22.23.2',
     'acorn': '8.16.0',

@@ -91206,6 +91206,13 @@ var _menu = __webpack_require__(8315);
 // Symbol used to stash the last render-relevant env snapshot on the outliner
 // so refreshUI can skip a full GotoSubject re-render when nothing changed.
 const LAST_RENDER_ENV_KEY = '__lastRenderEnvSignature';
+
+// Set once initMainPage has performed the initial (authenticated) render.
+// refreshUI will not auto-GotoSubject before this flag is set, so early
+// callers (e.g. mashlib's window 'load' -> syncEnvironmentToContext) cannot
+// trigger a subject fetch before the auth session is active. See
+// https://github.com/SolidOS/solid-logic/issues/324
+const INITIAL_RENDER_KEY = '__initialRenderDone';
 function renderEnvSignature(env) {
   if (!env) return '';
   return [env.layout, env.theme, env.inputMode].join('|');
@@ -91229,6 +91236,7 @@ async function initMainPage(store, uri, environment) {
   uri = uri || window.location.href;
   const subject = typeof uri === 'string' ? store.sym(uri) : uri;
   outliner.GotoSubject(subject, true, undefined, true, undefined);
+  outliner[INITIAL_RENDER_KEY] = true;
   const header = await (0, _header.createHeader)(store, outliner);
   const menu = (0, _menu.createLeftSideMenu)(subject, outliner);
   const footer = menu.then(() => (0, _footer.createFooter)(store));
@@ -91242,11 +91250,17 @@ async function refreshUI(outliner) {
   const pane = paneName ? paneRegistry?.byName?.(paneName) : undefined;
 
   // Only re-run GotoSubject (full pane re-render) when render-relevant
-  // environment fields actually changed since the last render.
+  // environment fields actually changed since the last render, and only
+  // after initMainPage has performed the initial render. Without the
+  // INITIAL_RENDER_KEY gate, pre-auth callers (e.g. mashlib's window
+  // 'load' -> refreshUI) could trigger a subject fetch before the auth
+  // session is active, 401-ing on private containers and leaving the pane
+  // stuck on a login/error state (SolidOS/solid-logic#324).
+  const initialRenderDone = outliner?.[INITIAL_RENDER_KEY] === true;
   const currentSignature = renderEnvSignature(outliner?.context?.environment);
   const previousSignature = outliner?.[LAST_RENDER_ENV_KEY] ?? '';
   const envChanged = currentSignature !== previousSignature;
-  if (envChanged && store && typeof outliner?.GotoSubject === 'function') {
+  if (initialRenderDone && envChanged && store && typeof outliner?.GotoSubject === 'function') {
     outliner.GotoSubject(store.sym(subjectUri), true, pane, true, undefined);
     outliner[LAST_RENDER_ENV_KEY] = currentSignature;
   }
@@ -101430,10 +101444,10 @@ Object.defineProperty(exports, "__esModule", ({
 }));
 exports["default"] = void 0;
 var _default = exports["default"] = {
-  buildTime: '2026-08-21T02:17:47Z',
-  commit: '32d4e8b10609fc530cbcd14e81f29de409b16183',
+  buildTime: '2026-08-26T11:17:36Z',
+  commit: '1c898e355f29a09a14ce07fd4de83040aa55dc33',
   npmInfo: {
-    'solid-panes': '4.5.2',
+    'solid-panes': '4.5.3',
     npm: '11.19.0',
     node: '22.23.2',
     acorn: '8.16.0',
@@ -166011,10 +166025,10 @@ const theme = {
 };
 ;// ./src/versionInfo.ts
 /* harmony default export */ const versionInfo = ({
-  buildTime: '2026-08-21T02:27:28Z',
-  commit: '2e6595103691f919b623213633a36db8cb592e20',
+  buildTime: '2026-08-26T13:21:24Z',
+  commit: 'c5f7ab8c8f529a4a0f509096923fb7e28d2706e9',
   npmInfo: {
-    'mashlib': '2.3.2',
+    'mashlib': '2.3.3',
     'npm': '11.19.0',
     'node': '22.23.2',
     'acorn': '8.16.0',

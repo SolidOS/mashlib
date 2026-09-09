@@ -58,8 +58,8 @@
     "patch-package": "^8.0.1",
     "rdflib": "2.4.0",
     "solid-logic": "6.0.0-0",
-    "solid-panes": "5.0.0-0",
-    "solid-ui": "5.0.0-0"
+    "solid-panes": "4.5.3-0",
+    "solid-ui": "5.0.0-1"
   },
   "overrides": {
     "rdflib": "$rdflib",

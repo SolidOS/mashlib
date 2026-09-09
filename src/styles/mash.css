@@ -48,7 +48,6 @@ solid-panes-header, #PageHeader {
   left: 0;
   right: 0;
   z-index: 110;
-  background: var(--color-header-row-bg);
 }
 
 #MainContent {
@@ -255,11 +254,7 @@ a:hover, a:focus {
 .warning {
   color: var(--color-warning);
 }
-/* This was used in manager.js and was turning many things green.
-   Doesn't fit with new design. */
-.selected {
-  /* background-color: var(--color-selected-bg); */
-}
+
 
 /* used in profile-pane as success button */
 .licOkay {
@@ -700,10 +695,6 @@ div.exceptionPane pre {
 
 .hideit {
   display: none;
-}
-
-.active {
-  /* display: visible; */
 }
 
 .submitRow {
@@ -1487,13 +1478,6 @@ End of styles for tableViewPane
 }
 
 /* ends */
-
-@mixin box-shadow($x-axis: 0, $y-axis: 1px, $blur: 4px, $color: $default) {
-  box-shadow: $x-axis $y-axis $blur $color;
-  -webkit-box-shadow: $x-axis $y-axis $blur $color;
-  -moz-box-shadow: $x-axis $y-axis $blur $color;
-  -o-box-shadow: $x-axis $y-axis $blur $color;
-}
 
 /* Improve focus management for interactive elements */
 [role="button"]:focus,

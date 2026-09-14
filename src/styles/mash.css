@@ -51,13 +51,10 @@ solid-panes-header, #PageHeader {
 }
 
 #MainContent {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;   /* smooth iOS scroll */
-  container-type: inline-size;          /* enable @container queries */
+  height: calc(-54px + 100vh);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 #PageFooter {
@@ -103,7 +100,21 @@ solid-panes-header, #PageHeader {
 
 /* OutlineView is a <table> — must explicitly fill the flex parent */
 .outline-view {
-  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+:root {
+  overflow: hidden;
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+  height: 100%;
+  margin: 0;
 }
 
 @media (max-width: 768px) {

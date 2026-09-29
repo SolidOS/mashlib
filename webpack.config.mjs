@@ -12,20 +12,35 @@ const WORKSPACE_RESOLUTION_MODE = 'workspace'
 const packageAliases = {
   'rdflib': path.resolve('./node_modules/rdflib'),
   'solid-logic': path.resolve('./node_modules/solid-logic'),
-  'solid-ui$': path.resolve('./node_modules/solid-ui/dist/solid-ui.esm.js'),
-  'UI$': path.resolve('./node_modules/solid-ui/dist/solid-ui.esm.js'),
-  'solid-ui/components/header$': path.resolve('./node_modules/solid-ui/dist/components/header/index.esm.js'),
-  'solid-panes$': path.resolve('./node_modules/solid-panes/dist/index.js'),
+  'solid-ui$': path.resolve('./node_modules/solid-ui/dist/index.esm.js'),
+  'solid-ui/components$': path.resolve('./node_modules/solid-ui/dist/components/index.esm.js'),
+  // NOTE: intentionally NO prefix alias for 'solid-ui/components'. solid-ui
+  // ships two parallel outputs for each component:
+  //   dist/components/<name>.js          (shim importing a shared chunk that
+  //                                       INLINES @awesome.me/webawesome)
+  //   dist/components/<name>/index.esm.js (proper leaf entry that keeps
+  //                                        webawesome external)
+  // A prefix alias pointing at dist/components would make webpack pick the
+  // shim, causing duplicate wa-popup / wa-tooltip custom-element registrations
+  // (one from the inlined shared chunk, one from the external webawesome).
+  // Let webpack resolve solid-ui/components/<name> via solid-ui's package.json
+  // `exports` field, which correctly maps to dist/components/<name>/index.esm.js.
+  'UI$': path.resolve('./node_modules/solid-ui/dist/index.esm.js'),
   'pane-registry': path.resolve('./node_modules/pane-registry'),
   '$rdf': path.resolve('./node_modules/rdflib'),
-  'SolidLogic': path.resolve('./node_modules/solid-logic')
+  'SolidLogic': path.resolve('./node_modules/solid-logic'),
+  // Force a single copy of @awesome.me/webawesome to avoid duplicate
+  // custom-element registrations (wa-popup, etc.) from the hoisted install.
+  '@awesome.me/webawesome': path.resolve('./node_modules/@awesome.me/webawesome'),
 }
 
 const workspaceAliases = {
-  'solid-panes$': path.resolve('../solid-panes/src/index.ts'),
-  'solid-ui$': path.resolve('../solid-ui/src/index.ts'),
-  'UI$': path.resolve('../solid-ui/src/index.ts'),
-  'solid-ui/components/header$': path.resolve('../solid-ui/src/v2/components/layout/header/index.ts'),
+  'solid-ui$': path.resolve('../solid-ui/dist/index.cjs.js'),
+  'solid-ui/components$': path.resolve('../solid-ui/dist/components/index.cjs.js'),
+  // See packageAliases: no prefix alias for 'solid-ui/components' — the
+  // shim files would shadow the correctly-externalized leaf entries.
+  'UI$': path.resolve('../solid-ui/dist/index.cjs.js'),
+  '@awesome.me/webawesome': path.resolve('../solid-ui/node_modules/@awesome.me/webawesome'),
 }
 
 function getResolutionMode (env = {}) {
@@ -38,7 +53,7 @@ function getResolutionMode (env = {}) {
 
 function getResolveConfig (resolutionMode) {
   return {
-    extensions: ['.js', '.ts'],
+    extensions: ['.js', '.ts', '.cjs.js', '.esm.js'],
     alias: {
       ...packageAliases,
       ...(resolutionMode === WORKSPACE_RESOLUTION_MODE ? workspaceAliases : {})
@@ -64,6 +79,7 @@ function createCommonConfig (resolutionMode) {
     target: 'web',
     output: {
       path: path.resolve(process.cwd(), 'dist'),
+      chunkFilename: '[name].js',
       // Use /mashlib/dist/ for GitHub Pages, / for localhost
       publicPath: process.env.PUBLIC_PATH || '/',
       library: {
@@ -81,7 +97,7 @@ function createCommonConfig (resolutionMode) {
         {
           test: /\.(mjs|js|ts)$/,
           exclude: (modulePath) => {
-            if (/node_modules[\/\\]solid-panes[\/\\]src/.test(modulePath)) return false
+            if (/node_modules[/\\]solid-panes[/\\]src/.test(modulePath)) return false
             return /node_modules|bower_components/.test(modulePath)
           },
           use: {
@@ -200,23 +216,9 @@ export default (env, args) => {
       }
     }
 
-    // Keep both bundle names in sync during watch/dev runs because downstream
-    // servers and templates may reference either path.
-    // webpack-cli requires a unique port per devServer config.
-    return [
-      developmentBundle,
-      {
-        ...developmentBundle,
-        devServer: {
-          ...developmentBundle.devServer,
-          port: 8081
-        },
-        output: {
-          ...developmentBundle.output,
-          filename: 'mashlib.min.js'
-        }
-      }
-    ]
+    // Use a single devServer config for watch/dev runs to avoid duplicate port
+    // conflicts in webpack-dev-server.
+    return developmentBundle
   }
 
   // UMD Minified, everything bundled
@@ -231,7 +233,7 @@ export default (env, args) => {
     optimization: {
       ...sharedOptimization,
       minimize: true,
-      minimizer: [new TerserPlugin({ 
+      minimizer: [new TerserPlugin({
         extractComments: false,
         terserOptions: {
           compress: {
@@ -244,7 +246,7 @@ export default (env, args) => {
     }
   }
 
-  // UMD Unminified, everything bundled  
+  // UMD Unminified, everything bundled
   const unminified = {
     ...common,
     mode: args.mode || 'production',
@@ -261,4 +263,3 @@ export default (env, args) => {
 
   return [minified, unminified]
 }
-

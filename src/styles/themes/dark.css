@@ -173,8 +173,6 @@ html[data-theme="dark"] {
   --color-sort-arrow: #555;
   
   /* Typography */
-  --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-family-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-size-base: 100%;
   --font-size-strong: 120%;
   --font-weight-normal: normal;

@@ -14,6 +14,7 @@ const packageAliases = {
   'solid-logic': path.resolve('./node_modules/solid-logic'),
   'solid-ui$': path.resolve('./node_modules/solid-ui/dist/index.esm.js'),
   'solid-ui/components$': path.resolve('./node_modules/solid-ui/dist/components/index.esm.js'),
+  'solid-panes$': path.resolve('./node_modules/solid-panes/dist/index.esm.js'),
   // NOTE: intentionally NO prefix alias for 'solid-ui/components'. solid-ui
   // ships two parallel outputs for each component:
   //   dist/components/<name>.js          (shim importing a shared chunk that
@@ -37,6 +38,7 @@ const packageAliases = {
 const workspaceAliases = {
   'solid-ui$': path.resolve('../solid-ui/dist/index.cjs.js'),
   'solid-ui/components$': path.resolve('../solid-ui/dist/components/index.cjs.js'),
+  'solid-panes$': path.resolve('../solid-panes/dist/index.esm.js'),
   // See packageAliases: no prefix alias for 'solid-ui/components' — the
   // shim files would shadow the correctly-externalized leaf entries.
   'UI$': path.resolve('../solid-ui/dist/index.cjs.js'),

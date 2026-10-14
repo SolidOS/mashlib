@@ -80,7 +80,15 @@ global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
 
 }
 
+// This uses `popstate`, the mechanism browsers without the Navigation API fall back to (see
+// NAVIGATION API FALLBACK in solid-panes' navigation/browserEvents.ts). It is kept for pages
+// that load mashlib without running the main page, which have nothing else that reacts to back
+// and forward. When the main page runs, it shows what the URL is on back and forward itself,
+// so this handler must not render a second time. The check is made when the event fires: this
+// handler is registered at load, before the main page starts.
 window.onpopstate = function (_event: any) {
+  if (panes.isHandlingBrowserNavigation()) return
+
   global.document.outline.GotoSubject(
     $rdf.sym(window.document.location.href),
     true,

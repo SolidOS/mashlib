@@ -24,6 +24,7 @@ html {
   text-rendering: optimizeLegibility;
   min-height: auto;
   min-width: 375px;
+  overflow-x: hidden;
 }
 
 body {
@@ -34,7 +35,8 @@ body {
   height: auto;
   min-height: 100dvh;
   min-width: 375px;
-  overflow: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   font-family: inherit;
   font-size: inherit;
   line-height: inherit;
@@ -1496,13 +1498,18 @@ a:focus {
   margin: var(--spacing-md) 0;
 }
 
-/* Success message styling */
+/* Subtle success feedback that fits the current surface styling. */
 [role="status"] {
-  padding: var(--spacing-md);
-  border: 2px solid var(--color-success);
-  border-radius: var(--border-radius-base);
-  background-color: rgba(0, 200, 83, 0.1);
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
   margin: var(--spacing-md) 0;
+  padding: 0.7rem 0.9rem;
+  border: 0;
+  border-radius: var(--border-radius-base, 0.5rem);
+  background: var(--color-success-alpha, rgba(0, 200, 83, 0.08));
+  color: var(--color-text-primary);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 6%);
 }
 
 th {

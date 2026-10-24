@@ -30,6 +30,10 @@ const buildRenderEnvironment = (): RenderEnvironment => ({
   viewport: layout.getViewport()
 })
 
+// Only the main page shows what the URL is. Pages that load mashlib and render a subject
+// themselves (browse.html) must not have an environment change replace it with the page URL.
+let mainPageStarted = false
+
 // Inject or update the environment on the pane context
 const syncEnvironmentToContext = async (_trigger?: Event | string) => {
   const outliner = panes.getOutliner(document) as any
@@ -43,7 +47,9 @@ const syncEnvironmentToContext = async (_trigger?: Event | string) => {
   }
 
   panes.updateEnvironment(outliner, buildRenderEnvironment())
-  await panes.refreshUI(outliner)
+  if (mainPageStarted) {
+    await panes.refreshUI(outliner)
+  }
 }
 
 // Keep environment in sync on layout/theme changes
@@ -51,6 +57,8 @@ window.addEventListener('mashlib:layoutchange', syncEnvironmentToContext)
 window.addEventListener('mashlib:themechange', syncEnvironmentToContext)
 
 global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
+  mainPageStarted = true
+
   // Set up cross-site proxy
   const fetcher: any = $rdf.Fetcher
   fetcher.crossSiteProxyTemplate = window.origin + '/xss/?uri={uri}'

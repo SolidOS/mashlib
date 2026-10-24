@@ -33,7 +33,8 @@ document.addEventListener('DOMContentLoaded', function() {
       window.history.replaceState({}, '', `${location.origin}${location.pathname}?${params}`);
 
       var subject = $rdf.sym(uri);
-      outliner.GotoSubject(subject, true, undefined, true, undefined, false);
+      // A folder is browsed in the full explorer: storage header, sidebar and content
+      outliner.GotoSubject(subject, true, undefined, true, undefined, undefined, { folderView: 'explorer' });
     }
 
     const uriField = dom.getElementById('uriField')
@@ -75,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="user-row">
         <solid-ui-account></solid-ui-account>
     </div>
-    <main id="MainContent" tabindex="-1" aria-live="polite" class="browser-main">
+    <main id="MainContent" tabindex="-1" aria-live="polite" class="app-view browser-main">
         <div
             id="OutlineView"
             class="outline-view"

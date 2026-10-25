@@ -19,26 +19,57 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const dom = document
-    // Disable cross-site proxy - modern Solid servers support CORS
-    // $rdf.Fetcher.crossSiteProxyTemplate = self.origin + '/xss?uri={uri}'
-    const uri = window.location.href
-    window.document.title = 'SolidOS Web App: ' + uri
-    const outliner = panes.getOutliner(dom) //function from solid-panes
-
-    function go (event) {
-      let uri = $rdf.uri.join(uriField.value, window.location.href)
-
-      const params = new URLSearchParams(location.search)
-      params.set('uri', uri);
-      window.history.replaceState({}, '', `${location.origin}${location.pathname}?${params}`);
-
-      var subject = $rdf.sym(uri);
-      outliner.GotoSubject(subject, true, undefined, true, undefined, false);
-    }
-
+    window.document.title = 'SolidOS Web App: ' + window.location.href
+    const outliner = panes.getOutliner(dom)
+    const { store, resource } = SolidLogic.solidLogicSingleton
     const uriField = dom.getElementById('uriField')
     const goButton = dom.getElementById('goButton')
     const pageHeader = dom.getElementById('PageHeader')
+    const ready = panes.initializeProfileHeading(() =>
+      new URLSearchParams(location.search).get('uri') || location.href)
+    let navigationRequest = 0
+
+    async function go () {
+      const request = ++navigationRequest
+      const target = new URL(uriField.value, window.location.href)
+      await ready
+      if (request !== navigationRequest) return
+
+      const subject = $rdf.sym(target.href)
+      let isContainer = false
+      try {
+        // The shared authenticated fetcher loads RDF and HTTP Link types into the store.
+        const response = await store.fetcher.load(subject.doc())
+        const canonical = new URL(response.url || target.href)
+        canonical.hash = target.hash
+        const canonicalSubject = $rdf.sym(canonical.href)
+        isContainer = resource.isContainer(subject.doc()) || resource.isContainer(canonicalSubject.doc())
+        if (isContainer) {
+          if (!canonical.pathname.endsWith('/')) canonical.pathname += '/'
+          target.href = canonical.href
+        }
+      } catch (error) {
+        // The outliner below renders the resource's access-denied or load-error view.
+        console.warn('Could not preload the browse resource.', error)
+      }
+      if (request !== navigationRequest) return
+
+      uriField.value = target.href
+      const pageUrl = new URL(window.location.href)
+      pageUrl.searchParams.set('uri', target.href)
+      window.history.replaceState({}, '', pageUrl)
+
+      const options = isContainer
+        ? { folderView: 'explorer', preserveUrl: true }
+        : { preserveUrl: true }
+      outliner.GotoSubject($rdf.sym(target.href), true, undefined, true, undefined, undefined, options)
+      await panes.refreshProfileHeading(true)
+    }
+
+    function navigate () {
+      if (!uriField.value.trim()) return
+      go().catch(error => console.error('Failed to browse the resource.', error))
+    }
 
     function updateHeaderOffset () {
       if (!pageHeader) return
@@ -49,17 +80,21 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('resize', updateHeaderOffset)
     updateHeaderOffset()
 
-    uriField.addEventListener('keyup', function (e) {
-      if (e.keyCode === 13) {
-        go(e)
-      }
-    }, false)
+    uriField.addEventListener('keydown', event => {
+      if (event.key === 'Enter') navigate()
+    })
+    goButton.addEventListener('click', navigate)
 
-    goButton.addEventListener('click', go, false);
-    let initial = new URLSearchParams(self.location.search).get("uri")
+    const authSession = SolidLogic.authn.authSession
+    for (const event of ['login', 'sessionRestore', 'logout', 'sessionChange', 'identityReplaced']) {
+      authSession.events.on(event, navigate)
+    }
+
+    const initial = new URLSearchParams(location.search).get('uri') ||
+      (location.pathname === '/' ? location.href : '')
     if (initial) {
       uriField.value = initial
-      go()
+      navigate()
     }
 });
 </script>
@@ -75,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="user-row">
         <solid-ui-account></solid-ui-account>
     </div>
-    <main id="MainContent" tabindex="-1" aria-live="polite" class="browser-main">
+    <main id="MainContent" tabindex="-1" aria-live="polite" class="app-view browser-main">
         <div
             id="OutlineView"
             class="outline-view"

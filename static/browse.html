@@ -125,13 +125,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
   <style>
     body {
-      padding-top: calc(var(--browse-header-offset, var(--app-header-height, 3.8rem)) + 0.35rem);
+      padding-top: calc(var(--browse-header-offset, var(--app-header-height, 60.8px)) + 5.6px);
     }
     .outline-view {
       width: 100%;
     }
     .header-mash {
-      padding:1em !important;
+      padding:16px !important;
       background: #bbb !important;
     }
     .browser-main {
@@ -139,16 +139,41 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     .user-row {
       margin-top: 0;
-      padding-top: 0.35em;
-      padding-bottom: 0.5em;
+      padding-top: 5.6px;
+      padding-bottom: 8px;
       margin-left:1em;
     }
     #uriField, .uri-field {
       font-size:100%;
       min-width:25em;
-      padding:0.5em;
+      padding:8px;
       width:70%;
       margin-top:0.6em !important;
+    }
+    @media (max-width: 768px) {
+      .header-mash {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 12px !important;
+        overflow: hidden;
+      }
+      #inputArea {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+      }
+      #uriField, .uri-field {
+        box-sizing: border-box;
+        flex: 1 1 192px;
+        min-width: 0;
+        width: auto;
+        margin-top: 0 !important;
+      }
+      #goButton {
+        flex: 0 0 auto;
+      }
     }
   </style>
 

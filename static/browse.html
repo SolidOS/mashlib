@@ -37,12 +37,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
       const subject = $rdf.sym(target.href)
       let isContainer = false
+      let canonicalSubject = subject
       try {
         // The shared authenticated fetcher loads RDF and HTTP Link types into the store.
         const response = await store.fetcher.load(subject.doc())
         const canonical = new URL(response.url || target.href)
         canonical.hash = target.hash
-        const canonicalSubject = $rdf.sym(canonical.href)
+        canonicalSubject = $rdf.sym(canonical.href)
         isContainer = resource.isContainer(subject.doc()) || resource.isContainer(canonicalSubject.doc())
         if (isContainer) {
           if (!canonical.pathname.endsWith('/')) canonical.pathname += '/'
@@ -59,8 +60,9 @@ document.addEventListener('DOMContentLoaded', function() {
       pageUrl.searchParams.set('uri', target.href)
       window.history.replaceState({}, '', pageUrl)
 
+      const isStorageRoot = resource.isStorageRoot(subject) || resource.isStorageRoot(canonicalSubject)
       const options = isContainer
-        ? { folderView: 'explorer', preserveUrl: true }
+        ? { folderView: isStorageRoot ? 'explorer' : 'container', preserveUrl: true }
         : { preserveUrl: true }
       outliner.GotoSubject($rdf.sym(target.href), true, undefined, true, undefined, undefined, options)
       await panes.refreshProfileHeading(true)

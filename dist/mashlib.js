@@ -55545,18 +55545,18 @@ var reactive_element = __webpack_require__(842);
 
 //# sourceMappingURL=index.js.map
 
-// EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.UEBQI7VV.js + 3 modules
-var chunk_UEBQI7VV = __webpack_require__(6704);
+// EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.DC6YZU3I.js + 3 modules
+var chunk_DC6YZU3I = __webpack_require__(9896);
 // EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.ZWQCGLB5.js
 var chunk_ZWQCGLB5 = __webpack_require__(4627);
 // EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.HS5AYC6E.js
 var chunk_HS5AYC6E = __webpack_require__(5920);
 // EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.AOKMSJXD.js
 var chunk_AOKMSJXD = __webpack_require__(8479);
-// EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.S67PIWQL.js
-var chunk_S67PIWQL = __webpack_require__(7033);
-// EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.M45NRQFW.js
-var chunk_M45NRQFW = __webpack_require__(4602);
+// EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.CZIZ2N7K.js
+var chunk_CZIZ2N7K = __webpack_require__(2810);
+// EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.35XIIBFX.js
+var chunk_35XIIBFX = __webpack_require__(5244);
 // EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.7VGCIHDG.js
 var chunk_7VGCIHDG = __webpack_require__(3529);
 ;// ./node_modules/@awesome.me/webawesome/dist/components/popup/popup.js
@@ -73777,10 +73777,6 @@ class StyleModule {
     this.rules = []
     let {finish} = options || {}
 
-    function splitSelector(selector) {
-      return /^@/.test(selector) ? [selector] : selector.split(/,\s*/)
-    }
-
     function render(selectors, spec, target, isKeyframes) {
       let local = [], isAt = /^@(\w+)\b/.exec(selectors[0]), keyframes = isAt && isAt[1] == "keyframes"
       if (isAt && spec == null) return target.push(selectors[0] + ";")
@@ -73793,7 +73789,8 @@ class StyleModule {
           if (!isAt) throw new RangeError("The value of a property (" + prop + ") should be a primitive value.")
           render(splitSelector(prop), value, local, keyframes)
         } else if (value != null) {
-          local.push(prop.replace(/_.*/, "").replace(/[A-Z]/g, l => "-" + l.toLowerCase()) + ": " + value + ";")
+          if (!/^--/.test(prop)) prop = prop.replace(/_.*/, "").replace(/[A-Z]/g, l => "-" + l.toLowerCase())
+          local.push(prop + ": " + value + ";")
         }
       }
       if (local.length || keyframes) {
@@ -73839,6 +73836,34 @@ class StyleModule {
     else if (nonce) set.setNonce(nonce)
     set.mount(Array.isArray(modules) ? modules : [modules], root)
   }
+}
+
+function splitSelector(selector) {
+  if (/^@/.test(selector)) return [selector]
+  // Superficially tokenize the selector to find top-level commas
+  let result = [], depth = 0, inStr = null, lastNonSpace = 0, cut = 0
+  for (let i = 0; i < selector.length; i++) {
+    let next = selector[i]
+    if (next == "\\") {
+      i++
+    } else if (next == '"' || next == "'") {
+      if (next == inStr) inStr = false
+      else if (!inStr) inStr = next
+    } else if ((next == "[" || next == "(") && !inStr) {
+      depth++
+    } else if ((next == "]" || next == ")") && !inStr) {
+      depth--
+    } else if (next == "," && !depth && !inStr) {
+      result.push(selector.slice(cut, lastNonSpace))
+      cut = i + 1
+    }
+
+    if (/\S/.test(next)) lastNonSpace = i + 1
+    else if (i == cut) cut++
+  }
+  result.push(selector.slice(cut, lastNonSpace))
+
+  return result
 }
 
 let adoptedSet = new Map //<Document, StyleSet>
@@ -111028,6 +111053,309 @@ module.exports = __WEBPACK_EXTERNAL_MODULE__8392__;
 
 /***/ },
 
+/***/ 5244
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   k: () => (/* binding */ en_default)
+/* harmony export */ });
+/* harmony import */ var _shoelace_style_localize__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1219);
+/*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
+
+// src/translations/en.ts
+
+var translation = {
+  $code: "en",
+  $name: "English",
+  $dir: "ltr",
+  alignCenter: "Align center",
+  alignEnd: "Align end",
+  alignJustify: "Justify",
+  alignment: "Alignment",
+  alignStart: "Align start",
+  allTagsRemoved: "All tags removed",
+  alternativeText: "Alternative text",
+  am: "AM",
+  apply: "Apply",
+  autosizeColumn: "Autosize column",
+  blockquote: "Blockquote",
+  bold: "Bold",
+  bulletList: "Bulleted list",
+  caption: "Caption",
+  captions: "Captions",
+  carousel: "Carousel",
+  cell: "Cell",
+  chooseDate: "Choose date",
+  chooseDecade: "Choose decade",
+  chooseMonth: "Choose month",
+  chooseTime: "Choose time",
+  chooseYear: "Choose year",
+  clearEntry: "Clear entry",
+  clearFilter: "Clear filter",
+  clearFormatting: "Clear formatting",
+  clearSort: "Clear sort",
+  close: "Close",
+  closeCalendar: "Close calendar",
+  closeTimeInput: "Close time picker",
+  code: "Code",
+  codeBlock: "Code block",
+  collapseRow: "Collapse row",
+  colorBlue: "Blue",
+  colorGray: "Gray",
+  colorGreen: "Green",
+  colorOrange: "Orange",
+  colorPink: "Pink",
+  colorPurple: "Purple",
+  colorRed: "Red",
+  colorYellow: "Yellow",
+  column: "Column",
+  columnMenu: "Column options",
+  columnMovedToPosition: (label, position, total) => `${label} moved to position ${position} of ${total}`,
+  columns: "Columns",
+  compactPageXOfY: (page, total) => `${page} of ${total}`,
+  completed: "Completed",
+  copied: "Copied",
+  copy: "Copy",
+  createOption: (value) => `Create "${value}"`,
+  currentlyPlaying: "currently playing",
+  currentValue: "Current value",
+  date: "Date",
+  datePickerKeyboardHelp: "Use arrow keys to change values; press Alt+Down Arrow to open the calendar.",
+  day: "Day",
+  dayPeriod: "AM/PM",
+  decrement: "Decrement",
+  deleteColumn: "Delete column",
+  deleteRow: "Delete row",
+  deleteTable: "Delete table",
+  deselectAllRows: "Deselect all rows",
+  disabled: "Disabled",
+  dropFileHere: "Drop file here or click to browse",
+  dropFilesHere: "Drop files here or click to browse",
+  editEmbed: "Edit embed",
+  editImage: "Edit image",
+  editLink: "Edit link",
+  embed: "Embed",
+  embedPlaceholder: "Paste a URL or embed code",
+  embedRemoved: "Embed removed",
+  embedUrl: "Embed URL",
+  empty: "Empty",
+  endDate: "End date",
+  enterAtLeastNumCharacters: (min) => `Enter at least ${min} characters`,
+  enterFullscreen: "Enter fullscreen",
+  enterUpToNumCharacters: (max) => `Enter up to ${max} characters`,
+  error: "Error",
+  exitFullscreen: "Exit fullscreen",
+  expandRow: "Expand row",
+  filterByColumn: (label) => `Filter by ${label}`,
+  filterFrom: "From",
+  filterMax: "Max",
+  filterMin: "Min",
+  filterTo: "To",
+  firstPage: "First page",
+  formatMenu: "More formatting",
+  formatting: "Formatting",
+  goToSlide: (slide, count) => `Go to slide ${slide} of ${count}`,
+  heading: "Heading",
+  headingLevel: (level) => `Heading ${level}`,
+  hideColumn: "Hide column",
+  hidePassword: "Hide password",
+  highlight: "Highlight",
+  highlightColor: "Highlight color",
+  horizontalRule: "Horizontal rule",
+  hour: "Hour",
+  image: "Image",
+  imageRemoved: "Image removed",
+  imageUrl: "Image URL",
+  incompleteDate: "Enter a valid date.",
+  increment: "Increment",
+  indent: "Indent",
+  inlineWithText: "In line with text",
+  insertColumnAfter: "Insert column after",
+  insertColumnBefore: "Insert column before",
+  insertEmbed: "Insert embed",
+  insertImage: "Insert image",
+  insertLink: "Insert link",
+  insertRowAbove: "Insert row above",
+  insertRowBelow: "Insert row below",
+  insertTable: "Insert table",
+  insertTableOfSize: (rows, columns) => `Insert ${rows} by ${columns} table`,
+  italic: "Italic",
+  jumpBackwardX: (count) => `Jump back ${count} pages`,
+  jumpForwardX: (count) => `Jump forward ${count} pages`,
+  keyAlt: "Alt",
+  keyCtrl: "Ctrl",
+  keyShift: "Shift",
+  lastPage: "Last page",
+  lightbox: "Lightbox",
+  link: "Link",
+  linkRemoved: "Link removed",
+  linkUrl: "Link URL",
+  lists: "Lists",
+  loading: "Loading",
+  locked: "Locked",
+  mediaLoadError: "Unable to load media",
+  mergeCells: "Merge cells",
+  minute: "Minute",
+  month: "Month",
+  moreOptions: "More Options",
+  moveColumnAfter: "Move column after",
+  moveColumnBefore: "Move column before",
+  moveRowDown: "Move row down",
+  moveRowUp: "Move row up",
+  mute: "Mute",
+  nextDecade: "Next decade",
+  nextMonth: "Next month",
+  nextPage: "Next page",
+  nextSlide: "Next slide",
+  nextVideo: "Next Video",
+  nextYear: "Next year",
+  noColor: "No color",
+  noData: "No data",
+  noOptions: "No options",
+  noResults: "No matching results",
+  noSuggestions: "No suggestions",
+  notCompleted: "Not completed",
+  now: "Now",
+  numCharacters: (num) => {
+    if (num === 1) return "1 character";
+    return `${num} characters`;
+  },
+  numCharactersRemaining: (num) => {
+    if (num === 1) return "1 character remaining";
+    return `${num} characters remaining`;
+  },
+  numOptionsAvailable: (num) => {
+    if (num === 0) return "No options available";
+    if (num === 1) return "1 option available";
+    return `${num} options available`;
+  },
+  numOptionsSelected: (num) => {
+    if (num === 0) return "No options selected";
+    if (num === 1) return "1 option selected";
+    return `${num} options selected`;
+  },
+  numRowsCopied: (num) => num === 1 ? "1 row copied" : `${num} rows copied`,
+  numRowsSelected: (num) => num === 1 ? "1 row selected" : `${num} rows selected`,
+  openInNewTab: "Open in new tab",
+  openLink: "Open link",
+  optionPosition: (label, position, total) => `${label}, ${position} of ${total}`,
+  optionsLoadError: "Options could not be loaded",
+  orderedList: "Numbered list",
+  outdent: "Outdent",
+  pageXOfY: (page, total) => `Page ${page} of ${total}`,
+  pagination: "Pagination",
+  paragraph: "Paragraph",
+  pasteAsPlainText: "Paste as plain text",
+  pause: "Pause",
+  pauseAnimation: "Pause animation",
+  pictureInPicture: "Picture in picture",
+  pinLeft: "Pin left",
+  pinRight: "Pin right",
+  play: "Play",
+  playAnimation: "Play animation",
+  playbackSpeed: "Playback speed",
+  playlist: "Playlist",
+  pm: "PM",
+  previousDecade: "Previous decade",
+  previousMonth: "Previous month",
+  previousPage: "Previous page",
+  previousSlide: "Previous slide",
+  previousVideo: "Previous video",
+  previousYear: "Previous year",
+  progress: "Progress",
+  rangeTooLong: (max) => {
+    if (max === 1) return "Select a range no longer than 1 day";
+    return `Select a range no longer than ${max} days`;
+  },
+  rangeTooShort: (min) => {
+    if (min === 1) return "Select a range at least 1 day long";
+    return `Select a range at least ${min} days long`;
+  },
+  readonly: "Read-only",
+  redo: "Redo",
+  remove: "Remove",
+  removeLink: "Remove link",
+  resetColumns: "Reset columns",
+  resize: "Resize",
+  resizeColumn: "Resize column",
+  row: "Row",
+  rowsAndColumns: (rows, columns) => `${rows} rows, ${columns} columns`,
+  rowsPerPage: "Rows per page",
+  scrollableRegion: "Scrollable region",
+  scrollToEnd: "Scroll to end",
+  scrollToStart: "Scroll to start",
+  search: "Search",
+  second: "Second",
+  seek: "Seek",
+  seekProgress: (current, duration) => `${current} of ${duration}`,
+  selectAColorFromTheScreen: "Select a color from the screen",
+  selectAllRows: "Select all rows",
+  selectCell: "Select cell",
+  selected: "Selected",
+  selectedDateLabel: (date) => `Selected: ${date}`,
+  selectedRangeLabel: (range) => `Selected range: ${range}`,
+  selectGroup: "Select group",
+  selectionCleared: "Selection cleared",
+  selectRow: "Select row",
+  selectTable: "Select table",
+  showingNofMRows: (shown, total) => `Showing ${shown} of ${total} rows`,
+  showingXtoYofZ: (start, end, total) => `${start}\u2013${end} of ${total}`,
+  showPassword: "Show password",
+  slideNum: (slide) => `Slide ${slide}`,
+  sortAscending: "Sort ascending",
+  sortColumn: "Sort column",
+  sortDescending: "Sort descending",
+  splitCell: "Split cell",
+  startDate: "Start date",
+  steps: "Steps",
+  stepXOfY: (step, total) => `Step ${step} of ${total}`,
+  strikethrough: "Strikethrough",
+  subscript: "Subscript",
+  suggestions: "Suggestions",
+  suggestionsAvailable: (count) => count === 1 ? "1 suggestion available" : `${count} suggestions available`,
+  suggestionsLoadError: "Suggestions could not be loaded",
+  superscript: "Superscript",
+  tableInserted: "Table inserted",
+  tableOptions: "Table options",
+  tableSize: "Table size",
+  tagAdded: (tag) => `${tag} added`,
+  tagAlreadyAdded: (tag) => `${tag} is already added`,
+  tagInputKeyboardHelp: "Press Backspace or Delete to remove this tag.",
+  tagRemoved: (tag) => `${tag} removed`,
+  textColor: "Text color",
+  textStyle: "Text style",
+  time: "Time",
+  timeInputKeyboardHelp: "Use arrow keys to change values; press Alt+Down Arrow to open the time picker.",
+  title: "Title",
+  today: "Today",
+  toggleColorFormat: "Toggle color format",
+  toggleHeaderColumn: "Header column",
+  toggleHeaderRow: "Header row",
+  tooFewTags: (min) => min === 1 ? "Add at least 1 tag" : `Add at least ${min} tags`,
+  tooManyTags: (max) => max === 1 ? "Add no more than 1 tag" : `Add no more than ${max} tags`,
+  underline: "Underline",
+  undo: "Undo",
+  unmute: "Unmute",
+  unpin: "Unpin",
+  unpinColumn: "Unpin column",
+  url: "URL",
+  videoPlayer: "Video player",
+  volume: "Volume",
+  wrapTextEnd: "Image at end, text wraps",
+  wrapTextStart: "Image at start, text wraps",
+  year: "Year",
+  zoomIn: "Zoom in",
+  zoomOut: "Zoom out"
+};
+(0,_shoelace_style_localize__WEBPACK_IMPORTED_MODULE_0__/* .registerTranslation */ .XC)(translation);
+var en_default = translation;
+
+
+
+
+/***/ },
+
 /***/ 3529
 (__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
@@ -111304,374 +111632,14 @@ _hasRecordedInitialProperties = new WeakMap();
 
 /***/ },
 
-/***/ 5920
-(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   w: () => (/* binding */ popup_styles_default)
-/* harmony export */ });
-/* harmony import */ var lit__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6337);
-/*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
-
-// src/components/popup/popup.styles.ts
-
-var popup_styles_default = (0,lit__WEBPACK_IMPORTED_MODULE_0__/* .css */ .AH)`
-  :host {
-    --arrow-color: black;
-    --arrow-size: var(--wa-tooltip-arrow-size);
-    --popup-border-width: 0px;
-    --show-duration: var(--wa-transition-fast);
-    --hide-duration: var(--wa-transition-fast);
-
-    /*
-     * These properties are computed to account for the arrow's dimensions after being rotated 45º. The constant
-     * 0.7071 is derived from sin(45) to calculate the length of the arrow after rotation.
-     *
-     * The diamond will be translated inward by --arrow-base-offset, the border thickness, to centralise it on
-     * the inner edge of the popup border. This also means we need to increase the size of the arrow by the
-     * same amount to compensate.
-     *
-     * A diamond shaped clipping mask is used to avoid overlap of popup content. This extends slightly inward so
-     * the popup border is covered with no sub-pixel rounding artifacts. The diamond corners are mitred at 22.5º
-     * to properly merge any arrow border with the popup border. The constant 1.4142 is derived from 1 + tan(22.5).
-     *
-     */
-    --arrow-base-offset: var(--popup-border-width);
-    --arrow-size-diagonal: calc((var(--arrow-size) + var(--arrow-base-offset)) * 0.7071);
-    --arrow-padding-offset: calc(var(--arrow-size-diagonal) - var(--arrow-size));
-    --arrow-size-div: calc(var(--arrow-size-diagonal) * 2);
-    --arrow-clipping-corner: calc(var(--arrow-base-offset) * 1.4142);
-
-    display: contents;
-  }
-
-  .popup {
-    position: absolute;
-    isolation: isolate;
-    max-width: var(--auto-size-available-width, none);
-    max-height: var(--auto-size-available-height, none);
-
-    /* Clear UA styles for [popover] */
-    :where(&) {
-      inset: unset;
-      padding: unset;
-      margin: unset;
-      width: unset;
-      height: unset;
-      color: unset;
-      background: unset;
-      border: unset;
-      overflow: unset;
-    }
-  }
-
-  .popup-fixed {
-    position: fixed;
-  }
-
-  .popup:not(.popup-active) {
-    display: none;
-  }
-
-  .arrow {
-    position: absolute;
-    width: var(--arrow-size-div);
-    height: var(--arrow-size-div);
-    background: var(--arrow-color);
-    z-index: 3;
-    clip-path: polygon(
-      var(--arrow-clipping-corner) 100%,
-      var(--arrow-base-offset) calc(100% - var(--arrow-base-offset)),
-      calc(var(--arrow-base-offset) - 2px) calc(100% - var(--arrow-base-offset)),
-      calc(100% - var(--arrow-base-offset)) calc(var(--arrow-base-offset) - 2px),
-      calc(100% - var(--arrow-base-offset)) var(--arrow-base-offset),
-      100% var(--arrow-clipping-corner),
-      100% 100%
-    );
-    rotate: 45deg;
-  }
-
-  :host([data-current-placement|='left']) .arrow {
-    rotate: -45deg;
-  }
-
-  :host([data-current-placement|='right']) .arrow {
-    rotate: 135deg;
-  }
-
-  :host([data-current-placement|='bottom']) .arrow {
-    rotate: 225deg;
-  }
-
-  /* Hover bridge */
-  .popup-hover-bridge:not(.popup-hover-bridge-visible) {
-    display: none;
-  }
-
-  .popup-hover-bridge {
-    position: fixed;
-    z-index: 899;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    clip-path: polygon(
-      var(--hover-bridge-top-left-x, 0) var(--hover-bridge-top-left-y, 0),
-      var(--hover-bridge-top-right-x, 0) var(--hover-bridge-top-right-y, 0),
-      var(--hover-bridge-bottom-right-x, 0) var(--hover-bridge-bottom-right-y, 0),
-      var(--hover-bridge-bottom-left-x, 0) var(--hover-bridge-bottom-left-y, 0)
-    );
-  }
-
-  /* Built-in animations */
-  .show {
-    animation: show var(--show-duration) ease;
-  }
-
-  .hide {
-    animation: show var(--hide-duration) ease reverse;
-  }
-
-  @keyframes show {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  .show-with-scale {
-    animation: show-with-scale var(--show-duration) ease;
-  }
-
-  .hide-with-scale {
-    animation: show-with-scale var(--hide-duration) ease reverse;
-  }
-
-  @keyframes show-with-scale {
-    from {
-      opacity: 0;
-      scale: 0.8;
-    }
-    to {
-      opacity: 1;
-      scale: 1;
-    }
-  }
-`;
-
-
-
-
-/***/ },
-
-/***/ 4602
-(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   k: () => (/* binding */ en_default)
-/* harmony export */ });
-/* harmony import */ var _shoelace_style_localize__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1219);
-/*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
-
-// src/translations/en.ts
-
-var translation = {
-  $code: "en",
-  $name: "English",
-  $dir: "ltr",
-  allTagsRemoved: "All tags removed",
-  am: "AM",
-  autosizeColumn: "Autosize column",
-  captions: "Captions",
-  carousel: "Carousel",
-  chooseDate: "Choose date",
-  chooseDecade: "Choose decade",
-  chooseMonth: "Choose month",
-  chooseTime: "Choose time",
-  chooseYear: "Choose year",
-  clearEntry: "Clear entry",
-  clearFilter: "Clear filter",
-  clearSort: "Clear sort",
-  close: "Close",
-  closeCalendar: "Close calendar",
-  closeTimeInput: "Close time picker",
-  collapseRow: "Collapse row",
-  columnMenu: "Column options",
-  columnMovedToPosition: (label, position, total) => `${label} moved to position ${position} of ${total}`,
-  columns: "Columns",
-  compactPageXOfY: (page, total) => `${page} of ${total}`,
-  completed: "Completed",
-  copied: "Copied",
-  copy: "Copy",
-  createOption: (value) => `Create "${value}"`,
-  currentlyPlaying: "currently playing",
-  currentValue: "Current value",
-  date: "Date",
-  datePickerKeyboardHelp: "Use arrow keys to change values; press Alt+Down Arrow to open the calendar.",
-  day: "Day",
-  dayPeriod: "AM/PM",
-  decrement: "Decrement",
-  deselectAllRows: "Deselect all rows",
-  disabled: "Disabled",
-  dropFileHere: "Drop file here or click to browse",
-  dropFilesHere: "Drop files here or click to browse",
-  empty: "Empty",
-  endDate: "End date",
-  enterFullscreen: "Enter fullscreen",
-  error: "Error",
-  exitFullscreen: "Exit fullscreen",
-  expandRow: "Expand row",
-  filterByColumn: (label) => `Filter by ${label}`,
-  filterFrom: "From",
-  filterMax: "Max",
-  filterMin: "Min",
-  filterTo: "To",
-  firstPage: "First page",
-  goToSlide: (slide, count) => `Go to slide ${slide} of ${count}`,
-  hideColumn: "Hide column",
-  hidePassword: "Hide password",
-  hour: "Hour",
-  incompleteDate: "Enter a valid date.",
-  increment: "Increment",
-  jumpBackwardX: (count) => `Jump back ${count} pages`,
-  jumpForwardX: (count) => `Jump forward ${count} pages`,
-  lastPage: "Last page",
-  loading: "Loading",
-  locked: "Locked",
-  minute: "Minute",
-  month: "Month",
-  moreOptions: "More Options",
-  mute: "Mute",
-  nextDecade: "Next decade",
-  nextMonth: "Next month",
-  nextPage: "Next page",
-  nextSlide: "Next slide",
-  nextVideo: "Next Video",
-  nextYear: "Next year",
-  noData: "No data",
-  noOptions: "No options",
-  noResults: "No matching results",
-  notCompleted: "Not completed",
-  now: "Now",
-  numCharacters: (num) => {
-    if (num === 1) return "1 character";
-    return `${num} characters`;
-  },
-  numCharactersRemaining: (num) => {
-    if (num === 1) return "1 character remaining";
-    return `${num} characters remaining`;
-  },
-  numOptionsAvailable: (num) => {
-    if (num === 0) return "No options available";
-    if (num === 1) return "1 option available";
-    return `${num} options available`;
-  },
-  numOptionsSelected: (num) => {
-    if (num === 0) return "No options selected";
-    if (num === 1) return "1 option selected";
-    return `${num} options selected`;
-  },
-  numRowsCopied: (num) => num === 1 ? "1 row copied" : `${num} rows copied`,
-  numRowsSelected: (num) => num === 1 ? "1 row selected" : `${num} rows selected`,
-  optionPosition: (label, position, total) => `${label}, ${position} of ${total}`,
-  optionsLoadError: "Options could not be loaded",
-  pageXOfY: (page, total) => `Page ${page} of ${total}`,
-  pagination: "Pagination",
-  pause: "Pause",
-  pauseAnimation: "Pause animation",
-  pictureInPicture: "Picture in picture",
-  pinLeft: "Pin left",
-  pinRight: "Pin right",
-  play: "Play",
-  playAnimation: "Play animation",
-  playbackSpeed: "Playback speed",
-  playlist: "Playlist",
-  pm: "PM",
-  previousDecade: "Previous decade",
-  previousMonth: "Previous month",
-  previousPage: "Previous page",
-  previousSlide: "Previous slide",
-  previousVideo: "Previous video",
-  previousYear: "Previous year",
-  progress: "Progress",
-  rangeTooLong: (max) => {
-    if (max === 1) return "Select a range no longer than 1 day";
-    return `Select a range no longer than ${max} days`;
-  },
-  rangeTooShort: (min) => {
-    if (min === 1) return "Select a range at least 1 day long";
-    return `Select a range at least ${min} days long`;
-  },
-  readonly: "Read-only",
-  remove: "Remove",
-  resetColumns: "Reset columns",
-  resize: "Resize",
-  resizeColumn: "Resize column",
-  rowsPerPage: "Rows per page",
-  scrollableRegion: "Scrollable region",
-  scrollToEnd: "Scroll to end",
-  scrollToStart: "Scroll to start",
-  search: "Search",
-  second: "Second",
-  seek: "Seek",
-  seekProgress: (current, duration) => `${current} of ${duration}`,
-  selectAColorFromTheScreen: "Select a color from the screen",
-  selectAllRows: "Select all rows",
-  selected: "Selected",
-  selectedDateLabel: (date) => `Selected: ${date}`,
-  selectedRangeLabel: (range) => `Selected range: ${range}`,
-  selectGroup: "Select group",
-  selectionCleared: "Selection cleared",
-  selectRow: "Select row",
-  showingNofMRows: (shown, total) => `Showing ${shown} of ${total} rows`,
-  showingXtoYofZ: (start, end, total) => `${start}\u2013${end} of ${total}`,
-  showPassword: "Show password",
-  slideNum: (slide) => `Slide ${slide}`,
-  sortAscending: "Sort ascending",
-  sortColumn: "Sort column",
-  sortDescending: "Sort descending",
-  startDate: "Start date",
-  steps: "Steps",
-  stepXOfY: (step, total) => `Step ${step} of ${total}`,
-  tagAdded: (tag) => `${tag} added`,
-  tagAlreadyAdded: (tag) => `${tag} is already added`,
-  tagInputKeyboardHelp: "Press Backspace or Delete to remove this tag.",
-  tagRemoved: (tag) => `${tag} removed`,
-  time: "Time",
-  timeInputKeyboardHelp: "Use arrow keys to change values; press Alt+Down Arrow to open the time picker.",
-  today: "Today",
-  toggleColorFormat: "Toggle color format",
-  tooFewTags: (min) => min === 1 ? "Add at least 1 tag" : `Add at least ${min} tags`,
-  tooManyTags: (max) => max === 1 ? "Add no more than 1 tag" : `Add no more than ${max} tags`,
-  unmute: "Unmute",
-  unpin: "Unpin",
-  unpinColumn: "Unpin column",
-  videoPlayer: "Video player",
-  volume: "Volume",
-  year: "Year",
-  zoomIn: "Zoom in",
-  zoomOut: "Zoom out"
-};
-(0,_shoelace_style_localize__WEBPACK_IMPORTED_MODULE_0__/* .registerTranslation */ .XC)(translation);
-var en_default = translation;
-
-
-
-
-/***/ },
-
-/***/ 7033
+/***/ 2810
 (__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   c: () => (/* binding */ LocalizeController)
 /* harmony export */ });
-/* harmony import */ var _chunk_M45NRQFW_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4602);
+/* harmony import */ var _chunk_35XIIBFX_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(5244);
 /* harmony import */ var _shoelace_style_localize__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(1219);
 /*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
 
@@ -111687,14 +111655,14 @@ var LocalizeController = class extends _shoelace_style_localize__WEBPACK_IMPORTE
     return super.lang();
   }
 };
-(0,_shoelace_style_localize__WEBPACK_IMPORTED_MODULE_1__/* .registerTranslation */ .XC)(_chunk_M45NRQFW_js__WEBPACK_IMPORTED_MODULE_0__/* .en_default */ .k);
+(0,_shoelace_style_localize__WEBPACK_IMPORTED_MODULE_1__/* .registerTranslation */ .XC)(_chunk_35XIIBFX_js__WEBPACK_IMPORTED_MODULE_0__/* .en_default */ .k);
 
 
 
 
 /***/ },
 
-/***/ 6704
+/***/ 9896
 (__unused_webpack___webpack_module__, __unused_webpack___webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -111707,8 +111675,8 @@ var chunk_ZWQCGLB5 = __webpack_require__(4627);
 var chunk_HS5AYC6E = __webpack_require__(5920);
 // EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.AOKMSJXD.js
 var chunk_AOKMSJXD = __webpack_require__(8479);
-// EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.S67PIWQL.js
-var chunk_S67PIWQL = __webpack_require__(7033);
+// EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.CZIZ2N7K.js
+var chunk_CZIZ2N7K = __webpack_require__(2810);
 // EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.7VGCIHDG.js
 var chunk_7VGCIHDG = __webpack_require__(3529);
 // EXTERNAL MODULE: ./node_modules/@floating-ui/dom/dist/floating-ui.dom.mjs + 2 modules
@@ -111739,7 +111707,7 @@ var directive = __webpack_require__(7804);
 
 //# sourceMappingURL=class-map.js.map
 
-;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.UEBQI7VV.js
+;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.DC6YZU3I.js
 /*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
 
 
@@ -111760,7 +111728,7 @@ var SUPPORTS_POPOVER = Boolean(globalThis?.HTMLElement?.prototype.hasOwnProperty
 var WaPopup = class extends chunk_AOKMSJXD/* WebAwesomeElement */._ {
   constructor() {
     super(...arguments);
-    this.localize = new chunk_S67PIWQL/* LocalizeController */.c(this);
+    this.localize = new chunk_CZIZ2N7K/* LocalizeController */.c(this);
     this.SUPPORTS_POPOVER = false;
     this.active = false;
     this.placement = "top";
@@ -111891,10 +111859,17 @@ var WaPopup = class extends chunk_AOKMSJXD/* WebAwesomeElement */._ {
     if (!this.anchorEl || !this.active || !this.isConnected) {
       return;
     }
+    this.cleanup?.();
+    this.cleanup = void 0;
     this.popup?.showPopover?.();
-    this.cleanup = (0,floating_ui_dom/* autoUpdate */.ll)(this.anchorEl, this.popup, () => {
+    const cleanup = (0,floating_ui_dom/* autoUpdate */.ll)(this.anchorEl, this.popup, () => {
       this.reposition();
     });
+    if (!this.active || !this.isConnected) {
+      cleanup();
+      return;
+    }
+    this.cleanup = cleanup;
   }
   async stop() {
     return new Promise((resolve) => {
@@ -112159,6 +112134,169 @@ WaPopup.css = chunk_HS5AYC6E/* popup_styles_default */.w;
 WaPopup = (0,chunk_7VGCIHDG/* __decorateClass */.Cc)([
   (0,decorators/* customElement */.EM)("wa-popup")
 ], WaPopup);
+
+
+
+
+/***/ },
+
+/***/ 5920
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   w: () => (/* binding */ popup_styles_default)
+/* harmony export */ });
+/* harmony import */ var lit__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(6337);
+/*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
+
+// src/components/popup/popup.styles.ts
+
+var popup_styles_default = (0,lit__WEBPACK_IMPORTED_MODULE_0__/* .css */ .AH)`
+  :host {
+    --arrow-color: black;
+    --arrow-size: var(--wa-tooltip-arrow-size);
+    --popup-border-width: 0px;
+    --show-duration: var(--wa-transition-fast);
+    --hide-duration: var(--wa-transition-fast);
+
+    /*
+     * These properties are computed to account for the arrow's dimensions after being rotated 45º. The constant
+     * 0.7071 is derived from sin(45) to calculate the length of the arrow after rotation.
+     *
+     * The diamond will be translated inward by --arrow-base-offset, the border thickness, to centralise it on
+     * the inner edge of the popup border. This also means we need to increase the size of the arrow by the
+     * same amount to compensate.
+     *
+     * A diamond shaped clipping mask is used to avoid overlap of popup content. This extends slightly inward so
+     * the popup border is covered with no sub-pixel rounding artifacts. The diamond corners are mitred at 22.5º
+     * to properly merge any arrow border with the popup border. The constant 1.4142 is derived from 1 + tan(22.5).
+     *
+     */
+    --arrow-base-offset: var(--popup-border-width);
+    --arrow-size-diagonal: calc((var(--arrow-size) + var(--arrow-base-offset)) * 0.7071);
+    --arrow-padding-offset: calc(var(--arrow-size-diagonal) - var(--arrow-size));
+    --arrow-size-div: calc(var(--arrow-size-diagonal) * 2);
+    --arrow-clipping-corner: calc(var(--arrow-base-offset) * 1.4142);
+
+    display: contents;
+  }
+
+  .popup {
+    position: absolute;
+    isolation: isolate;
+    max-width: var(--auto-size-available-width, none);
+    max-height: var(--auto-size-available-height, none);
+
+    /* Clear UA styles for [popover] */
+    :where(&) {
+      inset: unset;
+      padding: unset;
+      margin: unset;
+      width: unset;
+      height: unset;
+      color: unset;
+      background: unset;
+      border: unset;
+      overflow: unset;
+    }
+  }
+
+  .popup-fixed {
+    position: fixed;
+  }
+
+  .popup:not(.popup-active) {
+    display: none;
+  }
+
+  .arrow {
+    position: absolute;
+    width: var(--arrow-size-div);
+    height: var(--arrow-size-div);
+    background: var(--arrow-color);
+    z-index: 3;
+    clip-path: polygon(
+      var(--arrow-clipping-corner) 100%,
+      var(--arrow-base-offset) calc(100% - var(--arrow-base-offset)),
+      calc(var(--arrow-base-offset) - 2px) calc(100% - var(--arrow-base-offset)),
+      calc(100% - var(--arrow-base-offset)) calc(var(--arrow-base-offset) - 2px),
+      calc(100% - var(--arrow-base-offset)) var(--arrow-base-offset),
+      100% var(--arrow-clipping-corner),
+      100% 100%
+    );
+    rotate: 45deg;
+  }
+
+  :host([data-current-placement|='left']) .arrow {
+    rotate: -45deg;
+  }
+
+  :host([data-current-placement|='right']) .arrow {
+    rotate: 135deg;
+  }
+
+  :host([data-current-placement|='bottom']) .arrow {
+    rotate: 225deg;
+  }
+
+  /* Hover bridge */
+  .popup-hover-bridge:not(.popup-hover-bridge-visible) {
+    display: none;
+  }
+
+  .popup-hover-bridge {
+    position: fixed;
+    z-index: 899;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    clip-path: polygon(
+      var(--hover-bridge-top-left-x, 0) var(--hover-bridge-top-left-y, 0),
+      var(--hover-bridge-top-right-x, 0) var(--hover-bridge-top-right-y, 0),
+      var(--hover-bridge-bottom-right-x, 0) var(--hover-bridge-bottom-right-y, 0),
+      var(--hover-bridge-bottom-left-x, 0) var(--hover-bridge-bottom-left-y, 0)
+    );
+  }
+
+  /* Built-in animations */
+  .show {
+    animation: show var(--show-duration) ease;
+  }
+
+  .hide {
+    animation: show var(--hide-duration) ease reverse;
+  }
+
+  @keyframes show {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .show-with-scale {
+    animation: show-with-scale var(--show-duration) ease;
+  }
+
+  .hide-with-scale {
+    animation: show-with-scale var(--hide-duration) ease reverse;
+  }
+
+  @keyframes show-with-scale {
+    from {
+      opacity: 0;
+      scale: 0.8;
+    }
+    to {
+      opacity: 1;
+      scale: 1;
+    }
+  }
+`;
 
 
 
@@ -135516,10 +135654,10 @@ globals_w.UI = dist_index_esm_namespaceObject;
 ;// ./node_modules/solid-panes/dist/versionInfo.esm.js
 // src/versionInfo.ts
 var versionInfo_esm_e = {
-	buildTime: "2026-11-16T18:33:50Z",
-	commit: "617cc9d2e1579554c43d51cecf7b3e8f0d466e82",
+	buildTime: "2026-11-18T18:32:49Z",
+	commit: "c0be672459262c83fb6ee0be44a6664cc71e7be9",
 	npmInfo: {
-		"solid-panes": "5.1.0",
+		"solid-panes": "5.1.1",
 		npm: "10.9.9",
 		node: "22.23.4",
 		acorn: "8.16.0",
@@ -137802,7 +137940,7 @@ function getDeepestActiveElement() {
 
 
 
-;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.Z6IK7DP4.js
+;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.EZGTRBXB.js
 /*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
 
 // src/components/dropdown/dropdown.styles.ts
@@ -137828,6 +137966,7 @@ var dropdown_styles_default = (0,lit/* css */.AH)`
     text-align: start;
     user-select: none;
     overflow: auto;
+    overscroll-behavior: none;
     max-width: var(--auto-size-available-width) !important;
     max-height: var(--auto-size-available-height) !important;
 
@@ -138114,7 +138253,7 @@ var size_styles_default = (0,lit/* css */.AH)`
 
 
 
-;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.L6CIKOFQ.js
+;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.JATN5J6W.js
 /*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
 
 // src/internal/animate.ts
@@ -138122,32 +138261,18 @@ async function animate(el, keyframes, options) {
   return el.animate(keyframes, options).finished.catch(() => {
   });
 }
-function animateWithClass(el, className) {
-  return new Promise((resolve) => {
-    const controller = new AbortController();
-    const { signal } = controller;
-    if (el.classList.contains(className)) {
-      return;
+async function animateWithClass(el, className) {
+  el.getAnimations();
+  el.classList.add(className);
+  await new Promise((resolve) => requestAnimationFrame(() => resolve()));
+  const animationPromises = [];
+  for (const animation of el.getAnimations()) {
+    if (animation instanceof CSSAnimation && animation.effect?.getComputedTiming().endTime !== Infinity) {
+      animationPromises.push(animation.finished);
     }
-    el.classList.add(className);
-    let resolved = false;
-    let onEnd = () => {
-      if (resolved) {
-        return;
-      }
-      resolved = true;
-      el.classList.remove(className);
-      resolve();
-      controller.abort();
-    };
-    el.addEventListener("animationend", onEnd, { once: true, signal });
-    el.addEventListener("animationcancel", onEnd, { once: true, signal });
-    requestAnimationFrame(() => {
-      if (!resolved && el.getAnimations().length === 0) {
-        onEnd();
-      }
-    });
-  });
+  }
+  await Promise.allSettled(animationPromises);
+  el.classList.remove(className);
 }
 function parseDuration(duration) {
   duration = duration.toString().toLowerCase();
@@ -138200,13 +138325,13 @@ function watch(propertyName, options) {
 
 // EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.AOKMSJXD.js
 var chunk_AOKMSJXD = __webpack_require__(8479);
-// EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.S67PIWQL.js
-var chunk_S67PIWQL = __webpack_require__(7033);
+// EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.CZIZ2N7K.js
+var chunk_CZIZ2N7K = __webpack_require__(2810);
 // EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.7VGCIHDG.js
 var chunk_7VGCIHDG = __webpack_require__(3529);
 // EXTERNAL MODULE: ./node_modules/@floating-ui/dom/dist/floating-ui.dom.mjs + 2 modules
 var floating_ui_dom = __webpack_require__(7315);
-;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.GU5IUSXK.js
+;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.KY5LT3GJ.js
 /*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
 
 
@@ -138234,9 +138359,10 @@ var WaDropdown = class extends chunk_AOKMSJXD/* WebAwesomeElement */._ {
   constructor() {
     super(...arguments);
     this.submenuCleanups = /* @__PURE__ */ new Map();
-    this.localize = new chunk_S67PIWQL/* LocalizeController */.c(this);
+    this.localize = new chunk_CZIZ2N7K/* LocalizeController */.c(this);
     this.userTypedQuery = "";
     this.openSubmenuStack = [];
+    this.originalTrigger = null;
     this.open = false;
     this.size = "m";
     this.placement = "bottom-start";
@@ -138249,26 +138375,17 @@ var WaDropdown = class extends chunk_AOKMSJXD/* WebAwesomeElement */._ {
         const trigger = this.getTrigger();
         event.preventDefault();
         event.stopPropagation();
+        this.originalTrigger = trigger;
         this.open = false;
-        trigger?.focus({ preventScroll: true });
         return;
       }
       const activeElement = [...activeElements()].find((el) => el.localName === "wa-dropdown-item");
       const isFocusedOnItem = activeElement?.localName === "wa-dropdown-item";
       const currentSubmenuItem = this.getCurrentSubmenuItem();
       const isInSubmenu = !!currentSubmenuItem;
-      let items;
-      let activeItem;
-      let activeItemIndex;
-      if (isInSubmenu) {
-        items = this.getSubmenuItems(currentSubmenuItem);
-        activeItem = items.find((item) => item.active || item === activeElement);
-        activeItemIndex = activeItem ? items.indexOf(activeItem) : -1;
-      } else {
-        items = this.getItems();
-        activeItem = items.find((item) => item.active || item === activeElement);
-        activeItemIndex = activeItem ? items.indexOf(activeItem) : -1;
-      }
+      const items = isInSubmenu ? this.getSubmenuItems(currentSubmenuItem) : this.getItems();
+      const activeItem = items.find((item) => item === activeElement) ?? items.find((item) => item.active);
+      const activeItemIndex = activeItem ? items.indexOf(activeItem) : -1;
       let itemToSelect;
       if (event.key === "ArrowUp") {
         event.preventDefault();
@@ -138391,22 +138508,22 @@ var WaDropdown = class extends chunk_AOKMSJXD/* WebAwesomeElement */._ {
       const currentSubmenuItem = this.getCurrentSubmenuItem();
       if (!currentSubmenuItem?.submenuOpen || !currentSubmenuItem.submenuElement) return;
       const submenuRect = currentSubmenuItem.submenuElement.getBoundingClientRect();
-      const isRtl = this.localize.dir() === "rtl";
-      const submenuEdgeX = isRtl ? submenuRect.right : submenuRect.left;
-      const constrainedX = isRtl ? Math.max(event.clientX, submenuEdgeX) : Math.min(event.clientX, submenuEdgeX);
+      const isOnLeft = this.isSubmenuOnLeft(currentSubmenuItem);
+      const submenuEdgeX = isOnLeft ? submenuRect.right : submenuRect.left;
+      const constrainedX = isOnLeft ? Math.max(event.clientX, submenuEdgeX) : Math.min(event.clientX, submenuEdgeX);
       const constrainedY = Math.max(submenuRect.top, Math.min(event.clientY, submenuRect.bottom));
       currentSubmenuItem.submenuElement.style.setProperty("--safe-triangle-cursor-x", `${constrainedX}px`);
       currentSubmenuItem.submenuElement.style.setProperty("--safe-triangle-cursor-y", `${constrainedY}px`);
       const composedPath = event.composedPath();
-      const submenuItemHovered = currentSubmenuItem.matches(":hover");
-      const submenuElementHovered = Boolean(currentSubmenuItem.submenuElement?.matches(":hover"));
-      const isOverItem = submenuItemHovered || !!composedPath.find((el) => el === currentSubmenuItem);
-      const isOverSubmenu = submenuElementHovered || !!composedPath.find(
+      const submenuItemHovered = () => currentSubmenuItem.matches(":hover");
+      const submenuElementHovered = () => Boolean(currentSubmenuItem.submenuElement?.matches(":hover"));
+      const isOverItem = submenuItemHovered() || !!composedPath.find((el) => el === currentSubmenuItem);
+      const isOverSubmenu = submenuElementHovered() || !!composedPath.find(
         (el) => el instanceof HTMLElement && el.closest('[part="submenu"]') === currentSubmenuItem.submenuElement
       );
       if (!isOverItem && !isOverSubmenu) {
         setTimeout(() => {
-          if (!submenuItemHovered && !submenuElementHovered) {
+          if (!submenuItemHovered() && !submenuElementHovered()) {
             currentSubmenuItem.submenuOpen = false;
           }
         }, 100);
@@ -138526,13 +138643,14 @@ var WaDropdown = class extends chunk_AOKMSJXD/* WebAwesomeElement */._ {
   async showMenu() {
     const anchor = this.getTrigger();
     if (!anchor || !this.popup || !this.menu) return;
+    const focused = [...activeElements()].pop();
     const showEvent = new WaShowEvent();
     this.dispatchEvent(showEvent);
     if (showEvent.defaultPrevented) {
       this.open = false;
       return;
     }
-    if (this.popup.active) {
+    if (this.popup.active && !this.menu.classList.contains("hide")) {
       return;
     }
     openDropdowns.forEach((dropdown) => dropdown.open = false);
@@ -138545,12 +138663,26 @@ var WaDropdown = class extends chunk_AOKMSJXD/* WebAwesomeElement */._ {
     document.addEventListener("pointerdown", this.handleDocumentPointerDown);
     document.addEventListener("mousemove", this.handleGlobalMouseMove);
     this.menu.classList.remove("hide");
-    await animateWithClass(this.menu, "show");
-    const items = this.getItems();
-    if (items.length > 0) {
-      items.forEach((item, index) => item.active = index === 0);
-      items[0].focus({ preventScroll: true });
+    const animation = animateWithClass(this.menu, "show");
+    await this.popup.updateComplete;
+    await new Promise((resolve) => requestAnimationFrame(() => resolve()));
+    if (!this.open || !this.isConnected) return;
+    const submenu = this.getCurrentSubmenuItem();
+    const items = submenu ? this.getSubmenuItems(submenu) : this.getItems();
+    const content = this.defaultSlot.assignedElements({ flatten: true });
+    const activeEls = [...activeElements()];
+    const focusedContent = activeEls.find(
+      (element) => element instanceof HTMLElement && element.closest("wa-dropdown") === this && !element.matches(":disabled, [disabled]") && content.some((root) => root.contains(element))
+    );
+    if (focusedContent || activeEls.pop() === focused) {
+      const initialItem = focusedContent ?? items[0];
+      items.forEach((item) => item.active = item === initialItem);
+      if (!focusedContent) {
+        items[0]?.focus({ preventScroll: true });
+      }
     }
+    await animation;
+    if (!this.open || !this.isConnected) return;
     this.dispatchEvent(new WaAfterShowEvent());
   }
   /** Hides the dropdown menu. This should only be called from within updated(). */
@@ -138560,8 +138692,11 @@ var WaDropdown = class extends chunk_AOKMSJXD/* WebAwesomeElement */._ {
     this.dispatchEvent(hideEvent);
     if (hideEvent.defaultPrevented) {
       this.open = true;
+      this.originalTrigger = null;
       return;
     }
+    const originalTrigger = this.originalTrigger;
+    this.originalTrigger = null;
     this.open = false;
     openDropdowns.delete(this);
     unregisterDismissible(this);
@@ -138573,6 +138708,7 @@ var WaDropdown = class extends chunk_AOKMSJXD/* WebAwesomeElement */._ {
     await animateWithClass(this.menu, "hide");
     this.popup.active = this.open;
     this.dispatchEvent(new WaAfterHideEvent());
+    originalTrigger?.focus({ preventScroll: true });
   }
   /** Handles clicks on the menu. */
   handleMenuClick(event) {
@@ -138620,10 +138756,7 @@ var WaDropdown = class extends chunk_AOKMSJXD/* WebAwesomeElement */._ {
   setupSubmenuPosition(item) {
     if (!item.submenuElement) return;
     this.cleanupSubmenuPosition(item);
-    const cleanup = (0,floating_ui_dom/* autoUpdate */.ll)(item, item.submenuElement, () => {
-      this.positionSubmenu(item);
-      this.updateSafeTriangleCoordinates(item);
-    });
+    const cleanup = (0,floating_ui_dom/* autoUpdate */.ll)(item, item.submenuElement, () => this.positionSubmenu(item));
     this.submenuCleanups.set(item, cleanup);
     const submenuSlot = item.submenuElement.querySelector('slot[name="submenu"]');
     if (submenuSlot) {
@@ -138686,7 +138819,12 @@ var WaDropdown = class extends chunk_AOKMSJXD/* WebAwesomeElement */._ {
         left: `${x}px`,
         top: `${y}px`
       });
+      this.updateSafeTriangleCoordinates(item);
     });
+  }
+  /** Whether the submenu opened on the left of its parent item, which happens in RTL or when it flips */
+  isSubmenuOnLeft(item) {
+    return item.submenuElement.getAttribute("data-placement")?.startsWith("left") ?? false;
   }
   /** Updates the safe triangle coordinates for a submenu */
   updateSafeTriangleCoordinates(item) {
@@ -138698,16 +138836,10 @@ var WaDropdown = class extends chunk_AOKMSJXD/* WebAwesomeElement */._ {
     }
     item.submenuElement.style.setProperty("--safe-triangle-visible", "block");
     const submenuRect = item.submenuElement.getBoundingClientRect();
-    const isRtl = this.localize.dir() === "rtl";
-    item.submenuElement.style.setProperty(
-      "--safe-triangle-submenu-start-x",
-      `${isRtl ? submenuRect.right : submenuRect.left}px`
-    );
+    const submenuEdgeX = this.isSubmenuOnLeft(item) ? submenuRect.right : submenuRect.left;
+    item.submenuElement.style.setProperty("--safe-triangle-submenu-start-x", `${submenuEdgeX}px`);
     item.submenuElement.style.setProperty("--safe-triangle-submenu-start-y", `${submenuRect.top}px`);
-    item.submenuElement.style.setProperty(
-      "--safe-triangle-submenu-end-x",
-      `${isRtl ? submenuRect.right : submenuRect.left}px`
-    );
+    item.submenuElement.style.setProperty("--safe-triangle-submenu-end-x", `${submenuEdgeX}px`);
     item.submenuElement.style.setProperty("--safe-triangle-submenu-end-y", `${submenuRect.bottom}px`);
   }
   /** Makes a selection, emits the wa-select event, and closes the dropdown. */
@@ -138737,7 +138869,7 @@ var WaDropdown = class extends chunk_AOKMSJXD/* WebAwesomeElement */._ {
     if (trigger.localName === "wa-button") {
       await customElements.whenDefined("wa-button");
       await trigger.updateComplete;
-      nativeButton = trigger.shadowRoot.querySelector('[part~="base"]');
+      nativeButton = trigger.shadowRoot.querySelector('[part~="button"]');
     } else {
       nativeButton = trigger;
     }
@@ -138760,7 +138892,7 @@ var WaDropdown = class extends chunk_AOKMSJXD/* WebAwesomeElement */._ {
         flip-fallback-strategy="best-fit"
         shift
         shift-padding="10"
-        auto-size="vertical"
+        auto-size="both"
         auto-size-padding="10"
       >
         <slot
@@ -138818,7 +138950,7 @@ WaDropdown = (0,chunk_7VGCIHDG/* __decorateClass */.Cc)([
 
 
 
-;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.YCTNB6J5.js
+;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.U3YAHTUK.js
 /*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
 
 // src/components/dropdown-item/dropdown-item.styles.ts
@@ -138898,9 +139030,10 @@ var dropdown_item_styles_default = (0,lit/* css */.AH)`
     display: none;
   }
 
+  /* The start margin cancels the check's width (1.25em) and end margin, so checked and unchecked items line up */
   #check {
     visibility: hidden;
-    margin-inline-start: -1.5em;
+    margin-inline-start: -1.75em;
     margin-inline-end: 0.5em;
     font-size: var(--wa-font-size-smaller);
   }
@@ -139142,7 +139275,7 @@ var HasSlotController = class {
 
 //# sourceMappingURL=if-defined.js.map
 
-;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.JZGJWX35.js
+;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.AP6XQJB6.js
 /*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
 
 
@@ -139312,6 +139445,9 @@ var WaDropdownItem = class extends chunk_AOKMSJXD/* WebAwesomeElement */._ {
     if (!this.hasSubmenu || !submenu) return;
     this.submenuOpen = false;
     this.setAttribute("aria-expanded", "false");
+    if (this.getSubmenuItems().some((item) => item.matches(":focus-within"))) {
+      this.focus({ preventScroll: true });
+    }
     if (!submenu.hidden) {
       await animateWithClass(submenu, "hide");
       if (submenu?.isConnected) {
@@ -139335,17 +139471,37 @@ var WaDropdownItem = class extends chunk_AOKMSJXD/* WebAwesomeElement */._ {
     if (!this.isLink() || this.disabled || !link) {
       return;
     }
-    link.dispatchEvent(
-      new MouseEvent("click", {
-        bubbles: false,
-        cancelable: true,
-        composed: false,
-        altKey: sourceEvent?.altKey ?? false,
-        ctrlKey: sourceEvent?.ctrlKey ?? false,
-        metaKey: sourceEvent?.metaKey ?? false,
-        shiftKey: sourceEvent?.shiftKey ?? false
-      })
-    );
+    let handled = false;
+    const dispatchClick = () => {
+      if (handled) return;
+      handled = true;
+      if (sourceEvent?.type) {
+        window.removeEventListener(sourceEvent.type, handleWindowEvent);
+      }
+      if (sourceEvent instanceof MouseEvent && sourceEvent.defaultPrevented) {
+        return;
+      }
+      link.dispatchEvent(
+        new MouseEvent("click", {
+          bubbles: false,
+          cancelable: true,
+          composed: false,
+          altKey: sourceEvent?.altKey ?? false,
+          ctrlKey: sourceEvent?.ctrlKey ?? false,
+          metaKey: sourceEvent?.metaKey ?? false,
+          shiftKey: sourceEvent?.shiftKey ?? false
+        })
+      );
+    };
+    const handleWindowEvent = (event) => {
+      if (event === sourceEvent) dispatchClick();
+    };
+    if (!sourceEvent || !sourceEvent.bubbles || sourceEvent.eventPhase === Event.NONE) {
+      dispatchClick();
+      return;
+    }
+    window.addEventListener(sourceEvent.type, handleWindowEvent);
+    setTimeout(dispatchClick);
   }
   /** Gets all dropdown items in the submenu. */
   getSubmenuItems() {
@@ -139409,7 +139565,7 @@ var WaDropdownItem = class extends chunk_AOKMSJXD/* WebAwesomeElement */._ {
             >
               <slot name="submenu"></slot>
             </div>
-          ` : ""}
+          ` : (0,lit/* html */.qy)`<slot name="submenu" hidden></slot>`}
     `;
   }
 };
@@ -139474,8 +139630,8 @@ WaDropdownItem = (0,chunk_7VGCIHDG/* __decorateClass */.Cc)([
 
 
 
-// EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.UEBQI7VV.js + 3 modules
-var chunk_UEBQI7VV = __webpack_require__(6704);
+// EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.DC6YZU3I.js + 3 modules
+var chunk_DC6YZU3I = __webpack_require__(9896);
 // EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.ZWQCGLB5.js
 var chunk_ZWQCGLB5 = __webpack_require__(4627);
 // EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.HS5AYC6E.js
@@ -140360,6 +140516,33 @@ var icon_styles_default = (0,lit/* css */.AH)`
 
 
 
+;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.PM4OOGCP.js
+/*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
+
+// src/components/icon/library.config.ts
+var defaultIconFamily = "";
+var defaultIconVariant = "";
+function setDefaultIconFamilyAndVariant(family, variant) {
+  defaultIconFamily = family;
+  if (variant !== void 0) {
+    defaultIconVariant = variant;
+  }
+}
+function getDefaultIconFamily() {
+  if (!defaultIconFamily) {
+    defaultIconFamily = document.querySelector("[data-fa-family]")?.getAttribute("data-fa-family") || "classic";
+  }
+  return defaultIconFamily;
+}
+function getDefaultIconVariant() {
+  if (!defaultIconVariant) {
+    defaultIconVariant = document.querySelector("[data-fa-variant]")?.getAttribute("data-fa-variant") || "solid";
+  }
+  return defaultIconVariant;
+}
+
+
+
 ;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.HGBRCPUS.js
 /*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
 
@@ -140410,8 +140593,9 @@ function getKitCode() {
 
 
 
-;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.KKI7M5DP.js
+;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.JE7SQLHI.js
 /*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
+
 
 
 // src/components/icon/library.default.ts
@@ -140523,15 +140707,16 @@ function getIconUrl(name, family, variant) {
 }
 var library = {
   name: "default",
-  resolver: (name, family = "classic", variant = "solid") => {
-    return getIconUrl(name, family, variant);
+  resolver: (name, family, variant) => {
+    return getIconUrl(name, family || getDefaultIconFamily(), variant || getDefaultIconVariant());
   },
   mutator: (svg, hostEl) => {
     if (!svg.hasAttribute("fill")) {
       svg.setAttribute("fill", "currentColor");
     }
-    if (hostEl?.family && !svg.hasAttribute("data-duotone-initialized")) {
-      const { family, variant } = hostEl;
+    if (hostEl && !svg.hasAttribute("data-duotone-initialized")) {
+      const family = hostEl.family || getDefaultIconFamily();
+      const { variant } = hostEl;
       if (
         // Duotone
         family === "duotone" || // Sharp duotone
@@ -140564,8 +140749,19 @@ var library_default_default = library;
 
 
 
-;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.YPRC5XZF.js
+;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.NRKYOGEO.js
 /*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
+
+// src/components/icon/library.system.sets.ts
+var systemIconSets = {};
+
+
+
+;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.L5A4HNJK.js
+/*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
+
+
+
 
 // src/components/icon/library.system.ts
 function dataUri(svg) {
@@ -140576,13 +140772,19 @@ var icons = {
   // Solid variant
   //
   solid: {
+    "align-center": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M352 64c0-17.7-14.3-32-32-32L128 32c-17.7 0-32 14.3-32 32s14.3 32 32 32l192 0c17.7 0 32-14.3 32-32zm96 128c0-17.7-14.3-32-32-32L32 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l384 0c17.7 0 32-14.3 32-32zM0 448c0 17.7 14.3 32 32 32l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L32 416c-17.7 0-32 14.3-32 32zM352 320c0-17.7-14.3-32-32-32l-192 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l192 0c17.7 0 32-14.3 32-32z"/></svg>`,
+    "align-justify": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M448 64c0-17.7-14.3-32-32-32L32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l384 0c17.7 0 32-14.3 32-32zm0 256c0-17.7-14.3-32-32-32L32 288c-17.7 0-32 14.3-32 32s14.3 32 32 32l384 0c17.7 0 32-14.3 32-32zM0 192c0 17.7 14.3 32 32 32l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L32 160c-17.7 0-32 14.3-32 32zM448 448c0-17.7-14.3-32-32-32L32 416c-17.7 0-32 14.3-32 32s14.3 32 32 32l384 0c17.7 0 32-14.3 32-32z"/></svg>`,
+    "align-left": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M288 64c0 17.7-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l224 0c17.7 0 32 14.3 32 32zm0 256c0 17.7-14.3 32-32 32L32 352c-17.7 0-32-14.3-32-32s14.3-32 32-32l224 0c17.7 0 32 14.3 32 32zM0 192c0-17.7 14.3-32 32-32l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 224c-17.7 0-32-14.3-32-32zM448 448c0 17.7-14.3 32-32 32L32 480c-17.7 0-32-14.3-32-32s14.3-32 32-32l384 0c17.7 0 32 14.3 32 32z"/></svg>`,
+    "align-right": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M448 64c0 17.7-14.3 32-32 32L192 96c-17.7 0-32-14.3-32-32s14.3-32 32-32l224 0c17.7 0 32 14.3 32 32zm0 256c0 17.7-14.3 32-32 32l-224 0c-17.7 0-32-14.3-32-32s14.3-32 32-32l224 0c17.7 0 32 14.3 32 32zM0 192c0-17.7 14.3-32 32-32l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 224c-17.7 0-32-14.3-32-32zM448 448c0 17.7-14.3 32-32 32L32 480c-17.7 0-32-14.3-32-32s14.3-32 32-32l384 0c17.7 0 32 14.3 32 32z"/></svg>`,
     "arrow-down": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M169.4 502.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 402.7 224 32c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 370.7-105.4-105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"/></svg>`,
     "arrow-up": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M214.6 9.4c-12.5-12.5-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 109.3 160 480c0 17.7 14.3 32 32 32s32-14.3 32-32l0-370.7 105.4 105.4c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-160-160z"/></svg>`,
+    "arrow-up-right-from-square": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M320 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l82.7 0-201.4 201.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L448 109.3 448 192c0 17.7 14.3 32 32 32s32-14.3 32-32l0-160c0-17.7-14.3-32-32-32L320 0zM80 96C35.8 96 0 131.8 0 176L0 432c0 44.2 35.8 80 80 80l256 0c44.2 0 80-35.8 80-80l0-80c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 80c0 8.8-7.2 16-16 16L80 448c-8.8 0-16-7.2-16-16l0-256c0-8.8 7.2-16 16-16l80 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L80 96z"/></svg>`,
     backward: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M236.3 107.1C247.9 96 265 92.9 279.7 99.2C294.4 105.5 304 120 304 136L304 272.3L476.3 107.2C487.9 96 505 92.9 519.7 99.2C534.4 105.5 544 120 544 136L544 504C544 520 534.4 534.5 519.7 540.8C505 547.1 487.9 544 476.3 532.9L304 367.7L304 504C304 520 294.4 534.5 279.7 540.8C265 547.1 247.9 544 236.3 532.9L44.3 348.9C36.5 341.3 32 330.9 32 320C32 309.1 36.5 298.7 44.3 291.1L236.3 107.1z"/></svg>`,
     "backward-step": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M491 100.8C478.1 93.8 462.3 94.5 450 102.6L192 272.1L192 128C192 110.3 177.7 96 160 96C142.3 96 128 110.3 128 128L128 512C128 529.7 142.3 544 160 544C177.7 544 192 529.7 192 512L192 367.9L450 537.5C462.3 545.6 478 546.3 491 539.3C504 532.3 512 518.8 512 504.1L512 136.1C512 121.4 503.9 107.9 491 100.9z"/></svg>`,
     bars: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 128C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 288c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32L32 448c-17.7 0-32-14.3-32-32s14.3-32 32-32l384 0c17.7 0 32 14.3 32 32z"/></svg>`,
     "angles-left": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc. --><path d="M77.3 256 214.7 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256zm192 0L406.7 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L269.3 256z"/></svg>`,
     "angles-right": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc. --><path d="M434.7 256 297.3 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L434.7 256zm-192 0L105.3 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256z"/></svg>`,
+    bold: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l32 0 0 320-32 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l224 0c70.7 0 128-57.3 128-128 0-46.5-24.8-87.3-62-109.7 18.7-22.3 30-51 30-82.3 0-70.7-57.3-128-128-128L32 32zM288 160c0 35.3-28.7 64-64 64l-96 0 0-128 96 0c35.3 0 64 28.7 64 64zM128 416l0-128 128 0c35.3 0 64 28.7 64 64s-28.7 64-64 64l-128 0z"/></svg>`,
     check: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc. --><path d="M434.8 70.1c14.3 10.4 17.5 30.4 7.1 44.7l-256 352c-5.5 7.6-14 12.3-23.4 13.1s-18.5-2.7-25.1-9.3l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l101.5 101.5 234-321.7c10.4-14.3 30.4-17.5 44.7-7.1z"/></svg>`,
     "chevron-down": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc. --><path d="M201.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 338.7 54.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z"/></svg>`,
     "chevron-left": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc. --><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z"/></svg>`,
@@ -140590,12 +140792,17 @@ var icons = {
     circle: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc. --><path d="M0 256a256 256 0 1 1 512 0 256 256 0 1 1 -512 0z"/></svg>`,
     "closed-captioning": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M64 192C64 156.7 92.7 128 128 128L512 128C547.3 128 576 156.7 576 192L576 448C576 483.3 547.3 512 512 512L128 512C92.7 512 64 483.3 64 448L64 192zM216 272L248 272C252.4 272 256 275.6 256 280C256 293.3 266.7 304 280 304C293.3 304 304 293.3 304 280C304 249.1 278.9 224 248 224L216 224C185.1 224 160 249.1 160 280L160 360C160 390.9 185.1 416 216 416L248 416C278.9 416 304 390.9 304 360C304 346.7 293.3 336 280 336C266.7 336 256 346.7 256 360C256 364.4 252.4 368 248 368L216 368C211.6 368 208 364.4 208 360L208 280C208 275.6 211.6 272 216 272zM384 280C384 275.6 387.6 272 392 272L424 272C428.4 272 432 275.6 432 280C432 293.3 442.7 304 456 304C469.3 304 480 293.3 480 280C480 249.1 454.9 224 424 224L392 224C361.1 224 336 249.1 336 280L336 360C336 390.9 361.1 416 392 416L424 416C454.9 416 480 390.9 480 360C480 346.7 469.3 336 456 336C442.7 336 432 346.7 432 360C432 364.4 428.4 368 424 368L392 368C387.6 368 384 364.4 384 360L384 280z"/></svg>`,
     "closed-captioning-slash": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M39 39.1C48.4 29.7 63.6 29.7 72.9 39.1L161.8 128L512 128C547.3 128 576 156.7 576 192L576 448C576 473.5 561.1 495.4 539.6 505.8L601 567.1C610.4 576.5 610.4 591.7 601 601C591.6 610.3 576.4 610.4 567.1 601L39 73.1C29.7 63.7 29.7 48.5 39 39.1zM384 350.1L384 279.9C384 275.5 387.6 271.9 392 271.9L424 271.9C428.4 271.9 432 275.5 432 279.9C432 293.2 442.7 303.9 456 303.9C469.3 303.9 480 293.2 480 279.9C480 249 454.9 223.9 424 223.9L392 223.9C361.1 223.9 336 249 336 279.9L336 302.1L384 350.1zM445.5 411.6C465.7 403.2 480 383.2 480 359.9C480 346.6 469.3 335.9 456 335.9C442.7 335.9 432 346.6 432 359.9C432 364.3 428.4 367.9 424 367.9L401.8 367.9L445.5 411.6zM162.3 264.1C160.8 269.1 160 274.5 160 280L160 360C160 390.9 185.1 416 216 416L248 416C266.1 416 282.1 407.5 292.4 394.2L410.2 512L128 512C92.7 512 64 483.3 64 448L64 192C64 184.2 65.4 176.7 68 169.8L162.3 264.1zM256.1 357.9C256 358.6 256 359.3 256 360C256 364.4 252.4 368 248 368L216 368C211.6 368 208 364.4 208 360L208 309.8L256.1 357.9z"/></svg>`,
+    code: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M360.8 1.2c-17-4.9-34.7 5-39.6 22l-128 448c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l128-448c4.9-17-5-34.7-22-39.6zm64.6 136.1c-12.5 12.5-12.5 32.8 0 45.3l73.4 73.4-73.4 73.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l96-96c12.5-12.5 12.5-32.8 0-45.3l-96-96c-12.5-12.5-32.8-12.5-45.3 0zm-274.7 0c-12.5-12.5-32.8-12.5-45.3 0l-96 96c-12.5 12.5-12.5 32.8 0 45.3l96 96c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 150.6 182.6c12.5-12.5 12.5-32.8 0-45.3z"/></svg>`,
     compress: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M160 64c0-17.7-14.3-32-32-32S96 46.3 96 64l0 64-64 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l96 0c17.7 0 32-14.3 32-32l0-96zM32 320c-17.7 0-32 14.3-32 32s14.3 32 32 32l64 0 0 64c0 17.7 14.3 32 32 32s32-14.3 32-32l0-96c0-17.7-14.3-32-32-32l-96 0zM352 64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 96c0 17.7 14.3 32 32 32l96 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-64 0 0-64zM320 320c-17.7 0-32 14.3-32 32l0 96c0 17.7 14.3 32 32 32s32-14.3 32-32l0-64 64 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0z"/></svg>`,
     ellipsis: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M96 320C96 289.1 121.1 264 152 264C182.9 264 208 289.1 208 320C208 350.9 182.9 376 152 376C121.1 376 96 350.9 96 320zM264 320C264 289.1 289.1 264 320 264C350.9 264 376 289.1 376 320C376 350.9 350.9 376 320 376C289.1 376 264 350.9 264 320zM488 264C518.9 264 544 289.1 544 320C544 350.9 518.9 376 488 376C457.1 376 432 350.9 432 320C432 289.1 457.1 264 488 264z"/></svg>`,
     "ellipsis-vertical": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M320 208C289.1 208 264 182.9 264 152C264 121.1 289.1 96 320 96C350.9 96 376 121.1 376 152C376 182.9 350.9 208 320 208zM320 432C350.9 432 376 457.1 376 488C376 518.9 350.9 544 320 544C289.1 544 264 518.9 264 488C264 457.1 289.1 432 320 432zM376 320C376 350.9 350.9 376 320 376C289.1 376 264 350.9 264 320C264 289.1 289.1 264 320 264C350.9 264 376 289.1 376 320z"/></svg>`,
+    eraser: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M178.5 416l123 0 65.3-65.3-173.5-173.5-126.7 126.7 112 112zM224 480l-45.5 0c-17 0-33.3-6.7-45.3-18.7L17 345C6.1 334.1 0 319.4 0 304s6.1-30.1 17-41L263 17C273.9 6.1 288.6 0 304 0s30.1 6.1 41 17L527 199c10.9 10.9 17 25.6 17 41s-6.1 30.1-17 41l-135 135 120 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-288 0z"/></svg>`,
     expand: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M128 96C110.3 96 96 110.3 96 128L96 224C96 241.7 110.3 256 128 256C145.7 256 160 241.7 160 224L160 160L224 160C241.7 160 256 145.7 256 128C256 110.3 241.7 96 224 96L128 96zM160 416C160 398.3 145.7 384 128 384C110.3 384 96 398.3 96 416L96 512C96 529.7 110.3 544 128 544L224 544C241.7 544 256 529.7 256 512C256 494.3 241.7 480 224 480L160 480L160 416zM416 96C398.3 96 384 110.3 384 128C384 145.7 398.3 160 416 160L480 160L480 224C480 241.7 494.3 256 512 256C529.7 256 544 241.7 544 224L544 128C544 110.3 529.7 96 512 96L416 96zM544 416C544 398.3 529.7 384 512 384C494.3 384 480 398.3 480 416L480 480L416 480C398.3 480 384 494.3 384 512C384 529.7 398.3 544 416 544L512 544C529.7 544 544 529.7 544 512L544 416z"/></svg>`,
     eyedropper: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc. --><path d="M341.6 29.2l-101.6 101.6-9.4-9.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-9.4-9.4 101.6-101.6c39-39 39-102.2 0-141.1s-102.2-39-141.1 0zM55.4 323.3c-15 15-23.4 35.4-23.4 56.6l0 42.4-26.6 39.9c-8.5 12.7-6.8 29.6 4 40.4s27.7 12.5 40.4 4l39.9-26.6 42.4 0c21.2 0 41.6-8.4 56.6-23.4l109.4-109.4-45.3-45.3-109.4 109.4c-3 3-7.1 4.7-11.3 4.7l-36.1 0 0-36.1c0-4.2 1.7-8.3 4.7-11.3l109.4-109.4-45.3-45.3-109.4 109.4z"/></svg>`,
+    "fill-drip": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M309.7 71.6l-64.4 64.4 33.4 33.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0l-33.4-33.4-96.4 96.4c-2.9 2.9-5.1 6.5-6.3 10.3l321.5 0 53.7-53.7c4.9-4.9 7.6-11.5 7.6-18.3s-2.7-13.5-7.6-18.3L346.3 71.6C341.5 66.7 334.9 64 328 64s-13.5 2.7-18.3 7.6zM58.3 232.4l96.4-96.4-49.4-49.4c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L200 90.7 264.4 26.3C281.3 9.5 304.1 0 328 0s46.7 9.5 63.6 26.3L517.7 152.4C534.5 169.3 544 192.1 544 216s-9.5 46.7-26.3 63.6L311.6 485.7C294.7 502.5 271.9 512 248 512s-46.7-9.5-63.6-26.3L58.3 359.6C41.5 342.7 32 319.9 32 296s9.5-46.7 26.3-63.6zM512 544c-35.3 0-64-28.7-64-64 0-25.2 32.6-79.6 51.2-108.7 6-9.4 19.5-9.4 25.5 0 18.7 29.1 51.2 83.5 51.2 108.7 0 35.3-28.7 64-64 64z"/></svg>`,
+    film: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M0 96C0 60.7 28.7 32 64 32l320 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96zM48 368l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16zm304-16c-8.8 0-16 7.2-16 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0zM48 240l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0c-8.8 0-16 7.2-16 16zm304-16c-8.8 0-16 7.2-16 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0zM48 112l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16L64 96c-8.8 0-16 7.2-16 16zM352 96c-8.8 0-16 7.2-16 16l0 32c0 8.8 7.2 16 16 16l32 0c8.8 0 16-7.2 16-16l0-32c0-8.8-7.2-16-16-16l-32 0z"/></svg>`,
     filter: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M32 64C19.1 64 7.4 71.8 2.4 83.8S.2 109.5 9.4 118.6L192 301.3 192 416c0 8.5 3.4 16.6 9.4 22.6l64 64c9.2 9.2 22.9 11.9 34.9 6.9S320 492.9 320 480l0-178.7 182.6-182.6c9.2-9.2 11.9-22.9 6.9-34.9S492.9 64 480 64L32 64z"/></svg>`,
+    font: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M285.1 50.7C279.9 39.3 268.5 32 256 32s-23.9 7.3-29.1 18.7L59.5 416 48 416c-17.7 0-32 14.3-32 32s14.3 32 32 32l88 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-6.1 0 22-48 208.3 0 22 48-6.1 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l88 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-11.5 0-167.4-365.3zM330.8 304L181.2 304 256 140.8 330.8 304z"/></svg>`,
     forward: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M403.7 107.1C392.1 96 375 92.9 360.3 99.2C345.6 105.5 336 120 336 136L336 272.3L163.7 107.2C152.1 96 135 92.9 120.3 99.2C105.6 105.5 96 120 96 136L96 504C96 520 105.6 534.5 120.3 540.8C135 547.1 152.1 544 163.7 532.9L336 367.7L336 504C336 520 345.6 534.5 360.3 540.8C375 547.1 392.1 544 403.7 532.9L595.7 348.9C603.6 341.4 608 330.9 608 320C608 309.1 603.5 298.7 595.7 291.1L403.7 107.1z"/></svg>`,
     file: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M192 64C156.7 64 128 92.7 128 128L128 512C128 547.3 156.7 576 192 576L448 576C483.3 576 512 547.3 512 512L512 234.5C512 217.5 505.3 201.2 493.3 189.2L386.7 82.7C374.7 70.7 358.5 64 341.5 64L192 64zM453.5 240L360 240C346.7 240 336 229.3 336 216L336 122.5L453.5 240z"/></svg>`,
     "file-audio": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M128 128C128 92.7 156.7 64 192 64L341.5 64C358.5 64 374.8 70.7 386.8 82.7L493.3 189.3C505.3 201.3 512 217.6 512 234.6L512 512C512 547.3 483.3 576 448 576L192 576C156.7 576 128 547.3 128 512L128 128zM336 122.5L336 216C336 229.3 346.7 240 360 240L453.5 240L336 122.5zM389.8 307.7C380.7 301.4 368.3 303.6 362 312.7C355.7 321.8 357.9 334.2 367 340.5C390.9 357.2 406.4 384.8 406.4 416C406.4 447.2 390.8 474.9 367 491.5C357.9 497.8 355.7 510.3 362 519.3C368.3 528.3 380.8 530.6 389.8 524.3C423.9 500.5 446.4 460.8 446.4 416C446.4 371.2 424 331.5 389.8 307.7zM208 376C199.2 376 192 383.2 192 392L192 440C192 448.8 199.2 456 208 456L232 456L259.2 490C262.2 493.8 266.8 496 271.7 496L272 496C280.8 496 288 488.8 288 480L288 352C288 343.2 280.8 336 272 336L271.7 336C266.8 336 262.2 338.2 259.2 342L232 376L208 376zM336 448.2C336 458.9 346.5 466.4 354.9 459.8C367.8 449.5 376 433.7 376 416C376 398.3 367.8 382.5 354.9 372.2C346.5 365.5 336 373.1 336 383.8L336 448.3z"/></svg>`,
@@ -140610,18 +140817,46 @@ var icons = {
     "forward-step": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M21 36.8c12.9-7 28.7-6.3 41 1.8L320 208.1 320 64c0-17.7 14.3-32 32-32s32 14.3 32 32l0 384c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-144.1-258 169.6c-12.3 8.1-28 8.8-41 1.8S0 454.7 0 440L0 72C0 57.3 8.1 43.8 21 36.8z"/></svg>`,
     gauge: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M0 256a256 256 0 1 1 512 0 256 256 0 1 1 -512 0zm320 96c0-26.9-16.5-49.9-40-59.3L280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 172.7c-23.5 9.5-40 32.5-40 59.3 0 35.3 28.7 64 64 64s64-28.7 64-64zM144 176a32 32 0 1 0 0-64 32 32 0 1 0 0 64zm-16 80a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zm288 32a32 32 0 1 0 0-64 32 32 0 1 0 0 64zM400 144a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/></svg>`,
     gear: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M259.1 73.5C262.1 58.7 275.2 48 290.4 48L350.2 48C365.4 48 378.5 58.7 381.5 73.5L396 143.5C410.1 149.5 423.3 157.2 435.3 166.3L503.1 143.8C517.5 139 533.3 145 540.9 158.2L570.8 210C578.4 223.2 575.7 239.8 564.3 249.9L511 297.3C511.9 304.7 512.3 312.3 512.3 320C512.3 327.7 511.8 335.3 511 342.7L564.4 390.2C575.8 400.3 578.4 417 570.9 430.1L541 481.9C533.4 495 517.6 501.1 503.2 496.3L435.4 473.8C423.3 482.9 410.1 490.5 396.1 496.6L381.7 566.5C378.6 581.4 365.5 592 350.4 592L290.6 592C275.4 592 262.3 581.3 259.3 566.5L244.9 496.6C230.8 490.6 217.7 482.9 205.6 473.8L137.5 496.3C123.1 501.1 107.3 495.1 99.7 481.9L69.8 430.1C62.2 416.9 64.9 400.3 76.3 390.2L129.7 342.7C128.8 335.3 128.4 327.7 128.4 320C128.4 312.3 128.9 304.7 129.7 297.3L76.3 249.8C64.9 239.7 62.3 223 69.8 209.9L99.7 158.1C107.3 144.9 123.1 138.9 137.5 143.7L205.3 166.2C217.4 157.1 230.6 149.5 244.6 143.4L259.1 73.5zM320.3 400C364.5 399.8 400.2 363.9 400 319.7C399.8 275.5 363.9 239.8 319.7 240C275.5 240.2 239.8 276.1 240 320.3C240.2 364.5 276.1 400.2 320.3 400z"/></svg>`,
+    "grip-lines": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M32 288c-17.7 0-32 14.3-32 32s14.3 32 32 32l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L32 288zm0-128c-17.7 0-32 14.3-32 32s14.3 32 32 32l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L32 160z"/></svg>`,
     "grip-vertical": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc. --><path d="M128 40c0-22.1-17.9-40-40-40L40 0C17.9 0 0 17.9 0 40L0 88c0 22.1 17.9 40 40 40l48 0c22.1 0 40-17.9 40-40l0-48zm0 192c0-22.1-17.9-40-40-40l-48 0c-22.1 0-40 17.9-40 40l0 48c0 22.1 17.9 40 40 40l48 0c22.1 0 40-17.9 40-40l0-48zM0 424l0 48c0 22.1 17.9 40 40 40l48 0c22.1 0 40-17.9 40-40l0-48c0-22.1-17.9-40-40-40l-48 0c-22.1 0-40 17.9-40 40zM320 40c0-22.1-17.9-40-40-40L232 0c-22.1 0-40 17.9-40 40l0 48c0 22.1 17.9 40 40 40l48 0c22.1 0 40-17.9 40-40l0-48zM192 232l0 48c0 22.1 17.9 40 40 40l48 0c22.1 0 40-17.9 40-40l0-48c0-22.1-17.9-40-40-40l-48 0c-22.1 0-40 17.9-40 40zM320 424c0-22.1-17.9-40-40-40l-48 0c-22.1 0-40 17.9-40 40l0 48c0 22.1 17.9 40 40 40l48 0c22.1 0 40-17.9 40-40l0-48z"/></svg>`,
+    heading: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M0 64C0 46.3 14.3 32 32 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-16 0 0 112 224 0 0-112-16 0c-17.7 0-32-14.3-32-32s14.3-32 32-32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-16 0 0 320 16 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-96 0c-17.7 0-32-14.3-32-32s14.3-32 32-32l16 0 0-144-224 0 0 144 16 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-96 0c-17.7 0-32-14.3-32-32s14.3-32 32-32l16 0 0-320-16 0C14.3 96 0 81.7 0 64z"/></svg>`,
+    highlighter: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M315 315L473.4 99.9 444.1 70.6 229 229 315 315zm-187 5l0 0 0-71.7c0-15.3 7.2-29.6 19.5-38.6L420.6 8.4C428 2.9 437 0 446.2 0 457.6 0 468.5 4.5 476.6 12.6l54.8 54.8c8.1 8.1 12.6 19 12.6 30.5 0 9.2-2.9 18.2-8.4 25.6L334.4 396.5c-9 12.3-23.4 19.5-38.6 19.5l-71.7 0-25.4 25.4c-12.5 12.5-32.8 12.5-45.3 0l-50.7-50.7c-12.5-12.5-12.5-32.8 0-45.3L128 320zM7 466.3l51.7-51.7 70.6 70.6-19.7 19.7c-4.5 4.5-10.6 7-17 7L24 512c-13.3 0-24-10.7-24-24l0-4.7c0-6.4 2.5-12.5 7-17z"/></svg>`,
+    image: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32zm64 80a48 48 0 1 1 0 96 48 48 0 1 1 0-96zM272 224c8.4 0 16.1 4.4 20.5 11.5l88 144c4.5 7.4 4.7 16.7 .5 24.3S368.7 416 360 416L88 416c-8.9 0-17.2-5-21.3-12.9s-3.5-17.5 1.6-24.8l56-80c4.5-6.4 11.8-10.2 19.7-10.2s15.2 3.8 19.7 10.2l26.4 37.8 61.4-100.5c4.4-7.1 12.1-11.5 20.5-11.5z"/></svg>`,
+    indent: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M0 64C0 46.3 14.3 32 32 32l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64zM192 192c0-17.7 14.3-32 32-32l192 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-192 0c-17.7 0-32-14.3-32-32zm32 96l192 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-192 0c-17.7 0-32-14.3-32-32s14.3-32 32-32zM0 448c0-17.7 14.3-32 32-32l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 480c-17.7 0-32-14.3-32-32zM127.8 268.6L25.8 347.9C15.3 356.1 0 348.6 0 335.3L0 176.7c0-13.3 15.3-20.8 25.8-12.6l101.9 79.3c8.2 6.4 8.2 18.9 0 25.3z"/></svg>`,
     indeterminate: `<svg part="indeterminate-icon" class="icon" viewBox="0 0 16 16"><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round"><g stroke="currentColor" stroke-width="2"><g transform="translate(2.285714 6.857143)"><path d="M10.2857143,1.14285714 L1.14285714,1.14285714"/></g></g></g></svg>`,
+    italic: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M128 64c0-17.7 14.3-32 32-32l192 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-58.7 0-133.3 320 64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 480c-17.7 0-32-14.3-32-32s14.3-32 32-32l58.7 0 133.3-320-64 0c-17.7 0-32-14.3-32-32z"/></svg>`,
+    link: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M419.5 96c-16.6 0-32.7 4.5-46.8 12.7-15.8-16-34.2-29.4-54.5-39.5 28.2-24 64.1-37.2 101.3-37.2 86.4 0 156.5 70 156.5 156.5 0 41.5-16.5 81.3-45.8 110.6l-71.1 71.1c-29.3 29.3-69.1 45.8-110.6 45.8-86.4 0-156.5-70-156.5-156.5 0-1.5 0-3 .1-4.5 .5-17.7 15.2-31.6 32.9-31.1s31.6 15.2 31.1 32.9c0 .9 0 1.8 0 2.6 0 51.1 41.4 92.5 92.5 92.5 24.5 0 48-9.7 65.4-27.1l71.1-71.1c17.3-17.3 27.1-40.9 27.1-65.4 0-51.1-41.4-92.5-92.5-92.5zM275.2 173.3c-1.9-.8-3.8-1.9-5.5-3.1-12.6-6.5-27-10.2-42.1-10.2-24.5 0-48 9.7-65.4 27.1L91.1 258.2c-17.3 17.3-27.1 40.9-27.1 65.4 0 51.1 41.4 92.5 92.5 92.5 16.5 0 32.6-4.4 46.7-12.6 15.8 16 34.2 29.4 54.6 39.5-28.2 23.9-64 37.2-101.3 37.2-86.4 0-156.5-70-156.5-156.5 0-41.5 16.5-81.3 45.8-110.6l71.1-71.1c29.3-29.3 69.1-45.8 110.6-45.8 86.6 0 156.5 70.6 156.5 156.9 0 1.3 0 2.6 0 3.9-.4 17.7-15.1 31.6-32.8 31.2s-31.6-15.1-31.2-32.8c0-.8 0-1.5 0-2.3 0-33.7-18-63.3-44.8-79.6z"/></svg>`,
+    "link-slash": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M41-24.9c-9.4-9.4-24.6-9.4-33.9 0S-2.3-.3 7 9.1l528 528c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-122-122c4.2-3.4 8.3-7.1 12.1-10.9l71.1-71.1c29.3-29.3 45.8-69.1 45.8-110.6 0-86.4-70-156.5-156.5-156.5-37.3 0-73.1 13.3-101.3 37.2 20.3 10.1 38.7 23.5 54.5 39.5 14.1-8.3 30.2-12.7 46.8-12.7 51.1 0 92.5 41.4 92.5 92.5 0 24.5-9.7 48-27.1 65.4l-71.1 71.1c-3.9 3.9-8.1 7.4-12.6 10.5l-47.5-47.5c16.5-.9 29.7-14.4 30.2-31.1 0-1.3 0-2.6 0-3.9 0-86.3-69.9-156.9-156.5-156.9-19.2 0-37.9 3.5-55.5 10.2L41-24.9zM225.9 160c.6 0 1.1 0 1.7 0 15.1 0 29.5 3.7 42.1 10.2 1.8 1.2 3.6 2.3 5.5 3.1 26.8 16.3 44.8 45.9 44.8 79.6 0 .4 0 .8 0 1.2L225.9 160zM346.2 416L192 261.8c1.2 84.6 69.6 152.9 154.1 154.1zM139.7 209.5l-45.3-45.3-48.6 48.6c-29.3 29.3-45.8 69.1-45.8 110.6 0 86.4 70 156.5 156.5 156.5 37.2 0 73.1-13.3 101.3-37.2-20.3-10.1-38.8-23.5-54.6-39.5-14 8.2-30.1 12.6-46.7 12.6-51.1 0-92.5-41.4-92.5-92.5 0-24.5 9.7-48 27.1-65.4l48.6-48.6z"/></svg>`,
+    "list-ol": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M0 72C0 58.8 10.7 48 24 48l48 0c13.3 0 24 10.7 24 24l0 104 24 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-96 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l24 0 0-80-24 0C10.7 96 0 85.3 0 72zM30.4 301.2C41.8 292.6 55.7 288 70 288l4.9 0c33.7 0 61.1 27.4 61.1 61.1 0 19.6-9.4 37.9-25.2 49.4l-24 17.5 33.2 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-90.7 0C13.1 464 0 450.9 0 434.7 0 425.3 4.5 416.5 12.1 411l70.5-51.3c3.4-2.5 5.4-6.4 5.4-10.6 0-7.2-5.9-13.1-13.1-13.1L70 336c-3.9 0-7.7 1.3-10.8 3.6L38.4 355.2c-10.6 8-25.6 5.8-33.6-4.8S-1 324.8 9.6 316.8l20.8-15.6zM224 64l256 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-256 0c-17.7 0-32-14.3-32-32s14.3-32 32-32zm0 160l256 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-256 0c-17.7 0-32-14.3-32-32s14.3-32 32-32zm0 160l256 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-256 0c-17.7 0-32-14.3-32-32s14.3-32 32-32z"/></svg>`,
+    "list-ul": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M48 144a48 48 0 1 0 0-96 48 48 0 1 0 0 96zM192 64c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L192 64zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-288 0zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l288 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-288 0zM48 464a48 48 0 1 0 0-96 48 48 0 1 0 0 96zM96 256a48 48 0 1 0 -96 0 48 48 0 1 0 96 0z"/></svg>`,
     "magnifying-glass": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376C296.3 401.1 253.9 416 208 416 93.1 416 0 322.9 0 208S93.1 0 208 0 416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/></svg>`,
+    "magnifying-glass-minus": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376C296.3 401.1 253.9 416 208 416 93.1 416 0 322.9 0 208S93.1 0 208 0 416 93.1 416 208zM136 184c-13.3 0-24 10.7-24 24s10.7 24 24 24l144 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-144 0z"/></svg>`,
+    "magnifying-glass-plus": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2026 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376C296.3 401.1 253.9 416 208 416 93.1 416 0 322.9 0 208S93.1 0 208 0 416 93.1 416 208zM208 112c-13.3 0-24 10.7-24 24l0 48-48 0c-13.3 0-24 10.7-24 24s10.7 24 24 24l48 0 0 48c0 13.3 10.7 24 24 24s24-10.7 24-24l0-48 48 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-48 0 0-48c0-13.3-10.7-24-24-24z"/></svg>`,
     minus: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc. --><path d="M0 256c0-17.7 14.3-32 32-32l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 288c-17.7 0-32-14.3-32-32z"/></svg>`,
+    outdent: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M.4 64c0-17.7 14.3-32 32-32l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-384 0C14.8 96 .4 81.7 .4 64zm192 128c0-17.7 14.3-32 32-32l192 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-192 0c-17.7 0-32-14.3-32-32zm32 96l192 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-192 0c-17.7 0-32-14.3-32-32s14.3-32 32-32zM.4 448c0-17.7 14.3-32 32-32l384 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-384 0c-17.7 0-32-14.3-32-32zM.7 268.6c-8.2-6.4-8.2-18.9 0-25.3l101.9-79.3c10.5-8.2 25.8-.7 25.8 12.6l0 158.6c0 13.3-15.3 20.8-25.8 12.6L.7 268.6z"/></svg>`,
+    palette: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M512 256c0 .9 0 1.8 0 2.7-.4 36.5-33.6 61.3-70.1 61.3L344 320c-26.5 0-48 21.5-48 48 0 3.4 .4 6.7 1 9.9 2.1 10.2 6.5 20 10.8 29.9 6.1 13.8 12.1 27.5 12.1 42 0 31.8-21.6 60.7-53.4 62-3.5 .1-7 .2-10.6 .2-141.4 0-256-114.6-256-256S114.6 0 256 0 512 114.6 512 256zM128 288a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zm0-96a32 32 0 1 0 0-64 32 32 0 1 0 0 64zM288 96a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zm96 96a32 32 0 1 0 0-64 32 32 0 1 0 0 64z"/></svg>`,
+    paragraph: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M160 0L416 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-32 0 0 416c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-416-48 0 0 416c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-160-48 0C71.6 320 0 248.4 0 160S71.6 0 160 0z"/></svg>`,
+    paste: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M64 0C28.7 0 0 28.7 0 64L0 384c0 35.3 28.7 64 64 64l112 0 0-224c0-61.9 50.1-112 112-112l64 0 0-48c0-35.3-28.7-64-64-64L64 0zM248 112l-144 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l144 0c13.3 0 24 10.7 24 24s-10.7 24-24 24zm40 48c-35.3 0-64 28.7-64 64l0 224c0 35.3 28.7 64 64 64l160 0c35.3 0 64-28.7 64-64l0-165.5c0-17-6.7-33.3-18.7-45.3l-58.5-58.5c-12-12-28.3-18.7-45.3-18.7L288 160z"/></svg>`,
     pause: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc. --><path d="M48 32C21.5 32 0 53.5 0 80L0 432c0 26.5 21.5 48 48 48l64 0c26.5 0 48-21.5 48-48l0-352c0-26.5-21.5-48-48-48L48 32zm224 0c-26.5 0-48 21.5-48 48l0 352c0 26.5 21.5 48 48 48l64 0c26.5 0 48-21.5 48-48l0-352c0-26.5-21.5-48-48-48l-64 0z"/></svg>`,
     "picture-in-picture": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M448 32c35.3 0 64 28.7 64 64l0 112-64 0 0-112-384 0 0 320 144 0 0 64-144 0-6.5-.3c-30.1-3.1-54.1-27-57.1-57.1L0 416 0 96C0 62.9 25.2 35.6 57.5 32.3L64 32 448 32zm16 224c26.5 0 48 21.5 48 48l0 128c0 26.5-21.5 48-48 48l-160 0c-26.5 0-48-21.5-48-48l0-128c0-26.5 21.5-48 48-48l160 0z"/></svg>`,
     play: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc. --><path d="M91.2 36.9c-12.4-6.8-27.4-6.5-39.6 .7S32 57.9 32 72l0 368c0 14.1 7.5 27.2 19.6 34.4s27.2 7.5 39.6 .7l336-184c12.8-7 20.8-20.5 20.8-35.1s-8-28.1-20.8-35.1l-336-184z"/></svg>`,
     "play-circle": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M0 256a256 256 0 1 1 512 0 256 256 0 1 1 -512 0zM188.3 147.1c-7.6 4.2-12.3 12.3-12.3 20.9l0 176c0 8.7 4.7 16.7 12.3 20.9s16.8 4.1 24.3-.5l144-88c7.1-4.4 11.5-12.1 11.5-20.5s-4.4-16.1-11.5-20.5l-144-88c-7.4-4.5-16.7-4.7-24.3-.5z"/></svg>`,
     plus: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M352 128C352 110.3 337.7 96 320 96C302.3 96 288 110.3 288 128L288 288L128 288C110.3 288 96 302.3 96 320C96 337.7 110.3 352 128 352L288 352L288 512C288 529.7 302.3 544 320 544C337.7 544 352 529.7 352 512L352 352L512 352C529.7 352 544 337.7 544 320C544 302.3 529.7 288 512 288L352 288L352 128z"/></svg>`,
+    "quote-left": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M0 216C0 149.7 53.7 96 120 96l8 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-8 0c-30.9 0-56 25.1-56 56l0 8 64 0c35.3 0 64 28.7 64 64l0 64c0 35.3-28.7 64-64 64l-64 0c-35.3 0-64-28.7-64-64L0 216zm256 0c0-66.3 53.7-120 120-120l8 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-8 0c-30.9 0-56 25.1-56 56l0 8 64 0c35.3 0 64 28.7 64 64l0 64c0 35.3-28.7 64-64 64l-64 0c-35.3 0-64-28.7-64-64l0-136z"/></svg>`,
+    "rotate-left": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M24 192l144 0c9.7 0 18.5-5.8 22.2-14.8s1.7-19.3-5.2-26.2l-46.7-46.7c75.3-58.6 184.3-53.3 253.5 15.9 75 75 75 196.5 0 271.5s-196.5 75-271.5 0c-10.2-10.2-19-21.3-26.4-33-9.5-14.9-29.3-19.3-44.2-9.8s-19.3 29.3-9.8 44.2C49.7 408.7 61.4 423.5 75 437 175 537 337 537 437 437S537 175 437 75C342.8-19.3 193.3-24.7 92.7 58.8L41 7C34.1 .2 23.8-1.9 14.8 1.8S0 14.3 0 24L0 168c0 13.3 10.7 24 24 24z"/></svg>`,
+    "rotate-right": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M488 192l-144 0c-9.7 0-18.5-5.8-22.2-14.8s-1.7-19.3 5.2-26.2l46.7-46.7c-75.3-58.6-184.3-53.3-253.5 15.9-75 75-75 196.5 0 271.5s196.5 75 271.5 0c8.2-8.2 15.5-16.9 21.9-26.1 10.1-14.5 30.1-18 44.6-7.9s18 30.1 7.9 44.6c-8.5 12.2-18.2 23.8-29.1 34.7-100 100-262.1 100-362 0S-25 175 75 75c94.3-94.3 243.7-99.6 344.3-16.2L471 7c6.9-6.9 17.2-8.9 26.2-5.2S512 14.3 512 24l0 144c0 13.3-10.7 24-24 24z"/></svg>`,
     star: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc. --><path d="M309.5-18.9c-4.1-8-12.4-13.1-21.4-13.1s-17.3 5.1-21.4 13.1L193.1 125.3 33.2 150.7c-8.9 1.4-16.3 7.7-19.1 16.3s-.5 18 5.8 24.4l114.4 114.5-25.2 159.9c-1.4 8.9 2.3 17.9 9.6 23.2s16.9 6.1 25 2L288.1 417.6 432.4 491c8 4.1 17.7 3.3 25-2s11-14.2 9.6-23.2L441.7 305.9 556.1 191.4c6.4-6.4 8.6-15.8 5.8-24.4s-10.1-14.9-19.1-16.3L383 125.3 309.5-18.9z"/></svg>`,
+    strikethrough: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M96 157.5C96 88.2 152.2 32 221.5 32L368 32c17.7 0 32 14.3 32 32s-14.3 32-32 32L221.5 96c-34 0-61.5 27.5-61.5 61.5 0 31 23.1 57.2 53.9 61l44.1 5.5 222 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 288c-17.7 0-32-14.3-32-32s14.3-32 32-32l83.1 0C103 204.6 96 181.8 96 157.5zM349.2 336l65.5 0c.9 6.1 1.4 12.2 1.4 18.5 0 69.3-56.2 125.5-125.5 125.5L144 480c-17.7 0-32-14.3-32-32s14.3-32 32-32l146.5 0c34 0 61.5-27.5 61.5-61.5 0-6.4-1-12.7-2.8-18.5z"/></svg>`,
+    subscript: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M96 64C78.3 64 64 78.3 64 96s14.3 32 32 32l15.3 0 89.6 128-89.6 128-15.3 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l32 0c10.4 0 20.2-5.1 26.2-13.6L240 311.8 325.8 434.4c6 8.6 15.8 13.6 26.2 13.6l32 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-15.3 0-89.6-128 89.6-128 15.3 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-32 0c-10.4 0-20.2 5.1-26.2 13.6L240 200.2 154.2 77.6C148.2 69.1 138.4 64 128 64L96 64zM544 320c0-11.1-5.7-21.4-15.2-27.2s-21.2-6.4-31.1-1.4l-32 16c-15.8 7.9-22.2 27.1-14.3 42.9 5.6 11.2 16.9 17.7 28.6 17.7l0 80c-17.7 0-32 14.3-32 32s14.3 32 32 32l64 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l0-128z"/></svg>`,
+    superscript: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M544 32c0-11.1-5.7-21.4-15.2-27.2s-21.2-6.4-31.1-1.4l-32 16C449.9 27.3 443.5 46.5 451.4 62.3 457 73.5 468.3 80 480 80l0 80c-17.7 0-32 14.3-32 32s14.3 32 32 32l64 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l0-128zM96 64C78.3 64 64 78.3 64 96s14.3 32 32 32l15.3 0 89.6 128-89.6 128-15.3 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l32 0c10.4 0 20.2-5.1 26.2-13.6L240 311.8 325.8 434.4c6 8.6 15.8 13.6 26.2 13.6l32 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-15.3 0-89.6-128 89.6-128 15.3 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-32 0c-10.4 0-20.2 5.1-26.2 13.6L240 200.2 154.2 77.6C148.2 69.1 138.4 64 128 64L96 64z"/></svg>`,
+    table: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M384 32c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64l-320 0-6.5-.3C25.2 476.4 0 449.1 0 416L0 96C0 60.7 28.7 32 64 32l320 0zM64 320l0 96 128 0 0-96-128 0zm192 0l0 96 128 0 0-96-128 0zM64 256l128 0 0-96-128 0 0 96zm192 0l128 0 0-96-128 0 0 96z"/></svg>`,
+    "table-cells": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M384 96l0 64-64 0 0-64 64 0zm0 128l0 64-64 0 0-64 64 0zm0 128l0 64-64 0 0-64 64 0zM256 288l-64 0 0-64 64 0 0 64zm-64 64l64 0 0 64-64 0 0-64zm-64-64l-64 0 0-64 64 0 0 64zM64 352l64 0 0 64-64 0 0-64zm0-192l0-64 64 0 0 64-64 0zm128 0l0-64 64 0 0 64-64 0zM64 32C28.7 32 0 60.7 0 96L0 416c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-320c0-35.3-28.7-64-64-64L64 32z"/></svg>`,
+    "table-cells-large": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M384 96l-128 0 0 128 128 0 0-128zm64 128l0 192c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96C0 60.7 28.7 32 64 32l320 0c35.3 0 64 28.7 64 64l0 128zM64 288l0 128 128 0 0-128-128 0zm128-64l0-128-128 0 0 128 128 0zm64 64l0 128 128 0 0-128-128 0z"/></svg>`,
     "table-columns": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M0 96C0 60.7 28.7 32 64 32l320 0c35.3 0 64 28.7 64 64l0 320c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 96zm64 64l0 256 128 0 0-256-128 0zm320 0l-128 0 0 256 128 0 0-256z"/></svg>`,
+    "text-slash": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M41-24.9c-9.4-9.4-24.6-9.4-33.9 0S-2.3-.3 7 9.1l528 528c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9L322.7 256.9 368.2 96 471 96 465 120.2c-4.3 17.1 6.1 34.5 23.3 38.8s34.5-6.1 38.8-23.3l11-44.1C545.6 61.3 522.7 32 491.5 32l-319 0c-19.8 0-37.3 12.1-44.5 30.1l-87-87zM180.4 114.5l4.6-18.5 116.7 0-30.8 109-90.5-90.5zM241 310.8L211.3 416 160 416c-17.7 0-32 14.3-32 32s14.3 32 32 32l160 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-42.2 0 15.1-53.3-51.9-51.9z"/></svg>`,
     thumbtack: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M32 32C32 14.3 46.3 0 64 0L320 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-29.5 0 10.3 134.1c37.1 21.2 65.8 56.4 78.2 99.7l3.8 13.4c2.8 9.7 .8 20-5.2 28.1S362 352 352 352L32 352c-10 0-19.5-4.7-25.5-12.7s-8-18.4-5.2-28.1L5 297.8c12.4-43.3 41-78.5 78.2-99.7L93.5 64 64 64C46.3 64 32 49.7 32 32zM160 400l64 0 0 112c0 17.7-14.3 32-32 32s-32-14.3-32-32l0-112z"/></svg>`,
+    trash: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M136.7 5.9L128 32 32 32C14.3 32 0 46.3 0 64S14.3 96 32 96l384 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0-8.7-26.1C306.9-7.2 294.7-16 280.9-16L167.1-16c-13.8 0-26 8.8-30.4 21.9zM416 144L32 144 53.1 467.1C54.7 492.4 75.7 512 101 512L347 512c25.3 0 46.3-19.6 47.9-44.9L416 144z"/></svg>`,
+    underline: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M0 32C0 14.3 14.3 0 32 0L96 0c17.7 0 32 14.3 32 32S113.7 64 96 64l0 160c0 53 43 96 96 96s96-43 96-96l0-160c-17.7 0-32-14.3-32-32S270.3 0 288 0l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l0 160c0 88.4-71.6 160-160 160S32 312.4 32 224L32 64C14.3 64 0 49.7 0 32zM0 480c0-17.7 14.3-32 32-32l320 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 512c-17.7 0-32-14.3-32-32z"/></svg>`,
     "up-down": `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free v7.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M406.6 502.6l96-96c9.2-9.2 11.9-22.9 6.9-34.9S492.9 352 480 352l-64 0 0-320c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 320-64 0c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l96 96c12.5 12.5 32.8 12.5 45.3 0zM150.6 9.4c-12.5-12.5-32.8-12.5-45.3 0l-96 96c-9.2 9.2-11.9 22.9-6.9 34.9S19.1 160 32 160l64 0 0 320c0 17.7 14.3 32 32 32s32-14.3 32-32l0-320 64 0c12.9 0 24.6-7.8 29.6-19.8s2.2-25.7-6.9-34.9l-96-96z"/></svg>`,
     upload: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M352 173.3L352 384C352 401.7 337.7 416 320 416C302.3 416 288 401.7 288 384L288 173.3L246.6 214.7C234.1 227.2 213.8 227.2 201.3 214.7C188.8 202.2 188.8 181.9 201.3 169.4L297.3 73.4C309.8 60.9 330.1 60.9 342.6 73.4L438.6 169.4C451.1 181.9 451.1 202.2 438.6 214.7C426.1 227.2 405.8 227.2 393.3 214.7L352 173.3zM320 464C364.2 464 400 428.2 400 384L480 384C515.3 384 544 412.7 544 448L544 480C544 515.3 515.3 544 480 544L160 544C124.7 544 96 515.3 96 480L96 448C96 412.7 124.7 384 160 384L240 384C240 428.2 275.8 464 320 464zM464 488C477.3 488 488 477.3 488 464C488 450.7 477.3 440 464 440C450.7 440 440 450.7 440 464C440 477.3 450.7 488 464 488z"/></svg>`,
     user: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc. --><path d="M224 248a120 120 0 1 0 0-240 120 120 0 1 0 0 240zm-29.7 56C95.8 304 16 383.8 16 482.3 16 498.7 29.3 512 45.7 512l356.6 0c16.4 0 29.7-13.3 29.7-29.7 0-98.5-79.8-178.3-178.3-178.3l-59.4 0z"/></svg>`,
@@ -140644,15 +140879,28 @@ var icons = {
     star: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc. --><path d="M288.1-32c9 0 17.3 5.1 21.4 13.1L383 125.3 542.9 150.7c8.9 1.4 16.3 7.7 19.1 16.3s.5 18-5.8 24.4L441.7 305.9 467 465.8c1.4 8.9-2.3 17.9-9.6 23.2s-17 6.1-25 2L288.1 417.6 143.8 491c-8 4.1-17.7 3.3-25-2s-11-14.2-9.6-23.2L134.4 305.9 20 191.4c-6.4-6.4-8.6-15.8-5.8-24.4s10.1-14.9 19.1-16.3l159.9-25.4 73.6-144.2c4.1-8 12.4-13.1 21.4-13.1zm0 76.8L230.3 158c-3.5 6.8-10 11.6-17.6 12.8l-125.5 20 89.8 89.9c5.4 5.4 7.9 13.1 6.7 20.7l-19.8 125.5 113.3-57.6c6.8-3.5 14.9-3.5 21.8 0l113.3 57.6-19.8-125.5c-1.2-7.6 1.3-15.3 6.7-20.7l89.8-89.9-125.5-20c-7.6-1.2-14.1-6-17.6-12.8L288.1 44.8z"/></svg>`
   }
 };
+var loadedSets = /* @__PURE__ */ new Map();
 var systemLibrary = {
   name: "system",
   resolver: (name, _family = "classic", variant = "solid") => {
-    let collection = icons[variant];
-    let svg = collection[name] ?? icons.regular[name] ?? icons.regular["circle-question"];
-    if (svg) {
-      return dataUri(svg);
+    const resolve = (set2) => {
+      const svg = set2?.[variant]?.[name] ?? (icons[variant] ?? icons.solid)[name] ?? icons.regular[name] ?? icons.regular["circle-question"];
+      return svg ? dataUri(svg) : "";
+    };
+    const folder = getIconFolder(name, getDefaultIconFamily(), getDefaultIconVariant());
+    const loader = systemIconSets[folder];
+    if (!loader) {
+      return resolve();
     }
-    return "";
+    let set = loadedSets.get(folder);
+    if (!set) {
+      set = loader().then(
+        (module) => module.default,
+        () => void 0
+      );
+      loadedSets.set(folder, set);
+    }
+    return set.then(resolve);
   },
   mutator: (svg) => {
     if (!svg.hasAttribute("fill")) {
@@ -140664,13 +140912,14 @@ var library_system_default = systemLibrary;
 
 
 
-;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.UDRJMWVZ.js
+;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.BC3PCNTX.js
+/* unused harmony import specifier */ var chunk_BC3PCNTX_setDefaultIconFamilyAndVariant;
 /*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
 
 
 
+
 // src/components/icon/library.ts
-var defaultIconFamily = "classic";
 var registry = [library_default_default, library_system_default];
 var watchedIcons = /* @__PURE__ */ new Set();
 function watchIcon(icon) {
@@ -140699,12 +140948,9 @@ function registerIconLibrary(name, options) {
 function unregisterIconLibrary(name) {
   registry = registry.filter((lib) => lib.name !== name);
 }
-function setDefaultIconFamily(family) {
-  defaultIconFamily = family;
+function setDefaultIconFamily(family, variant) {
+  chunk_BC3PCNTX_setDefaultIconFamilyAndVariant(family, variant);
   watchedIcons.forEach((icon) => icon.setIcon());
-}
-function getDefaultIconFamily() {
-  return defaultIconFamily;
 }
 
 
@@ -140722,8 +140968,9 @@ function getDefaultIconFamily() {
 
 //# sourceMappingURL=directive-helpers.js.map
 
-;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.JAAVYFGY.js
+;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.N556ZCKP.js
 /*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
+
 
 
 
@@ -140947,8 +141194,8 @@ WaIcon = (0,chunk_7VGCIHDG/* __decorateClass */.Cc)([
 
 
 
-// EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.M45NRQFW.js
-var chunk_M45NRQFW = __webpack_require__(4602);
+// EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.35XIIBFX.js
+var chunk_35XIIBFX = __webpack_require__(5244);
 ;// ./node_modules/@awesome.me/webawesome/dist/components/dropdown/dropdown.js
 /*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
 
@@ -140985,8 +141232,12 @@ var chunk_M45NRQFW = __webpack_require__(4602);
 
 
 
+
+
 ;// ./node_modules/@awesome.me/webawesome/dist/components/dropdown-item/dropdown-item.js
 /*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
+
+
 
 
 
@@ -172939,7 +173190,7 @@ var meeting_pane_default = /*#__PURE__*/__webpack_require__.n(meeting_pane);
 
 
 
-//#region src/shortChatPane.ts
+// src/shortChatPane.ts
 var shortChatPane_esm_r = dist_index_esm.ns, shortChatPane_esm_i = {
 	icon: dist_index_esm.icons.iconBase + "noun_346319.svg",
 	name: "chat",
@@ -172992,16 +173243,14 @@ var shortChatPane_esm_r = dist_index_esm.ns, shortChatPane_esm_i = {
 		}), l;
 	}
 };
-//#endregion
 
 
 //# sourceMappingURL=shortChatPane.esm.js.map
 ;// ./node_modules/chat-pane/dist/debug.esm.js
-//#region src/debug.ts
+// src/debug.ts
 function chat_pane_dist_debug_esm_e(...e) {
 	console.log(...e);
 }
-//#endregion
 
 
 //# sourceMappingURL=debug.esm.js.map
@@ -173010,7 +173259,7 @@ function chat_pane_dist_debug_esm_e(...e) {
 
 
 
-//#region src/longChatPane.ts
+// src/longChatPane.ts
 var longChatPane_esm_f = dist_index_esm.ns.meeting("LongChat"), longChatPane_esm_p = "index.ttl#this", longChatPane_esm_m = "noun_344563.svg", longChatPane_esm_h = dist_index_esm.style.sidebarComponentStyle || " padding: 0.5em; width: 100%;", longChatPane_esm_g = dist_index_esm.style.sidebarStyle || "overflow-x: auto; overflow-y: auto; border-radius: 1em; border: 0.1em solid white;", longChatPane_esm_ = {
 	CHAT_LOCATION_IN_CONTAINER: longChatPane_esm_p,
 	icon: dist_index_esm.icons.iconBase + "noun_1689339.svg",
@@ -173198,7 +173447,6 @@ var longChatPane_esm_f = dist_index_esm.ns.meeting("LongChat"), longChatPane_esm
 		return Q().then(() => chat_pane_dist_debug_esm_e("async - chat pane built")), F;
 	}
 };
-//#endregion
 
 
 //# sourceMappingURL=longChatPane.esm.js.map
@@ -173214,7 +173462,7 @@ var longChatPane_esm_f = dist_index_esm.ns.meeting("LongChat"), longChatPane_esm
 
 
 
-//#region src/create.ts
+// src/create.ts
 async function create_esm_s() {
 	let e = create_esm_r.currentUser();
 	if (e === null) throw Error("Current user not found! Not logged in?");
@@ -173311,7 +173559,6 @@ async function create_esm_h(n, r = !0) {
 	}
 	throw Error("Chat does not exist and createIfMissing is false");
 }
-//#endregion
 
 
 //# sourceMappingURL=create.esm.js.map
@@ -185841,10 +186088,10 @@ const theme = {
 };
 ;// ./src/versionInfo.ts
 /* harmony default export */ const versionInfo = ({
-  buildTime: '2026-11-16T18:52:19Z',
-  commit: 'df7aab3ed56365adc8910cf86dfd29aea5d5ce7f',
+  buildTime: '2026-11-18T19:14:38Z',
+  commit: '12ab83fe6fff7344e2f57e72c42bf197753c141a',
   npmInfo: {
-    'mashlib': '3.1.0',
+    'mashlib': '3.1.1',
     'npm': '10.9.9',
     'node': '22.23.4',
     'acorn': '8.16.0',

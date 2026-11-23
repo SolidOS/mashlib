@@ -13371,6 +13371,7 @@ module.exports = function mimeScore (mimeType, source = 'default') {
 (__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
+var __webpack_unused_export__;
 /*!
  * The buffer module from node.js, for the browser.
  *
@@ -13389,11 +13390,11 @@ const customInspectSymbol =
     : null
 
 exports.Buffer = Buffer
-exports.SlowBuffer = SlowBuffer
-exports.INSPECT_MAX_BYTES = 50
+__webpack_unused_export__ = SlowBuffer
+exports.IS = 50
 
 const K_MAX_LENGTH = 0x7fffffff
-exports.kMaxLength = K_MAX_LENGTH
+__webpack_unused_export__ = K_MAX_LENGTH
 
 /**
  * If `Buffer.TYPED_ARRAY_SUPPORT`:
@@ -13989,7 +13990,7 @@ Buffer.prototype.equals = function equals (b) {
 
 Buffer.prototype.inspect = function inspect () {
   let str = ''
-  const max = exports.INSPECT_MAX_BYTES
+  const max = exports.IS
   str = this.toString('hex', 0, max).replace(/(.{2})/g, '$1 ').trim()
   if (this.length > max) str += ' ... '
   return '<Buffer ' + str + '>'
@@ -15558,7 +15559,7 @@ module.exports.addAbortSignalNoValidate = function (signal, stream) {
   if (signal.aborted) {
     onAbort()
   } else {
-    addAbortListener = addAbortListener || (__webpack_require__(6017).addAbortListener)
+    addAbortListener = addAbortListener || (__webpack_require__(6017)/* .addAbortListener */ .gq)
     const disposable = addAbortListener(signal, onAbort)
     eos(stream, disposable[SymbolDispose])
   }
@@ -16788,7 +16789,7 @@ function eos(stream, options, callback) {
     if (options.signal.aborted) {
       process.nextTick(abort)
     } else {
-      addAbortListener = addAbortListener || (__webpack_require__(6017).addAbortListener)
+      addAbortListener = addAbortListener || (__webpack_require__(6017)/* .addAbortListener */ .gq)
       const disposable = addAbortListener(options.signal, abort)
       const originalCallback = callback
       callback = once((...args) => {
@@ -16815,7 +16816,7 @@ function eosWeb(stream, options, callback) {
     if (options.signal.aborted) {
       process.nextTick(abort)
     } else {
-      addAbortListener = addAbortListener || (__webpack_require__(6017).addAbortListener)
+      addAbortListener = addAbortListener || (__webpack_require__(6017)/* .addAbortListener */ .gq)
       const disposable = addAbortListener(options.signal, abort)
       const originalCallback = callback
       callback = once((...args) => {
@@ -17307,7 +17308,7 @@ function pipelineImpl(streams, callback, opts) {
   function abort() {
     finishImpl(new AbortError())
   }
-  addAbortListener = addAbortListener || (__webpack_require__(6017).addAbortListener)
+  addAbortListener = addAbortListener || (__webpack_require__(6017)/* .addAbortListener */ .gq)
   let disposable
   if (outerSignal) {
     disposable = addAbortListener(outerSignal, abort)
@@ -17648,7 +17649,7 @@ const { Stream, prependListener } = __webpack_require__(334)
 const { Buffer } = __webpack_require__(5576)
 const { addAbortSignal } = __webpack_require__(810)
 const eos = __webpack_require__(9365)
-let debug = (__webpack_require__(6017).debuglog)('stream', (fn) => {
+let debug = (__webpack_require__(6017)/* .debuglog */ .k2)('stream', (fn) => {
   debug = fn
 })
 const BufferList = __webpack_require__(5586)
@@ -20318,7 +20319,7 @@ const {
   codes: { ERR_SOCKET_BAD_PORT, ERR_INVALID_ARG_TYPE, ERR_INVALID_ARG_VALUE, ERR_OUT_OF_RANGE, ERR_UNKNOWN_SIGNAL }
 } = __webpack_require__(8526)
 const { normalizeEncoding } = __webpack_require__(6017)
-const { isAsyncFunction, isArrayBufferView } = (__webpack_require__(6017).types)
+const { isAsyncFunction, isArrayBufferView } = (__webpack_require__(6017)/* .types */ .gK)
 const signals = {}
 
 /**
@@ -21263,9 +21264,9 @@ module.exports = {
     return Object.setPrototypeOf(target, proto)
   },
   Promise,
-  PromisePrototypeCatch(self, fn) {
+  ...void (function (self, fn) {
     return self.catch(fn)
-  },
+  }),
   PromisePrototypeThen(self, thenFn, catchFn) {
     return self.then(thenFn, catchFn)
   },
@@ -21276,9 +21277,9 @@ module.exports = {
     return Promise.resolve(val)
   },
   ReflectApply: Reflect.apply,
-  RegExpPrototypeTest(self, value) {
+  ...void (function (self, value) {
     return self.test(value)
-  },
+  }),
   SafeSet: Set,
   String,
   StringPrototypeSlice(self, start, end) {
@@ -21349,7 +21350,7 @@ const validateFunction = (value, name) => {
   }
 }
 module.exports = {
-  AggregateError,
+  ...void (AggregateError),
   kEmptyObject: Object.freeze({}),
   once(callback) {
     let called = false
@@ -21386,12 +21387,12 @@ module.exports = {
       })
     })
   },
-  debuglog() {
+  k2() {
     return function () {}
   },
-  format,
+  ...void (format),
   inspect,
-  types: {
+  gK: {
     isAsyncFunction(fn) {
       return fn instanceof AsyncFunction
     },
@@ -21399,11 +21400,11 @@ module.exports = {
       return ArrayBuffer.isView(arr)
     }
   },
-  isBlob,
+  ...void (isBlob),
   deprecate(fn, message) {
     return fn
   },
-  addAbortListener:
+  gq:
     (__webpack_require__(7007).addAbortListener) ||
     function addAbortListener(signal, listener) {
       if (signal === undefined) {
@@ -21434,7 +21435,7 @@ module.exports = {
         }
       }
     },
-  AbortSignalAny:
+  x4:
     AbortSignal.any ||
     function AbortSignalAny(signals) {
       // Fast path if there is only one signal.
@@ -21845,7 +21846,7 @@ function map(fn, options) {
   validateInteger(highWaterMark, 'options.highWaterMark', 0)
   highWaterMark += concurrency
   return async function* map() {
-    const signal = (util_namespaceFn().AbortSignalAny)(
+    const signal = (util_namespaceFn()/* AbortSignalAny */.x4)(
       [options === null || options === undefined ? undefined : options.signal].filter(Boolean)
     )
     const stream = this
@@ -23958,7 +23959,7 @@ class Quad extends Term {
                       this._graph.equals(other.graph);
   }
 }
-
+;
 
 // ### Escapes the quotes within the given literal
 function escapeQuotes(id) {
@@ -44863,7 +44864,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(4940);
 /* harmony import */ var _named_node__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(5108);
 /* harmony import */ var _xmldom_xmldom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(8392);
-/* harmony import */ var _xmldom_xmldom__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_xmldom_xmldom__WEBPACK_IMPORTED_MODULE_3__);
 /* module decorator */ module = __webpack_require__.hmd(module);
 /**
  * Utility functions for $rdf
@@ -45469,7 +45469,7 @@ function debug_esm_t(...e) {
 function n(...e) {
 	console.error(...e);
 }
-
+;
 
 //# sourceMappingURL=debug.esm.js.map
 ;// ./node_modules/@uvdsl/solid-oidc-client-browser/dist/esm/web/index.js
@@ -48138,7 +48138,7 @@ class WebWorkerSession extends SessionCore {
     }
 }
 
-
+;
 //# sourceMappingURL=index.js.map
 
 ;// ./node_modules/@uvdsl/solid-oidc-client-browser/dist/esm/core/index.js
@@ -50555,7 +50555,7 @@ class core_SessionCore extends EventTarget {
     }
 }
 
-
+;
 //# sourceMappingURL=index.js.map
 
 ;// ./node_modules/solid-logic/dist/authSession/session.esm.js
@@ -50675,7 +50675,7 @@ async function e(e) {
 async function t(t) {
 	return await e(t) || t;
 }
-
+;
 
 //# sourceMappingURL=issuer.esm.js.map
 ;// ./node_modules/solid-logic/dist/authSession/events.esm.js
@@ -50878,7 +50878,7 @@ function C(e, t = () => {
 }) {
 	e && typeof e.on == "function" && e.on("identityReplaced", t);
 }
-
+;
 
 //# sourceMappingURL=identityState.esm.js.map
 ;// ./node_modules/solid-logic/dist/authSession/authSession.esm.js
@@ -50920,76 +50920,6 @@ Object.defineProperty(authSession_esm_l, "info", {
 //# sourceMappingURL=authSession.esm.js.map
 // EXTERNAL MODULE: ./node_modules/rdflib/esm/index.js + 34 modules
 var esm = __webpack_require__(8698);
-// NAMESPACE OBJECT (decoupled): ./node_modules/rdflib/esm/index.js + 34 modules
-var esm_namespaceObject = {};
-__webpack_require__.r(esm_namespaceObject);
-__webpack_require__.d(esm_namespaceObject, {
-  BlankNode: () => (esm.BlankNode),
-  Collection: () => (esm.Collection),
-  ConnectedStore: () => (esm.ConnectedStore),
-  DataFactory: () => (esm.DataFactory),
-  Empty: () => (esm.Empty),
-  Fetcher: () => (esm.Fetcher),
-  Formula: () => (esm.Formula),
-  IndexedFormula: () => (esm.IndexedFormula),
-  Literal: () => (esm.Literal),
-  LiveStore: () => (esm.LiveStore),
-  N3Parser: () => (esm.N3Parser),
-  NamedNode: () => (esm.NamedNode),
-  Namespace: () => (esm.Namespace),
-  NextId: () => (esm.NextId),
-  Node: () => (esm.Node),
-  Query: () => (esm.Query),
-  RDFParser: () => (esm.RDFParser),
-  RDFaProcessor: () => (esm.RDFaProcessor),
-  SPARQLToQuery: () => (esm.SPARQLToQuery),
-  Serializer: () => (esm.Serializer),
-  Statement: () => (esm.Statement),
-  Store: () => (esm.Store),
-  UpdateManager: () => (esm.UpdateManager),
-  UpdatesSocket: () => (esm.UpdatesSocket),
-  UpdatesVia: () => (esm.UpdatesVia),
-  Util: () => (esm.Util),
-  Variable: () => (esm.Variable),
-  blankNode: () => (esm.blankNode),
-  defaultGraph: () => (esm.defaultGraph),
-  fetcher: () => (esm.fetcher),
-  fromNT: () => (esm.fromNT),
-  graph: () => (esm.graph),
-  isBlankNode: () => (esm.isBlankNode),
-  isCollection: () => (esm.isCollection),
-  isGraph: () => (esm.isGraph),
-  isLiteral: () => (esm.isLiteral),
-  isNamedNode: () => (esm.isNamedNode),
-  isPredicate: () => (esm.isPredicate),
-  isQuad: () => (esm.isQuad),
-  isRDFObject: () => (esm.isRDFObject),
-  isRDFlibObject: () => (esm.isRDFlibObject),
-  isRDFlibPredicate: () => (esm.isRDFlibPredicate),
-  isRDFlibSubject: () => (esm.isRDFlibSubject),
-  isStatement: () => (esm.isStatement),
-  isStore: () => (esm.isStore),
-  isSubject: () => (esm.isSubject),
-  isTerm: () => (esm.isTerm),
-  isVariable: () => (esm.isVariable),
-  lit: () => (esm.lit),
-  literal: () => (esm.literal),
-  log: () => (esm.log),
-  namedNode: () => (esm.namedNode),
-  parse: () => (esm.parse),
-  quad: () => (esm.quad),
-  queryToSPARQL: () => (esm.queryToSPARQL),
-  serialize: () => (esm.serialize),
-  sparqlUpdateParser: () => (esm.sparqlUpdateParser),
-  st: () => (esm.st),
-  sym: () => (esm.sym),
-  term: () => (esm.term),
-  termValue: () => (esm.termValue),
-  triple: () => (esm.triple),
-  uri: () => (esm.uri),
-  variable: () => (esm.variable)
-});
-
 // EXTERNAL MODULE: ./node_modules/solid-namespace/index.js
 var solid_namespace = __webpack_require__(5386);
 var solid_namespace_default = /*#__PURE__*/__webpack_require__.n(solid_namespace);
@@ -50997,7 +50927,7 @@ var solid_namespace_default = /*#__PURE__*/__webpack_require__.n(solid_namespace
 
 
 // src/util/ns.ts
-var ns_esm_n = solid_namespace_default()(esm_namespaceObject);
+var ns_esm_n = solid_namespace_default()(esm);
 
 
 //# sourceMappingURL=ns.esm.js.map
@@ -51074,7 +51004,7 @@ async function accessControlSubjects_esm_c(c, l) {
 		subjectValue: l
 	};
 }
-
+;
 
 //# sourceMappingURL=accessControlSubjects.esm.js.map
 ;// ./node_modules/@rdfjs/data-model/lib/BlankNode.js
@@ -52852,7 +52782,7 @@ function aclLogic_esm_E(c) {
 		PUBLIC_ACCESS_ROLES: aclLogic_esm_y
 	};
 }
-
+;
 
 //# sourceMappingURL=aclLogic.esm.js.map
 ;// ./node_modules/solid-logic/dist/authn/authUtil.esm.js
@@ -52885,7 +52815,7 @@ function authUtil_esm_r() {
 	}
 	return null;
 }
-
+;
 
 //# sourceMappingURL=authUtil.esm.js.map
 ;// ./node_modules/solid-logic/dist/authn/SolidAuthnLogic.esm.js
@@ -53067,7 +52997,7 @@ async function flagAuthorizationOnTransitions_esm_u(e, t) {
 	if (typeof i != "function") throw Error("fetcher.load is unavailable");
 	return await i.call(e.fetcher, t), r === n.generation ? flagAuthorizationOnTransitions_esm_l(e, t) : await flagAuthorizationOnTransitions_esm_c(e, t) !== void 0;
 }
-
+;
 
 //# sourceMappingURL=flagAuthorizationOnTransitions.esm.js.map
 ;// ./node_modules/solid-logic/dist/util/utils.esm.js
@@ -53091,7 +53021,7 @@ function utils_esm_o(t, n) {
 	let r = new URL(`IndividualChats/${new URL(t.value).host}/`, n.value).toString();
 	return new esm.NamedNode(r);
 }
-
+;
 
 //# sourceMappingURL=utils.esm.js.map
 ;// ./node_modules/solid-logic/dist/chat/chatLogic.esm.js
@@ -53207,7 +53137,7 @@ function chatLogic_esm_s(s, c) {
 		mintNew: m
 	};
 }
-
+;
 
 //# sourceMappingURL=chatLogic.esm.js.map
 ;// ./node_modules/solid-logic/dist/inbox/inboxLogic.esm.js
@@ -53244,7 +53174,7 @@ function inboxLogic_esm_t(t, n, r, i, a) {
 		markAsRead: c
 	};
 }
-
+;
 
 //# sourceMappingURL=inboxLogic.esm.js.map
 ;// ./node_modules/solid-logic/dist/resource/resourceHttp.esm.js
@@ -53265,7 +53195,7 @@ function resourceHttp_esm_r(n) {
 	let r = `${n?.message || n || ""}`;
 	return r.includes("404") || r.includes("Not Found");
 }
-
+;
 
 //# sourceMappingURL=resourceHttp.esm.js.map
 ;// ./node_modules/solid-logic/dist/resource/resourceMetadata.esm.js
@@ -53297,7 +53227,7 @@ function resourceMetadata_esm_t(t) {
 		isPublicKnown: !0
 	};
 }
-
+;
 
 //# sourceMappingURL=resourceMetadata.esm.js.map
 ;// ./node_modules/solid-logic/dist/types.esm.js
@@ -53602,7 +53532,7 @@ function resourceLogic_esm_u(u, d, f, p) {
 		isWebId: D
 	};
 }
-
+;
 
 //# sourceMappingURL=resourceLogic.esm.js.map
 ;// ./node_modules/solid-logic/dist/logic/CustomError.esm.js
@@ -53627,7 +53557,7 @@ function typeIndexDocuments_esm_e() {
 function typeIndexDocuments_esm_t() {
 	return "@prefix solid: <http://www.w3.org/ns/solid/terms#>.\n<>\n    a solid:TypeIndex ;\n    a solid:UnlistedDocument.";
 }
-
+;
 
 //# sourceMappingURL=typeIndexDocuments.esm.js.map
 ;// ./node_modules/solid-logic/dist/typeIndex/typeIndexAclDocuments.esm.js
@@ -53662,7 +53592,7 @@ function typeIndexAclDocuments_esm_e(e, t) {
 		"    acl:mode acl:Read."
 	].join("\n");
 }
-
+;
 
 //# sourceMappingURL=typeIndexAclDocuments.esm.js.map
 ;// ./node_modules/solid-logic/dist/profile/profileDocuments.esm.js
@@ -53670,7 +53600,7 @@ function typeIndexAclDocuments_esm_e(e, t) {
 function profileDocuments_esm_e() {
 	return "@prefix dct: <http://purl.org/dc/terms/>.\n@prefix pim: <http://www.w3.org/ns/pim/space#>.\n@prefix solid: <http://www.w3.org/ns/solid/terms#>.\n<>\n    a pim:ConfigurationFile ;\n    dct:title \"Preferences file\".";
 }
-
+;
 
 //# sourceMappingURL=profileDocuments.esm.js.map
 ;// ./node_modules/solid-logic/dist/profile/profileAclDocuments.esm.js
@@ -53687,7 +53617,7 @@ function profileAclDocuments_esm_e(e) {
 		"acl:mode acl:Read, acl:Write, acl:Control."
 	].join("\n");
 }
-
+;
 
 //# sourceMappingURL=profileAclDocuments.esm.js.map
 ;// ./node_modules/solid-logic/dist/util/containerLogic.esm.js
@@ -53729,7 +53659,7 @@ function containerLogic_esm_n(n) {
 		getContainerMemberCount: a
 	};
 }
-
+;
 
 //# sourceMappingURL=containerLogic.esm.js.map
 ;// ./node_modules/solid-logic/dist/profile/profileLogic.esm.js
@@ -53914,7 +53844,7 @@ function profileLogic_esm_b(b, x, S) {
 		silencedLoadPreferences: L
 	};
 }
-
+;
 
 //# sourceMappingURL=profileLogic.esm.js.map
 ;// ./node_modules/solid-logic/dist/typeIndex/typeIndexLogic.esm.js
@@ -54124,7 +54054,7 @@ function typeIndexLogic_esm_c(c, l, u, d) {
 		getScopedAppsFromIndex: O
 	};
 }
-
+;
 
 //# sourceMappingURL=typeIndexLogic.esm.js.map
 ;// ./node_modules/solid-logic/dist/directory/directoryHelpers.esm.js
@@ -54213,7 +54143,7 @@ async function directoryHelpers_esm_v(e, t) {
 		return !1;
 	}
 }
-
+;
 
 //# sourceMappingURL=directoryHelpers.esm.js.map
 ;// ./node_modules/solid-logic/dist/directory/contactsDirectory.esm.js
@@ -54304,7 +54234,7 @@ function contactsDirectory_esm_o(o, s) {
 		discoverAddressBookGroups: m
 	};
 }
-
+;
 
 //# sourceMappingURL=contactsDirectory.esm.js.map
 ;// ./node_modules/solid-logic/dist/directory/friendsDirectory.esm.js
@@ -54362,7 +54292,7 @@ function friendsDirectory_esm_i(i) {
 	}
 	return { discoverFoafPeople: s };
 }
-
+;
 
 //# sourceMappingURL=friendsDirectory.esm.js.map
 ;// ./node_modules/solid-logic/dist/directory/catalogDirectory.esm.js
@@ -54416,7 +54346,7 @@ function catalogDirectory_esm_s() {
 	}
 	return { discoverCatalogEntries: c };
 }
-
+;
 
 //# sourceMappingURL=catalogDirectory.esm.js.map
 ;// ./node_modules/solid-logic/dist/directory/directoryLogic.esm.js
@@ -54457,7 +54387,7 @@ function directoryLogic_esm_l(s, l, u) {
 		};
 	}
 }
-
+;
 
 //# sourceMappingURL=directoryLogic.esm.js.map
 ;// ./node_modules/solid-logic/dist/util/utilityLogic.esm.js
@@ -54603,7 +54533,7 @@ function utilityLogic_esm_d(d, f, p) {
 		loadOrCreateWithContentOnCreate: h
 	};
 }
-
+;
 
 //# sourceMappingURL=utilityLogic.esm.js.map
 ;// ./node_modules/solid-logic/dist/logic/solidLogic.esm.js
@@ -54659,7 +54589,7 @@ function solidLogic_esm_p(p, m) {
 		clearStore: A
 	};
 }
-
+;
 
 //# sourceMappingURL=solidLogic.esm.js.map
 ;// ./node_modules/solid-logic/dist/logic/solidLogicSingleton.esm.js
@@ -54705,7 +54635,7 @@ async function serverLogout_esm_e(e = {}) {
 	} catch {}
 	return !1;
 }
-
+;
 
 //# sourceMappingURL=serverLogout.esm.js.map
 ;// ./node_modules/solid-logic/dist/issuer/issuerLogic.esm.js
@@ -54735,7 +54665,7 @@ function issuerLogic_esm_t() {
 		uri: r
 	}), t;
 }
-
+;
 
 //# sourceMappingURL=issuerLogic.esm.js.map
 ;// ./node_modules/solid-logic/dist/index.esm.js
@@ -55503,7 +55433,7 @@ function e(e, t) {
 		n !== null && (clearTimeout(n), n = null);
 	}, r;
 }
-
+;
 
 //# sourceMappingURL=timing.esm.js.map
 // EXTERNAL MODULE: ./node_modules/solid-ui/dist/_virtual/~icons/lucide/chevron-down.esm.js
@@ -57459,76 +57389,6 @@ var index_esm = __webpack_require__(9917);
 var debug_esm = __webpack_require__(6936);
 // EXTERNAL MODULE: ./node_modules/rdflib/esm/index.js + 34 modules
 var esm = __webpack_require__(8698);
-// NAMESPACE OBJECT (decoupled): ./node_modules/rdflib/esm/index.js + 34 modules
-var esm_namespaceObject = {};
-__webpack_require__.r(esm_namespaceObject);
-__webpack_require__.d(esm_namespaceObject, {
-  BlankNode: () => (esm.BlankNode),
-  Collection: () => (esm.Collection),
-  ConnectedStore: () => (esm.ConnectedStore),
-  DataFactory: () => (esm.DataFactory),
-  Empty: () => (esm.Empty),
-  Fetcher: () => (esm.Fetcher),
-  Formula: () => (esm.Formula),
-  IndexedFormula: () => (esm.IndexedFormula),
-  Literal: () => (esm.Literal),
-  LiveStore: () => (esm.LiveStore),
-  N3Parser: () => (esm.N3Parser),
-  NamedNode: () => (esm.NamedNode),
-  Namespace: () => (esm.Namespace),
-  NextId: () => (esm.NextId),
-  Node: () => (esm.Node),
-  Query: () => (esm.Query),
-  RDFParser: () => (esm.RDFParser),
-  RDFaProcessor: () => (esm.RDFaProcessor),
-  SPARQLToQuery: () => (esm.SPARQLToQuery),
-  Serializer: () => (esm.Serializer),
-  Statement: () => (esm.Statement),
-  Store: () => (esm.Store),
-  UpdateManager: () => (esm.UpdateManager),
-  UpdatesSocket: () => (esm.UpdatesSocket),
-  UpdatesVia: () => (esm.UpdatesVia),
-  Util: () => (esm.Util),
-  Variable: () => (esm.Variable),
-  blankNode: () => (esm.blankNode),
-  defaultGraph: () => (esm.defaultGraph),
-  fetcher: () => (esm.fetcher),
-  fromNT: () => (esm.fromNT),
-  graph: () => (esm.graph),
-  isBlankNode: () => (esm.isBlankNode),
-  isCollection: () => (esm.isCollection),
-  isGraph: () => (esm.isGraph),
-  isLiteral: () => (esm.isLiteral),
-  isNamedNode: () => (esm.isNamedNode),
-  isPredicate: () => (esm.isPredicate),
-  isQuad: () => (esm.isQuad),
-  isRDFObject: () => (esm.isRDFObject),
-  isRDFlibObject: () => (esm.isRDFlibObject),
-  isRDFlibPredicate: () => (esm.isRDFlibPredicate),
-  isRDFlibSubject: () => (esm.isRDFlibSubject),
-  isStatement: () => (esm.isStatement),
-  isStore: () => (esm.isStore),
-  isSubject: () => (esm.isSubject),
-  isTerm: () => (esm.isTerm),
-  isVariable: () => (esm.isVariable),
-  lit: () => (esm.lit),
-  literal: () => (esm.literal),
-  log: () => (esm.log),
-  namedNode: () => (esm.namedNode),
-  parse: () => (esm.parse),
-  quad: () => (esm.quad),
-  queryToSPARQL: () => (esm.queryToSPARQL),
-  serialize: () => (esm.serialize),
-  sparqlUpdateParser: () => (esm.sparqlUpdateParser),
-  st: () => (esm.st),
-  sym: () => (esm.sym),
-  term: () => (esm.term),
-  termValue: () => (esm.termValue),
-  triple: () => (esm.triple),
-  uri: () => (esm.uri),
-  variable: () => (esm.variable)
-});
-
 // EXTERNAL MODULE: ./node_modules/solid-logic/dist/index.esm.js + 60 modules
 var dist_index_esm = __webpack_require__(8257);
 ;// ./node_modules/solid-ui/dist/acl/acl.esm.js
@@ -57757,7 +57617,7 @@ function D(e, t) {
 async function O(e) {
 	return new Promise((t, n) => E((0,esm.sym)(e), (r, i, a, o, s) => r ? t(i ? a : s) : n(/* @__PURE__ */ Error(`Error loading ${e}`))));
 }
-
+;
 
 //# sourceMappingURL=acl.esm.js.map
 // EXTERNAL MODULE: ./node_modules/solid-ui/dist/widgets/index.esm.js + 22 modules
@@ -58188,7 +58048,7 @@ async function X(e) {
 function Z(e, t) {
 	return (e.audience || []).reduce((e, n) => e && !!t.find((e) => e.equals(n)), !0);
 }
-
+;
 
 //# sourceMappingURL=login.esm.js.map
 // EXTERNAL MODULE: ./node_modules/solid-ui/dist/widgets/dragAndDrop.esm.js
@@ -58573,7 +58433,7 @@ function access_groups_esm_(e, t) {
 		obj: r
 	} : ((0,debug_esm/* log */.Rm)("    Triage fails for " + e), null);
 }
-
+;
 
 //# sourceMappingURL=access-groups.esm.js.map
 ;// ./node_modules/solid-ui/dist/acl/access-controller.esm.js
@@ -58778,7 +58638,7 @@ function acl_control_esm_(t, n, r) {
 function acl_control_esm_v(e) {
 	return e.uri === e.site().uri;
 }
-
+;
 
 //# sourceMappingURL=acl-control.esm.js.map
 ;// ./node_modules/solid-ui/dist/acl/index.esm.js
@@ -58908,7 +58768,7 @@ function create_esm_l(s, l, u) {
 		});
 	});
 }
-
+;
 
 //# sourceMappingURL=create.esm.js.map
 ;// ./node_modules/solid-ui/dist/create/index.esm.js
@@ -59000,7 +58860,7 @@ function i(n, i, a, o, s, c, l) {
 	if (c.set_x) for (let e = 0; e < c.set_x.length; e++) g(c.set_x[e]);
 	return r.query(i, y, void 0, l), u;
 }
-
+;
 
 //# sourceMappingURL=matrix.esm.js.map
 ;// ./node_modules/solid-ui/dist/matrix/index.esm.js
@@ -59079,7 +58939,7 @@ function media_capture_esm_u(e, t, n, i) {
 		a.removeChild(s), c = media_capture_esm_l(e, t, n, u), a.appendChild(c);
 	}), a;
 }
-
+;
 
 //# sourceMappingURL=media-capture.esm.js.map
 ;// ./node_modules/solid-ui/dist/media/index.esm.js
@@ -59106,7 +58966,7 @@ var index_esm_n = {
 var messageArea_esm_c = {
 	icons: iconBase_esm/* icons */.P,
 	ns: ns_esm/* default */.A,
-	rdf: esm_namespaceObject,
+	rdf: esm,
 	style: style_esm/* style */.i,
 	widgets: widgets_index_esm/* widgets_exports */.Q6
 };
@@ -59247,7 +59107,7 @@ function messageArea_esm_l(e, r, i, a, l) {
 		T(i, g);
 	}, h;
 }
-
+;
 
 //# sourceMappingURL=messageArea.esm.js.map
 ;// ./node_modules/solid-ui/dist/chat/dateFolder.esm.js
@@ -67308,7 +67168,7 @@ function signature_esm_l(t, r, i) {
 function signature_esm_u(r, i) {
 	return bytesToHex(schnorr.sign(hexToBytes(signature_esm_c(r)), hexToBytes(i)));
 }
-
+;
 
 //# sourceMappingURL=signature.esm.js.map
 ;// ./node_modules/solid-ui/dist/utils/keyHelpers/otherHelpers.esm.js
@@ -67372,7 +67232,7 @@ async function accessData_esm_l(e, r, a) {
 		throw (0,debug_esm/* log */.Rm)("createIfNotExists doc FAILED: " + r + ": " + e), e;
 	}
 }
-
+;
 
 //# sourceMappingURL=accessData.esm.js.map
 ;// ./node_modules/solid-ui/dist/utils/keyHelpers/acl.esm.js
@@ -67476,7 +67336,7 @@ async function keys_esm_y(e, t, n, r = "") {
 	let i = acl_esm_i(e, r);
 	await acl_esm_n(e, i);
 }
-
+;
 
 //# sourceMappingURL=keys.esm.js.map
 ;// ./node_modules/solid-ui/dist/chat/chatLogic.esm.js
@@ -67569,7 +67429,7 @@ async function chatLogic_esm_m(t) {
 function chatLogic_esm_h(e) {
 	return dist_index_esm.store.holds(e, ns_esm/* default */.A.schema("dateDeleted"), null, e.doc());
 }
-
+;
 
 //# sourceMappingURL=chatLogic.esm.js.map
 // EXTERNAL MODULE: ./node_modules/solid-ui/dist/lib/styleConstants.esm.js
@@ -67676,7 +67536,7 @@ function participation_esm_y(e, t, n, r, i, a) {
 	}
 	return s;
 }
-
+;
 
 //# sourceMappingURL=participation.esm.js.map
 ;// ./node_modules/solid-ui/dist/lib/pad.esm.js
@@ -67980,7 +67840,7 @@ function pad_esm_S(e, n) {
 		} else r > 0 ? (c(r), s(r), i += `<li>${o}</li>\n`) : (c(r), i += `<p>${o}</p>\n`);
 	}), c(0), i += "  </body>\n</html>\n", i;
 }
-
+;
 
 //# sourceMappingURL=pad.esm.js.map
 ;// ./node_modules/solid-ui/dist/chat/bookmarks.esm.js
@@ -68073,7 +67933,7 @@ async function bookmarks_esm_T(e, t) {
 		bookmarks_esm_w(e, t, r);
 	}), r.target = t, await n(r), r;
 }
-
+;
 
 //# sourceMappingURL=bookmarks.esm.js.map
 ;// ./node_modules/solid-ui/dist/chat/messageTools.esm.js
@@ -68194,7 +68054,7 @@ async function messageTools_esm_E(e, f, p, w) {
 	let N = O.appendChild((0,buttons_esm/* cancelButton */.x7)(messageTools_esm_y));
 	return N.style.float = "right", N.firstChild.style.opacity = "0.3", N.addEventListener("click", k), O;
 }
-
+;
 
 //# sourceMappingURL=messageTools.esm.js.map
 ;// ./node_modules/solid-ui/dist/chat/message.esm.js
@@ -68380,7 +68240,7 @@ function message_esm_H(t, n, r, a, o) {
 		v(), Object.assign(e, r), bookmarks_esm_S(e).then((e) => {});
 	}), D;
 }
-
+;
 
 //# sourceMappingURL=message.esm.js.map
 ;// ./node_modules/solid-ui/dist/chat/infinite.esm.js
@@ -68555,7 +68415,7 @@ async function infinite_esm_h(t, u, h, g) {
 	let I = !1;
 	return await T(), k;
 }
-
+;
 
 //# sourceMappingURL=infinite.esm.js.map
 ;// ./node_modules/solid-ui/dist/lib/preferences.esm.js
@@ -68676,7 +68536,7 @@ function preferences_esm_b(e, t, n, r) {
 		});
 	});
 }
-
+;
 
 //# sourceMappingURL=preferences.esm.js.map
 ;// ./node_modules/solid-ui/dist/lib/table.esm.js
@@ -69231,7 +69091,7 @@ function table_esm_d(t, r) {
 		return n;
 	}
 }
-
+;
 
 //# sourceMappingURL=table.esm.js.map
 ;// ./node_modules/solid-ui/dist/lib/tabs.esm.js
@@ -69363,7 +69223,7 @@ function tabs_esm_d(e) {
 	for (let n = 0; n < 3; n++) t += parseInt(e.slice(n * 2 + 1, n * 2 + 3), 16);
 	return t > 384;
 }
-
+;
 
 //# sourceMappingURL=tabs.esm.js.map
 ;// ./node_modules/solid-ui/dist/header/empty-profile.esm.js
@@ -69423,7 +69283,7 @@ function headerFooterHelpers_esm_o(e, t, n = {}) {
 		return r = this, i = arguments, u <= 0 || u > t ? (o &&= (clearTimeout(o), null), s = l, a = e.apply(r, i), o || (r = i = null)) : !o && n.trailing !== !1 && (o = setTimeout(c, u)), a;
 	};
 }
-
+;
 
 //# sourceMappingURL=headerFooterHelpers.esm.js.map
 ;// ./node_modules/solid-ui/dist/header/index.esm.js
@@ -69548,7 +69408,7 @@ function header_index_esm_x(e, t, n) {
 	let r = t.getAttribute("aria-expanded") === "true", i = e.type === "mouseover", a = e.type === "mouseout";
 	r && i || !r && a || (t.setAttribute("aria-expanded", (!r).toString()), n.setAttribute("aria-hidden", r.toString()));
 }
-
+;
 
 //# sourceMappingURL=index.esm.js.map
 ;// ./node_modules/solid-ui/dist/footer/index.esm.js
@@ -69588,7 +69448,7 @@ function footer_index_esm_u(n, r, i, a, c) {
 	let g = document.createElement("span");
 	return g.innerText = ".", l.appendChild(d), l.appendChild(f), l.appendChild(p), l.appendChild(m), l.appendChild(h), l.appendChild(u), l.appendChild(g), l;
 }
-
+;
 
 //# sourceMappingURL=index.esm.js.map
 ;// ./node_modules/solid-ui/dist/create/types.esm.js
@@ -69661,7 +69521,7 @@ function relevant_panes_esm_r(e, n, r) {
 	}
 	return r.find((t) => t.shouldGetFocus?.(e)) || r[0];
 }
-
+;
 
 //# sourceMappingURL=relevant-panes.esm.js.map
 ;// ./node_modules/solid-ui/dist/lib/file-explorer/compose-explorer.esm.js
@@ -69680,7 +69540,7 @@ function compose_explorer_esm_e(e, t) {
 		r ? r !== n && r.replaceWith(n) : e.appendChild(n);
 	}
 }
-
+;
 
 //# sourceMappingURL=compose-explorer.esm.js.map
 ;// ./node_modules/solid-ui/dist/lib/file-explorer/pane-menu-items.esm.js
@@ -69701,7 +69561,7 @@ async function pane_menu_items_esm_t(t) {
 		};
 	}))).filter((e) => e !== void 0);
 }
-
+;
 
 //# sourceMappingURL=pane-menu-items.esm.js.map
 ;// ./node_modules/solid-ui/dist/lib/file-explorer/index.esm.js
@@ -73750,7 +73610,7 @@ function findColumn(string, col, tabSize, strict) {
     return strict === true ? -1 : string.length;
 }
 
-
+;
 
 ;// ./node_modules/style-mod/src/style-mod.js
 const style_mod_C = "\u037c"
@@ -87824,7 +87684,7 @@ class TreeFragment {
                     let cut = nextF;
                     if (pos >= cut.from || nextPos <= cut.to || off) {
                         let fFrom = Math.max(cut.from, pos) - off, fTo = Math.min(cut.to, nextPos) - off;
-                        cut = fFrom >= fTo ? null : new TreeFragment(fFrom, fTo, cut.tree, cut.offset + off, cI > 0, !!nextC);
+                        cut = fFrom >= fTo ? null : new TreeFragment(fFrom, fTo, cut.tree, cut.offset + off, cut.openStart || cI > 0, cut.openEnd || !!nextC);
                     }
                     if (cut)
                         result.push(cut);
@@ -87921,6 +87781,16 @@ class ActiveOverlay {
     }
 }
 const stoppedInner = new NodeProp({ perNode: true });
+// The state of the walk that finds nested regions, kept between
+// advance() calls.
+class InnerScan {
+    constructor(fragments, cursor) {
+        this.cursor = cursor;
+        this.overlay = null;
+        this.covered = null;
+        this.fragmentCursor = new FragmentCursor(fragments);
+    }
+}
 class MixedParse {
     constructor(base, nest, input, fragments, ranges) {
         this.nest = nest;
@@ -87930,6 +87800,7 @@ class MixedParse {
         this.inner = [];
         this.innerDone = 0;
         this.baseTree = null;
+        this.scan = null;
         this.stoppedAt = null;
         this.baseParse = base;
     }
@@ -87940,7 +87811,12 @@ class MixedParse {
                 return null;
             this.baseParse = null;
             this.baseTree = done;
-            this.startInner();
+            this.scan = new InnerScan(this.fragments, new TreeCursor(new TreeNode(done, this.ranges[0].from, 0, null), IterMode.IncludeAnonymous | IterMode.IgnoreMounts));
+        }
+        if (this.scan) {
+            if (!this.scanInner())
+                return null;
+            this.scan = null;
             if (this.stoppedAt != null)
                 for (let inner of this.inner)
                     inner.parse.stopAt(this.stoppedAt);
@@ -87968,6 +87844,13 @@ class MixedParse {
         if (this.baseParse)
             return 0;
         let pos = this.input.length;
+        if (this.scan) {
+            // Everything before the walk's position has been looked at, except
+            // what open overlays still collect ranges for.
+            pos = this.scan.cursor.from;
+            for (let o = this.scan.overlay; o; o = o.prev)
+                pos = Math.min(pos, o.start);
+        }
         for (let i = this.innerDone; i < this.inner.length; i++) {
             if (this.inner[i].from < pos)
                 pos = Math.min(pos, this.inner[i].parse.parsedPos);
@@ -87982,12 +87865,19 @@ class MixedParse {
             for (let i = this.innerDone; i < this.inner.length; i++)
                 this.inner[i].parse.stopAt(pos);
     }
-    startInner() {
-        let fragmentCursor = new FragmentCursor(this.fragments);
-        let overlay = null;
-        let covered = null;
-        let cursor = new TreeCursor(new TreeNode(this.baseTree, this.ranges[0].from, 0, null), IterMode.IncludeAnonymous | IterMode.IgnoreMounts);
-        scan: for (let nest, isCovered;;) {
+    // Continue the walk that finds nested regions. Returns true when
+    // it's done, false when it stopped to let advance() return.
+    scanInner() {
+        let scan = this.scan, { fragmentCursor, cursor } = scan;
+        let { overlay, covered } = scan;
+        let work = 0;
+        walk: for (let nest, isCovered;;) {
+            if (work >= 2000 /* Scan.Work */) {
+                scan.overlay = overlay;
+                scan.covered = covered;
+                return false;
+            }
+            work++;
             let enter = true, range;
             if (this.stoppedAt != null && cursor.from >= this.stoppedAt) {
                 enter = false;
@@ -88025,8 +87915,10 @@ class MixedParse {
                 else {
                     let ranges = punchRanges(this.ranges, nest.overlay ||
                         (cursor.from < cursor.to ? [new dist_Range(cursor.from, cursor.to)] : []));
-                    if (ranges.length)
+                    if (ranges.length) {
                         checkRanges(ranges);
+                        work += 20 /* Scan.StartCost */;
+                    }
                     if (ranges.length || !nest.overlay)
                         this.inner.push(new InnerParse(nest.parser, ranges.length ? nest.parser.startParse(this.input, enterFragments(oldMounts, ranges), ranges)
                             : nest.parser.startParse(""), nest.overlay ? nest.overlay.map(r => new dist_Range(r.from - cursor.from, r.to - cursor.from)) : null, !!nest.bracketed, cursor.tree, ranges.length ? ranges[0].from : cursor.from));
@@ -88058,11 +87950,12 @@ class MixedParse {
                     if (cursor.nextSibling())
                         break;
                     if (!cursor.parent())
-                        break scan;
+                        break walk;
                     if (overlay && !--overlay.depth) {
                         let ranges = punchRanges(this.ranges, overlay.ranges);
                         if (ranges.length) {
                             checkRanges(ranges);
+                            work += 20 /* Scan.StartCost */;
                             this.inner.splice(overlay.index, 0, new InnerParse(overlay.parser, overlay.parser.startParse(this.input, enterFragments(overlay.mounts, ranges), ranges), overlay.ranges.map(r => new dist_Range(r.from - overlay.start, r.to - overlay.start)), overlay.bracketed, overlay.target, ranges[0].from));
                         }
                         overlay = overlay.prev;
@@ -88072,6 +87965,7 @@ class MixedParse {
                 }
             }
         }
+        return true;
     }
 }
 function checkCover(covered, from, to) {
@@ -88316,7 +88210,7 @@ function enterFragments(mounts, ranges) {
     return result;
 }
 
-
+;
 
 ;// ./node_modules/@lezer/highlight/dist/index.js
 
@@ -89427,7 +89321,7 @@ class StringStream {
     current() { return this.string.slice(this.start, this.pos); }
 }
 
-
+;
 
 ;// ./node_modules/@codemirror/language/dist/index.js
 /* unused harmony import specifier */ var dist_NodeProp;
@@ -95707,7 +95601,7 @@ function getSpecializer(spec) {
     return spec.get;
 }
 
-
+;
 
 ;// ./node_modules/@lezer/css/dist/index.js
 
@@ -96128,7 +96022,7 @@ function css() {
     return new LanguageSupport(cssLanguage, cssLanguage.data.of({ autocomplete: cssCompletionSource }));
 }
 
-
+;
 
 ;// ./node_modules/@lezer/html/dist/index.js
 
@@ -96479,7 +96373,7 @@ function configureNesting(tags = [], attributes = []) {
   })
 }
 
-
+;
 
 ;// ./node_modules/@lezer/javascript/dist/index.js
 
@@ -98820,7 +98714,7 @@ function setSelectedCompletion(index) {
     return setSelectedEffect.of(index);
 }
 
-
+;
 
 ;// ./node_modules/@codemirror/lang-javascript/dist/index.js
 /* unused harmony import specifier */ var lang_javascript_dist_syntaxTree;
@@ -99336,7 +99230,7 @@ function translateDiagnostic(input, doc, offset) {
     return result;
 }
 
-
+;
 
 ;// ./node_modules/@codemirror/lang-html/dist/index.js
 
@@ -100114,7 +100008,7 @@ function json() {
     return new LanguageSupport(jsonLanguage);
 }
 
-
+;
 
 ;// ./node_modules/@lezer/markdown/dist/index.js
 
@@ -104910,7 +104804,7 @@ function t(t) {
 		r ? r.addInitializer(() => e(t, n)) : e(t, n);
 	};
 }
-
+;
 
 //# sourceMappingURL=decorators.esm.js.map
 
@@ -105443,7 +105337,7 @@ r = R, [o, c, u, f, m, g, v, i] = E(r, [
 function e() {
 	return Math.random().toString(36).substring(2, 15);
 }
-
+;
 
 //# sourceMappingURL=ids.esm.js.map
 
@@ -105752,7 +105646,7 @@ function n(...e) {
 function r(...e) {
 	console.trace(...e);
 }
-
+;
 
 //# sourceMappingURL=debug.esm.js.map
 
@@ -105874,7 +105768,7 @@ function n(n, r) {
 	let a = new _Dialog_esm_js__WEBPACK_IMPORTED_MODULE_1__/* ["default"] */ .A(i, r);
 	return document.dispatchEvent(new _events_show_dialog_esm_js__WEBPACK_IMPORTED_MODULE_0__/* .ShowDialogEvent */ ._(a)), a.element;
 }
-
+;
 
 //# sourceMappingURL=helpers.esm.js.map
 
@@ -105926,7 +105820,7 @@ function e(e) {
 		deleteProperty: t
 	});
 }
-
+;
 
 //# sourceMappingURL=noopContext.esm.js.map
 // EXTERNAL MODULE: ./node_modules/@lit/context/index.js + 8 modules
@@ -105957,7 +105851,7 @@ var e = "solid-ui-file-explorer-back", t = "solid-ui-file-explorer-manage-access
 function r(e, t) {
 	return e.composedPath().find((e) => "localName" in e && e.localName === "solid-ui-file-explorer-provider") === t;
 }
-
+;
 
 //# sourceMappingURL=events.esm.js.map
 
@@ -106084,7 +105978,7 @@ function D(e) {
 function O(e, t) {
 	p = e, f = t;
 }
-
+;
 
 //# sourceMappingURL=log.esm.js.map
 
@@ -106569,7 +106463,7 @@ function L(e) {
 	else if (t.previousSibling && t.previousSibling.nodeName === "TR") t = t.previousSibling;
 	else return s.log.error("Could not find predParent"), e;
 }
-
+;
 
 //# sourceMappingURL=index.esm.js.map
 
@@ -106633,7 +106527,7 @@ function o(e, t) {
 function s(e) {
 	return solid_logic__WEBPACK_IMPORTED_MODULE_3__.store.any(e, i.ns.ui("label")) || solid_logic__WEBPACK_IMPORTED_MODULE_3__.store.any(e, i.ns.link("message")) || solid_logic__WEBPACK_IMPORTED_MODULE_3__.store.any(e, i.ns.vcard("fn")) || solid_logic__WEBPACK_IMPORTED_MODULE_3__.store.any(e, i.ns.foaf("name")) || solid_logic__WEBPACK_IMPORTED_MODULE_3__.store.any(e, i.ns.dct("title")) || solid_logic__WEBPACK_IMPORTED_MODULE_3__.store.any(e, i.ns.dc("title")) || solid_logic__WEBPACK_IMPORTED_MODULE_3__.store.any(e, i.ns.rss("title")) || solid_logic__WEBPACK_IMPORTED_MODULE_3__.store.any(e, i.ns.contact("fullName")) || solid_logic__WEBPACK_IMPORTED_MODULE_3__.store.any(e, solid_logic__WEBPACK_IMPORTED_MODULE_3__.store.sym("http://www.w3.org/2001/04/roadmap/org#name")) || solid_logic__WEBPACK_IMPORTED_MODULE_3__.store.any(e, i.ns.cal("summary")) || solid_logic__WEBPACK_IMPORTED_MODULE_3__.store.any(e, i.ns.foaf("nick")) || solid_logic__WEBPACK_IMPORTED_MODULE_3__.store.any(e, i.ns.as("name")) || solid_logic__WEBPACK_IMPORTED_MODULE_3__.store.any(e, i.ns.schema("name")) || solid_logic__WEBPACK_IMPORTED_MODULE_3__.store.any(e, i.ns.rdfs("label")) || solid_logic__WEBPACK_IMPORTED_MODULE_3__.store.any(e, solid_logic__WEBPACK_IMPORTED_MODULE_3__.store.sym("http://www.w3.org/2004/02/skos/core#prefLabel"));
 }
-
+;
 
 //# sourceMappingURL=label.esm.js.map
 
@@ -107415,7 +107309,7 @@ function a(t, r, i, a, o) {
 		})(l), u.readAsArrayBuffer(l);
 	}
 }
-
+;
 
 //# sourceMappingURL=dragAndDrop.esm.js.map
 
@@ -107443,7 +107337,7 @@ function r(r, i, a, o) {
 		s.parentNode && s.parentNode.removeChild(s);
 	})).style = _lib_style_esm_js__WEBPACK_IMPORTED_MODULE_1__/* .style */ .i.errorCancelButton, s.setAttribute("style", _lib_style_esm_js__WEBPACK_IMPORTED_MODULE_1__/* .style */ .i.errorMessageBlockStyle), s.style.backgroundColor = a || _lib_styleConstants_esm_js__WEBPACK_IMPORTED_MODULE_3__/* ["default"] */ .A.defaultErrorBackgroundColor, s;
 }
-
+;
 
 //# sourceMappingURL=error.esm.js.map
 
@@ -107509,7 +107403,7 @@ function formStyle_esm_a(a, o) {
 		}
 	}) : c.style && a.setAttribute("style", c.style);
 }
-
+;
 
 //# sourceMappingURL=formStyle.esm.js.map
 // EXTERNAL MODULE: ./node_modules/solid-ui/dist/lib/debug.esm.js
@@ -107613,7 +107507,7 @@ function s(s, c, l, u, d, f, p) {
 		b.appendChild((0,error_esm/* errorMessageBlock */.F)(s, `Error rendering autocomplete ${d}: ${e}`, "#fee", e));
 	}), v;
 }
-
+;
 
 //# sourceMappingURL=autocompleteField.esm.js.map
 // EXTERNAL MODULE: ./node_modules/solid-ui/dist/lib/styleConstants.esm.js
@@ -108690,7 +108584,7 @@ function ie(e, t, n) {
 	}
 	return h;
 }
-
+;
 
 //# sourceMappingURL=forms.esm.js.map
 
@@ -108772,7 +108666,7 @@ async function g(n, g, _, v, y, b) {
 	}
 	return P(), L;
 }
-
+;
 
 //# sourceMappingURL=autocompleteBar.esm.js.map
 
@@ -108902,7 +108796,7 @@ async function m(m, h, g, _) {
 		e.keyCode === 13 && x(e);
 	}, !1), H.addEventListener("input", T), L;
 }
-
+;
 
 //# sourceMappingURL=autocompletePicker.esm.js.map
 
@@ -108995,7 +108889,7 @@ function d(e, n) {
 	}
 	return (0,_lib_debug_esm_js__WEBPACK_IMPORTED_MODULE_1__/* .log */ .Rm)(` Filter by language: ${e.length} -> ${a.length}`), a;
 }
-
+;
 
 //# sourceMappingURL=language.esm.js.map
 
@@ -109264,7 +109158,7 @@ async function N(e, n, r) {
     OPTIONAL { ${r} <http://dbpedia.org/ontology/country> ?country }
    }`, h), r.doc()), (0,_lib_debug_esm_js__WEBPACK_IMPORTED_MODULE_1__/* .log */ .Rm)("Finished getDbpediaDetails.");
 }
-
+;
 
 //# sourceMappingURL=publicData.esm.js.map
 
@@ -109377,7 +109271,7 @@ function m(t, l, f, m, h, g, _) {
 		}
 	}, !0), b) : (O.readOnly = !0, O.style = _lib_style_esm_js__WEBPACK_IMPORTED_MODULE_2__/* .style */ .i.textInputStyleUneditable + E, C && O.value === "" && (b.style.display = "none"), b);
 }
-
+;
 
 //# sourceMappingURL=basic.esm.js.map
 
@@ -109412,7 +109306,7 @@ function o(n, r) {
 		return n && n.appendChild(i), i;
 	};
 }
-
+;
 
 //# sourceMappingURL=fieldFunction.esm.js.map
 
@@ -110456,7 +110350,7 @@ function _(e) {
 		groupContainer: l.sym(e.dir().uri + "Group/")
 	};
 }
-
+;
 
 //# sourceMappingURL=peoplePicker.esm.js.map
 // EXTERNAL MODULE: ./node_modules/solid-ui/dist/widgets/buttons.esm.js + 2 modules
@@ -110633,7 +110527,7 @@ function r(r = document) {
 		clearError: o
 	};
 }
-
+;
 
 //# sourceMappingURL=StatusSection2.esm.js.map
 
@@ -110658,7 +110552,7 @@ function t(...e) {
 function n(...e) {
 	console.error(...e);
 }
-
+;
 
 //# sourceMappingURL=debug.esm.js.map
 
@@ -111684,7 +111578,7 @@ var floating_ui_dom = __webpack_require__(7315);
 // EXTERNAL MODULE: ./node_modules/@floating-ui/utils/dist/floating-ui.utils.dom.mjs
 var floating_ui_utils_dom = __webpack_require__(6635);
 ;// ./node_modules/composed-offset-position/dist/composed-offset-position.browser.min.mjs
-function e(t){return i(t)}function n(t){return f(t,"offsetTop")}function o(t){return f(t,"offsetLeft")}function r(t){return t.assignedSlot?t.assignedSlot:t.parentNode instanceof ShadowRoot?t.parentNode.host:t.parentNode}function i(e){for(let t=e;t;t=r(t))if(t instanceof Element&&"none"===getComputedStyle(t).display)return null;for(let n=r(e);n;n=r(n)){if(!(n instanceof Element))continue;const e=getComputedStyle(n);if("contents"!==e.display){if("static"!==e.position||(0,floating_ui_utils_dom/* isContainingBlock */.sQ)(e))return n;if("BODY"===n.tagName)return n}}return null}function f(t,e){let n=t[e],o=i(t);const r=function(t){const e=new Set;let n=t.getRootNode();for(;n;)e.add(n),n=n.parentNode?n.parentNode.getRootNode():null;return e}(t);for(;o&&!r.has(o.getRootNode());)n-=o[e],o=i(o);return n}
+function e(t){return i(t)}function n(t){return f(t,"offsetTop")}function o(t){return f(t,"offsetLeft")}function r(t){return t.assignedSlot?t.assignedSlot:t.parentNode instanceof ShadowRoot?t.parentNode.host:t.parentNode}function i(e){for(let t=e;t;t=r(t))if(t instanceof Element&&"none"===getComputedStyle(t).display)return null;for(let n=r(e);n;n=r(n)){if(!(n instanceof Element))continue;const e=getComputedStyle(n);if("contents"!==e.display){if("static"!==e.position||(0,floating_ui_utils_dom/* isContainingBlock */.sQ)(e))return n;if("BODY"===n.tagName)return n}}return null}function f(t,e){let n=t[e],o=i(t);const r=function(t){const e=new Set;let n=t.getRootNode();for(;n;)e.add(n),n=n.parentNode?n.parentNode.getRootNode():null;return e}(t);for(;o&&!r.has(o.getRootNode());)n-=o[e],o=i(o);return n};
 
 // EXTERNAL MODULE: ./node_modules/lit/index.js + 2 modules
 var lit = __webpack_require__(6337);
@@ -112341,7 +112235,7 @@ function _defineProperty(e, r, t) {
     writable: !0
   }) : e[r] = t, e;
 }
-
+;
 
 /***/ },
 
@@ -112361,7 +112255,7 @@ function _extends() {
     return n;
   }, _extends.apply(null, arguments);
 }
-
+;
 
 /***/ },
 
@@ -112385,7 +112279,7 @@ function _typeof(o) {
     return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o;
   }, _typeof(o);
 }
-
+;
 ;// ./node_modules/@babel/runtime/helpers/esm/toPrimitive.js
 
 function toPrimitive(t, e) {
@@ -112398,7 +112292,7 @@ function toPrimitive(t, e) {
   }
   return ("string" === e ? String : Number)(t);
 }
-
+;
 ;// ./node_modules/@babel/runtime/helpers/esm/toPropertyKey.js
 
 
@@ -112406,7 +112300,7 @@ function toPropertyKey(t) {
   var i = toPrimitive(t, "string");
   return "symbol" == _typeof(i) ? i : i + "";
 }
-
+;
 
 /***/ },
 
@@ -112566,7 +112460,7 @@ function rectToClientRect(rect) {
   };
 }
 
-
+;
 
 ;// ./node_modules/@floating-ui/core/dist/floating-ui.core.mjs
 /* unused harmony import specifier */ var floating_ui_core_getAlignment;
@@ -114610,7 +114504,7 @@ function getFrameElement(win) {
   return win.parent && Object.getPrototypeOf(win.parent) ? win.frameElement : null;
 }
 
-
+;
 
 
 /***/ },
@@ -114635,7 +114529,7 @@ __webpack_require__.d(__webpack_exports__, {
  * Copyright 2021 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-class context_request_event_s extends Event{constructor(s,t,e,o){super("context-request",{bubbles:!0,composed:!0}),this.context=s,this.contextTarget=t,this.callback=e,this.subscribe=o??!1}}
+class context_request_event_s extends Event{constructor(s,t,e,o){super("context-request",{bubbles:!0,composed:!0}),this.context=s,this.contextTarget=t,this.callback=e,this.subscribe=o??!1}};
 //# sourceMappingURL=context-request-event.js.map
 
 ;// ./node_modules/@lit/context/lib/create-context.js
@@ -114644,7 +114538,7 @@ class context_request_event_s extends Event{constructor(s,t,e,o){super("context-
  * Copyright 2021 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-function n(n){return n}
+function n(n){return n};
 //# sourceMappingURL=create-context.js.map
 
 ;// ./node_modules/@lit/context/lib/controllers/context-consumer.js
@@ -114653,7 +114547,7 @@ function n(n){return n}
  * @license
  * Copyright 2021 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */class s{constructor(t,s,i,h){if(this.subscribe=!1,this.provided=!1,this.value=void 0,this.t=(t,s)=>{this.unsubscribe&&(this.unsubscribe!==s&&(this.provided=!1,this.unsubscribe()),this.subscribe||this.unsubscribe()),this.value=t,this.host.requestUpdate(),this.provided&&!this.subscribe||(this.provided=!0,this.callback&&this.callback(t,s)),this.unsubscribe=s},this.host=t,void 0!==s.context){const t=s;this.context=t.context,this.callback=t.callback,this.subscribe=t.subscribe??!1}else this.context=s,this.callback=i,this.subscribe=h??!1;this.host.addController(this)}hostConnected(){this.dispatchRequest()}hostDisconnected(){this.unsubscribe&&(this.unsubscribe(),this.unsubscribe=void 0)}dispatchRequest(){this.host.dispatchEvent(new context_request_event_s(this.context,this.host,this.t,this.subscribe))}}
+ */class s{constructor(t,s,i,h){if(this.subscribe=!1,this.provided=!1,this.value=void 0,this.t=(t,s)=>{this.unsubscribe&&(this.unsubscribe!==s&&(this.provided=!1,this.unsubscribe()),this.subscribe||this.unsubscribe()),this.value=t,this.host.requestUpdate(),this.provided&&!this.subscribe||(this.provided=!0,this.callback&&this.callback(t,s)),this.unsubscribe=s},this.host=t,void 0!==s.context){const t=s;this.context=t.context,this.callback=t.callback,this.subscribe=t.subscribe??!1}else this.context=s,this.callback=i,this.subscribe=h??!1;this.host.addController(this)}hostConnected(){this.dispatchRequest()}hostDisconnected(){this.unsubscribe&&(this.unsubscribe(),this.unsubscribe=void 0)}dispatchRequest(){this.host.dispatchEvent(new context_request_event_s(this.context,this.host,this.t,this.subscribe))}};
 //# sourceMappingURL=context-consumer.js.map
 
 ;// ./node_modules/@lit/context/lib/value-notifier.js
@@ -114662,7 +114556,7 @@ function n(n){return n}
  * Copyright 2021 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-class value_notifier_s{get value(){return this.o}set value(s){this.setValue(s)}setValue(s,t=!1){const i=t||!Object.is(s,this.o);this.o=s,i&&this.updateObservers()}constructor(s){this.subscriptions=new Map,this.updateObservers=()=>{for(const[s,{disposer:t}]of this.subscriptions)s(this.o,t)},void 0!==s&&(this.value=s)}addCallback(s,t,i){if(!i)return void s(this.value);this.subscriptions.has(s)||this.subscriptions.set(s,{disposer:()=>{this.subscriptions.delete(s)},consumerHost:t});const{disposer:h}=this.subscriptions.get(s);s(this.value,h)}clearCallbacks(){this.subscriptions.clear()}}
+class value_notifier_s{get value(){return this.o}set value(s){this.setValue(s)}setValue(s,t=!1){const i=t||!Object.is(s,this.o);this.o=s,i&&this.updateObservers()}constructor(s){this.subscriptions=new Map,this.updateObservers=()=>{for(const[s,{disposer:t}]of this.subscriptions)s(this.o,t)},void 0!==s&&(this.value=s)}addCallback(s,t,i){if(!i)return void s(this.value);this.subscriptions.has(s)||this.subscriptions.set(s,{disposer:()=>{this.subscriptions.delete(s)},consumerHost:t});const{disposer:h}=this.subscriptions.get(s);s(this.value,h)}clearCallbacks(){this.subscriptions.clear()}};
 //# sourceMappingURL=value-notifier.js.map
 
 ;// ./node_modules/@lit/context/lib/controllers/context-provider.js
@@ -114671,7 +114565,7 @@ class value_notifier_s{get value(){return this.o}set value(s){this.setValue(s)}s
  * @license
  * Copyright 2021 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */class e extends Event{constructor(t,s){super("context-provider",{bubbles:!0,composed:!0}),this.context=t,this.contextTarget=s}}class context_provider_i extends value_notifier_s{constructor(s,e,i){super(void 0!==e.context?e.initialValue:i),this.onContextRequest=t=>{if(t.context!==this.context)return;const s=t.contextTarget??t.composedPath()[0];s!==this.host&&(t.stopPropagation(),this.addCallback(t.callback,s,t.subscribe))},this.onProviderRequest=s=>{if(s.context!==this.context)return;if((s.contextTarget??s.composedPath()[0])===this.host)return;const e=new Set;for(const[s,{consumerHost:i}]of this.subscriptions)e.has(s)||(e.add(s),i.dispatchEvent(new context_request_event_s(this.context,i,s,!0)));s.stopPropagation()},this.host=s,void 0!==e.context?this.context=e.context:this.context=e,this.attachListeners(),this.host.addController?.(this)}attachListeners(){this.host.addEventListener("context-request",this.onContextRequest),this.host.addEventListener("context-provider",this.onProviderRequest)}hostConnected(){this.host.dispatchEvent(new e(this.context,this.host))}}
+ */class e extends Event{constructor(t,s){super("context-provider",{bubbles:!0,composed:!0}),this.context=t,this.contextTarget=s}}class context_provider_i extends value_notifier_s{constructor(s,e,i){super(void 0!==e.context?e.initialValue:i),this.onContextRequest=t=>{if(t.context!==this.context)return;const s=t.contextTarget??t.composedPath()[0];s!==this.host&&(t.stopPropagation(),this.addCallback(t.callback,s,t.subscribe))},this.onProviderRequest=s=>{if(s.context!==this.context)return;if((s.contextTarget??s.composedPath()[0])===this.host)return;const e=new Set;for(const[s,{consumerHost:i}]of this.subscriptions)e.has(s)||(e.add(s),i.dispatchEvent(new context_request_event_s(this.context,i,s,!0)));s.stopPropagation()},this.host=s,void 0!==e.context?this.context=e.context:this.context=e,this.attachListeners(),this.host.addController?.(this)}attachListeners(){this.host.addEventListener("context-request",this.onContextRequest),this.host.addEventListener("context-provider",this.onProviderRequest)}hostConnected(){this.host.dispatchEvent(new e(this.context,this.host))}};
 //# sourceMappingURL=context-provider.js.map
 
 ;// ./node_modules/@lit/context/lib/context-root.js
@@ -114681,7 +114575,7 @@ class value_notifier_s{get value(){return this.o}set value(s){this.setValue(s)}s
  * @license
  * Copyright 2021 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */class t{constructor(){this.pendingContextRequests=new Map,this.onContextProvider=t=>{const s=this.pendingContextRequests.get(t.context);if(void 0===s)return;this.pendingContextRequests.delete(t.context);const{requests:o}=s;for(const{elementRef:s,callbackRef:n}of o){const o=s.deref(),c=n.deref();void 0===o||void 0===c||o.dispatchEvent(new context_root_e(t.context,o,c,!0))}},this.onContextRequest=e=>{if(!0!==e.subscribe)return;const t=e.contextTarget??e.composedPath()[0],s=e.callback;let o=this.pendingContextRequests.get(e.context);void 0===o&&this.pendingContextRequests.set(e.context,o={callbacks:new WeakMap,requests:[]});let n=o.callbacks.get(t);void 0===n&&o.callbacks.set(t,n=new WeakSet),n.has(s)||(n.add(s),o.requests.push({elementRef:new WeakRef(t),callbackRef:new WeakRef(s)}))}}attach(e){e.addEventListener("context-request",this.onContextRequest),e.addEventListener("context-provider",this.onContextProvider)}detach(e){e.removeEventListener("context-request",this.onContextRequest),e.removeEventListener("context-provider",this.onContextProvider)}}
+ */class t{constructor(){this.pendingContextRequests=new Map,this.onContextProvider=t=>{const s=this.pendingContextRequests.get(t.context);if(void 0===s)return;this.pendingContextRequests.delete(t.context);const{requests:o}=s;for(const{elementRef:s,callbackRef:n}of o){const o=s.deref(),c=n.deref();void 0===o||void 0===c||o.dispatchEvent(new context_root_e(t.context,o,c,!0))}},this.onContextRequest=e=>{if(!0!==e.subscribe)return;const t=e.contextTarget??e.composedPath()[0],s=e.callback;let o=this.pendingContextRequests.get(e.context);void 0===o&&this.pendingContextRequests.set(e.context,o={callbacks:new WeakMap,requests:[]});let n=o.callbacks.get(t);void 0===n&&o.callbacks.set(t,n=new WeakSet),n.has(s)||(n.add(s),o.requests.push({elementRef:new WeakRef(t),callbackRef:new WeakRef(s)}))}}attach(e){e.addEventListener("context-request",this.onContextRequest),e.addEventListener("context-provider",this.onContextProvider)}detach(e){e.removeEventListener("context-request",this.onContextRequest),e.removeEventListener("context-provider",this.onContextProvider)}};
 //# sourceMappingURL=context-root.js.map
 
 ;// ./node_modules/@lit/context/lib/decorators/provide.js
@@ -114690,7 +114584,7 @@ class value_notifier_s{get value(){return this.o}set value(s){this.setValue(s)}s
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */function provide_e({context:e}){return(n,i)=>{const r=new WeakMap;if("object"==typeof i)return{get(){return n.get.call(this)},set(t){return r.get(this).setValue(t),n.set.call(this,t)},init(n){return r.set(this,new context_provider_i(this,{context:e,initialValue:n})),n}};{n.constructor.addInitializer((n=>{r.set(n,new context_provider_i(n,{context:e}))}));const o=Object.getOwnPropertyDescriptor(n,i);let s;if(void 0===o){const t=new WeakMap;s={get(){return t.get(this)},set(e){r.get(this).setValue(e),t.set(this,e)},configurable:!0,enumerable:!0}}else{const t=o.set;s={...o,set(e){r.get(this).setValue(e),t?.call(this,e)}}}return void Object.defineProperty(n,i,s)}}}
+ */function provide_e({context:e}){return(n,i)=>{const r=new WeakMap;if("object"==typeof i)return{get(){return n.get.call(this)},set(t){return r.get(this).setValue(t),n.set.call(this,t)},init(n){return r.set(this,new context_provider_i(this,{context:e,initialValue:n})),n}};{n.constructor.addInitializer((n=>{r.set(n,new context_provider_i(n,{context:e}))}));const o=Object.getOwnPropertyDescriptor(n,i);let s;if(void 0===o){const t=new WeakMap;s={get(){return t.get(this)},set(e){r.get(this).setValue(e),t.set(this,e)},configurable:!0,enumerable:!0}}else{const t=o.set;s={...o,set(e){r.get(this).setValue(e),t?.call(this,e)}}}return void Object.defineProperty(n,i,s)}}};
 //# sourceMappingURL=provide.js.map
 
 ;// ./node_modules/@lit/context/lib/decorators/consume.js
@@ -114699,7 +114593,7 @@ class value_notifier_s{get value(){return this.o}set value(s){this.setValue(s)}s
  * @license
  * Copyright 2022 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */function c({context:c,subscribe:e}){return(o,n)=>{"object"==typeof n?n.addInitializer((function(){new s(this,{context:c,callback:t=>{o.set.call(this,t)},subscribe:e})})):o.constructor.addInitializer((o=>{new s(o,{context:c,callback:t=>{o[n]=t},subscribe:e})}))}}
+ */function c({context:c,subscribe:e}){return(o,n)=>{"object"==typeof n?n.addInitializer((function(){new s(this,{context:c,callback:t=>{o.set.call(this,t)},subscribe:e})})):o.constructor.addInitializer((o=>{new s(o,{context:c,callback:t=>{o[n]=t},subscribe:e})}))}};
 //# sourceMappingURL=consume.js.map
 
 ;// ./node_modules/@lit/context/index.js
@@ -114889,6 +114783,7 @@ class LocalizeController {
 
 "use strict";
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   OA: () => (/* binding */ t),
 /* harmony export */   WL: () => (/* binding */ i)
 /* harmony export */ });
 /**
@@ -114896,11 +114791,10 @@ class LocalizeController {
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const t={ATTRIBUTE:1,CHILD:2,PROPERTY:3,BOOLEAN_ATTRIBUTE:4,EVENT:5,ELEMENT:6},e=t=>(...e)=>({_$litDirective$:t,values:e});class i{constructor(t){}get _$AU(){return this._$AM._$AU}_$AT(t,e,i){this._$Ct=t,this._$AM=e,this._$Ci=i}_$AS(t,e){return this.update(t,e)}update(t,e){return this.render(...e)}}
+const t={ATTRIBUTE:1,CHILD:2,PROPERTY:3,BOOLEAN_ATTRIBUTE:4,EVENT:5,ELEMENT:6},e=t=>(...e)=>({_$litDirective$:t,values:e});class i{constructor(t){}get _$AU(){return this._$AM._$AU}_$AT(t,e,i){this._$Ct=t,this._$AM=e,this._$Ci=i}_$AS(t,e){return this.update(t,e)}update(t,e){return this.render(...e)}};
 //# sourceMappingURL=directive.js.map
 
 /* harmony export */ __webpack_require__.d(__webpack_exports__, [
-/* harmony export */   "OA", 0, /* binding */ t,
 /* harmony export */   "u$", 0, /* binding */ e
 /* harmony export */ ]);
 
@@ -114963,7 +114857,7 @@ var reactive_element = __webpack_require__(842);
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */const o={attribute:!0,type:String,converter:reactive_element/* defaultConverter */.W3,reflect:!1,hasChanged:reactive_element/* notEqual */.Ec},r=(t=o,e,r)=>{const{kind:n,metadata:i}=r;let s=globalThis.litPropertyMetadata.get(i);if(void 0===s&&globalThis.litPropertyMetadata.set(i,s=new Map),"setter"===n&&((t=Object.create(t)).wrapped=!0),s.set(r.name,t),"accessor"===n){const{name:o}=r;return{set(r){const n=e.get.call(this);e.set.call(this,r),this.requestUpdate(o,n,t,!0,r)},init(e){return void 0!==e&&this.C(o,void 0,t,e),e}}}if("setter"===n){const{name:o}=r;return function(r){const n=this[o];e.call(this,r),this.requestUpdate(o,n,t,!0,r)}}throw Error("Unsupported decorator location: "+n)};function n(t){return(e,o)=>"object"==typeof o?r(t,e,o):((t,e,o)=>{const r=e.hasOwnProperty(o);return e.constructor.createProperty(o,t),r?Object.getOwnPropertyDescriptor(e,o):void 0})(t,e,o)}
+ */const o={attribute:!0,type:String,converter:reactive_element/* defaultConverter */.W3,reflect:!1,hasChanged:reactive_element/* notEqual */.Ec},r=(t=o,e,r)=>{const{kind:n,metadata:i}=r;let s=globalThis.litPropertyMetadata.get(i);if(void 0===s&&globalThis.litPropertyMetadata.set(i,s=new Map),"setter"===n&&((t=Object.create(t)).wrapped=!0),s.set(r.name,t),"accessor"===n){const{name:o}=r;return{set(r){const n=e.get.call(this);e.set.call(this,r),this.requestUpdate(o,n,t,!0,r)},init(e){return void 0!==e&&this.C(o,void 0,t,e),e}}}if("setter"===n){const{name:o}=r;return function(r){const n=this[o];e.call(this,r),this.requestUpdate(o,n,t,!0,r)}}throw Error("Unsupported decorator location: "+n)};function n(t){return(e,o)=>"object"==typeof o?r(t,e,o):((t,e,o)=>{const r=e.hasOwnProperty(o);return e.constructor.createProperty(o,t),r?Object.getOwnPropertyDescriptor(e,o):void 0})(t,e,o)};
 //# sourceMappingURL=property.js.map
 
 ;// ./node_modules/@lit/reactive-element/decorators/state.js
@@ -114972,7 +114866,7 @@ var reactive_element = __webpack_require__(842);
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */function state_r(r){return n({...r,state:!0,attribute:!1})}
+ */function state_r(r){return n({...r,state:!0,attribute:!1})};
 //# sourceMappingURL=state.js.map
 
 ;// ./node_modules/@lit/reactive-element/decorators/event-options.js
@@ -114981,7 +114875,7 @@ var reactive_element = __webpack_require__(842);
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-function event_options_t(t){return(n,o)=>{const c="function"==typeof n?n:n[o];Object.assign(c,t)}}
+function event_options_t(t){return(n,o)=>{const c="function"==typeof n?n:n[o];Object.assign(c,t)}};
 //# sourceMappingURL=event-options.js.map
 
 ;// ./node_modules/@lit/reactive-element/decorators/base.js
@@ -114999,7 +114893,7 @@ const base_e=(e,t,c)=>(c.configurable=!0,c.enumerable=!0,Reflect.decorate&&"obje
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */function e(e,r){return(n,s,i)=>{const o=t=>t.renderRoot?.querySelector(e)??null;if(r){const{get:e,set:r}="object"==typeof s?n:i??(()=>{const t=Symbol();return{get(){return this[t]},set(e){this[t]=e}}})();return base_e(n,s,{get(){let t=e.call(this);return void 0===t&&(t=o(this),(null!==t||this.hasUpdated)&&r.call(this,t)),t}})}return base_e(n,s,{get(){return o(this)}})}}
+ */function e(e,r){return(n,s,i)=>{const o=t=>t.renderRoot?.querySelector(e)??null;if(r){const{get:e,set:r}="object"==typeof s?n:i??(()=>{const t=Symbol();return{get(){return this[t]},set(e){this[t]=e}}})();return base_e(n,s,{get(){let t=e.call(this);return void 0===t&&(t=o(this),(null!==t||this.hasUpdated)&&r.call(this,t)),t}})}return base_e(n,s,{get(){return o(this)}})}};
 //# sourceMappingURL=query.js.map
 
 ;// ./node_modules/@lit/reactive-element/decorators/query-all.js
@@ -115010,7 +114904,7 @@ const base_e=(e,t,c)=>(c.configurable=!0,c.enumerable=!0,Reflect.decorate&&"obje
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-let query_all_e;function query_all_r(r){return(n,o)=>query_all_t(n,o,{get(){return(this.renderRoot??(query_all_e??=document.createDocumentFragment())).querySelectorAll(r)}})}
+let query_all_e;function query_all_r(r){return(n,o)=>query_all_t(n,o,{get(){return(this.renderRoot??(query_all_e??=document.createDocumentFragment())).querySelectorAll(r)}})};
 //# sourceMappingURL=query-all.js.map
 
 ;// ./node_modules/@lit/reactive-element/decorators/query-async.js
@@ -115021,7 +114915,7 @@ let query_all_e;function query_all_r(r){return(n,o)=>query_all_t(n,o,{get(){retu
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-function query_async_r(r){return(n,e)=>query_async_t(n,e,{async get(){return await this.updateComplete,this.renderRoot?.querySelector(r)??null}})}
+function query_async_r(r){return(n,e)=>query_async_t(n,e,{async get(){return await this.updateComplete,this.renderRoot?.querySelector(r)??null}})};
 //# sourceMappingURL=query-async.js.map
 
 ;// ./node_modules/@lit/reactive-element/decorators/query-assigned-elements.js
@@ -115031,7 +114925,7 @@ function query_async_r(r){return(n,e)=>query_async_t(n,e,{async get(){return awa
  * @license
  * Copyright 2021 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */function query_assigned_elements_o(o){return(e,n)=>{const{slot:r,selector:s}=o??{},c="slot"+(r?`[name=${r}]`:":not([name])");return query_assigned_elements_t(e,n,{get(){const t=this.renderRoot?.querySelector(c),e=t?.assignedElements(o)??[];return void 0===s?e:e.filter(t=>t.matches(s))}})}}
+ */function query_assigned_elements_o(o){return(e,n)=>{const{slot:r,selector:s}=o??{},c="slot"+(r?`[name=${r}]`:":not([name])");return query_assigned_elements_t(e,n,{get(){const t=this.renderRoot?.querySelector(c),e=t?.assignedElements(o)??[];return void 0===s?e:e.filter(t=>t.matches(s))}})}};
 //# sourceMappingURL=query-assigned-elements.js.map
 
 ;// ./node_modules/@lit/reactive-element/decorators/query-assigned-nodes.js
@@ -115041,7 +114935,7 @@ function query_async_r(r){return(n,e)=>query_async_t(n,e,{async get(){return awa
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */function query_assigned_nodes_n(n){return(o,r)=>{const{slot:e}=n??{},s="slot"+(e?`[name=${e}]`:":not([name])");return query_assigned_nodes_t(o,r,{get(){const t=this.renderRoot?.querySelector(s);return t?.assignedNodes(n)??[]}})}}
+ */function query_assigned_nodes_n(n){return(o,r)=>{const{slot:e}=n??{},s="slot"+(e?`[name=${e}]`:":not([name])");return query_assigned_nodes_t(o,r,{get(){const t=this.renderRoot?.querySelector(s);return t?.assignedNodes(n)??[]}})}};
 //# sourceMappingURL=query-assigned-nodes.js.map
 
 ;// ./node_modules/lit/decorators.js
@@ -115184,7 +115078,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"application/1d-interleaved-parityfec
 /******/ 			}
 /******/ 			const ns = Object.create(null);
 /******/ 			__webpack_require__.r(ns);
-/******/ 			const def = {};
+/******/ 			const def = Object.create(null);
 /******/ 			leafPrototypes = leafPrototypes || [null, getProto({}), getProto([]), getProto(getProto)];
 /******/ 			for(var current = mode & 2 && value; (typeof current == 'object' || typeof current == 'function') && !~leafPrototypes.indexOf(current); current = getProto(current)) {
 /******/ 				Object.getOwnPropertyNames(current).forEach((key) => (def[key] = () => (value[key])));
@@ -115203,7 +115097,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"application/1d-interleaved-parityfec
 /******/ 			while(i < definition.length) {
 /******/ 				var key = definition[i++];
 /******/ 				var binding = definition[i++];
-/******/ 				var descriptor = binding === 0 ? { enumerable: true, value: definition[i++] } : { enumerable: true, get: binding };
+/******/ 				var descriptor = binding ? { enumerable: true, get: binding } : { enumerable: true, value: definition[i++] };
 /******/ 				if(!__webpack_require__.o(exports, key)) Object.defineProperty(exports, key, descriptor);
 /******/ 			}
 /******/ 		} else {
@@ -115298,9 +115192,9 @@ module.exports = /*#__PURE__*/JSON.parse('{"application/1d-interleaved-parityfec
 /******/ 				doneFns?.forEach((fn) => (fn(event)));
 /******/ 				if(prev) return prev(event);
 /******/ 			}
-/******/ 			const timeout = setTimeout(onScriptComplete.bind(null, undefined, { type: 'timeout', target: script }), 120000);
-/******/ 			script.onerror = onScriptComplete.bind(null, script.onerror);
-/******/ 			script.onload = onScriptComplete.bind(null, script.onload);
+/******/ 			const timeout = setTimeout(onScriptComplete.bind(0, 0, { type: 'timeout', target: script }), 120000);
+/******/ 			script.onerror = onScriptComplete.bind(0, script.onerror);
+/******/ 			script.onload = onScriptComplete.bind(0, script.onload);
 /******/ 			needAttach && document.head.appendChild(script);
 /******/ 		};
 /******/ 	})();
@@ -115308,8 +115202,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"application/1d-interleaved-parityfec
 /******/ 	/* webpack/runtime/make namespace object */
 /******/ 	// define __esModule on exports
 /******/ 	__webpack_require__.r = (exports) => {
-/******/ 		Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		Object.defineProperties(exports, { [Symbol.toStringTag]: { value: 'Module' }, __esModule: { value: true } });
 /******/ 	};
 /******/ 	
 /******/ 	/* webpack/runtime/publicPath */
@@ -115348,7 +115241,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"application/1d-interleaved-parityfec
 /******/ 									if(installedChunkData !== 0) installedChunks[chunkId] = undefined;
 /******/ 									if(installedChunkData) {
 /******/ 										const errorType = event && (event.type === 'load' ? 'missing' : event.type);
-/******/ 										const realSrc = event && event.target && event.target.src;
+/******/ 										const realSrc = event?.target?.src;
 /******/ 										error.message = 'Loading chunk ' + chunkId + ' failed.\n(' + errorType + ': ' + realSrc + ')';
 /******/ 										error.name = 'ChunkLoadError';
 /******/ 										error.type = errorType;
@@ -115399,7 +115292,7 @@ module.exports = /*#__PURE__*/JSON.parse('{"application/1d-interleaved-parityfec
 /******/ 		
 /******/ 		}
 /******/ 		
-/******/ 		const chunkLoadingGlobal = self["webpackChunkMashlib"] = self["webpackChunkMashlib"] || [];
+/******/ 		const chunkLoadingGlobal = Array.isArray(self["webpackChunkMashlib"]) ? self["webpackChunkMashlib"] : (self["webpackChunkMashlib"] = []);
 /******/ 		chunkLoadingGlobal.forEach(webpackJsonpCallback.bind(null, 0));
 /******/ 		chunkLoadingGlobal.push = webpackJsonpCallback.bind(null, chunkLoadingGlobal.push.bind(chunkLoadingGlobal));
 /******/ 	})();
@@ -135450,9 +135343,9 @@ if (true) {
 });
 
 // NAMESPACE OBJECT (decoupled): ./node_modules/solid-panes/dist/index.esm.js
-var solid_panes_dist_index_esm_namespaceObject = {};
-__webpack_require__.r(solid_panes_dist_index_esm_namespaceObject);
-__webpack_require__.d(solid_panes_dist_index_esm_namespaceObject, {
+var index_esm_namespaceObject = {};
+__webpack_require__.r(index_esm_namespaceObject);
+__webpack_require__.d(index_esm_namespaceObject, {
   OutlineManager: () => (manager2_esm_T),
   UI: () => (dist_index_esm),
   byName: () => (paneRegistry.byName),
@@ -135472,194 +135365,27 @@ __webpack_require__.d(solid_panes_dist_index_esm_namespaceObject, {
 
 // EXTERNAL MODULE: ./node_modules/rdflib/esm/index.js + 34 modules
 var esm = __webpack_require__(8698);
-// NAMESPACE OBJECT (decoupled): ./node_modules/rdflib/esm/index.js + 34 modules
-var esm_namespaceObject = {};
-__webpack_require__.r(esm_namespaceObject);
-__webpack_require__.d(esm_namespaceObject, {
-  BlankNode: () => (esm.BlankNode),
-  Collection: () => (esm.Collection),
-  ConnectedStore: () => (esm.ConnectedStore),
-  DataFactory: () => (esm.DataFactory),
-  Empty: () => (esm.Empty),
-  Fetcher: () => (esm.Fetcher),
-  Formula: () => (esm.Formula),
-  IndexedFormula: () => (esm.IndexedFormula),
-  Literal: () => (esm.Literal),
-  LiveStore: () => (esm.LiveStore),
-  N3Parser: () => (esm.N3Parser),
-  NamedNode: () => (esm.NamedNode),
-  Namespace: () => (esm.Namespace),
-  NextId: () => (esm.NextId),
-  Node: () => (esm.Node),
-  Query: () => (esm.Query),
-  RDFParser: () => (esm.RDFParser),
-  RDFaProcessor: () => (esm.RDFaProcessor),
-  SPARQLToQuery: () => (esm.SPARQLToQuery),
-  Serializer: () => (esm.Serializer),
-  Statement: () => (esm.Statement),
-  Store: () => (esm.Store),
-  UpdateManager: () => (esm.UpdateManager),
-  UpdatesSocket: () => (esm.UpdatesSocket),
-  UpdatesVia: () => (esm.UpdatesVia),
-  Util: () => (esm.Util),
-  Variable: () => (esm.Variable),
-  blankNode: () => (esm.blankNode),
-  defaultGraph: () => (esm.defaultGraph),
-  fetcher: () => (esm.fetcher),
-  fromNT: () => (esm.fromNT),
-  graph: () => (esm.graph),
-  isBlankNode: () => (esm.isBlankNode),
-  isCollection: () => (esm.isCollection),
-  isGraph: () => (esm.isGraph),
-  isLiteral: () => (esm.isLiteral),
-  isNamedNode: () => (esm.isNamedNode),
-  isPredicate: () => (esm.isPredicate),
-  isQuad: () => (esm.isQuad),
-  isRDFObject: () => (esm.isRDFObject),
-  isRDFlibObject: () => (esm.isRDFlibObject),
-  isRDFlibPredicate: () => (esm.isRDFlibPredicate),
-  isRDFlibSubject: () => (esm.isRDFlibSubject),
-  isStatement: () => (esm.isStatement),
-  isStore: () => (esm.isStore),
-  isSubject: () => (esm.isSubject),
-  isTerm: () => (esm.isTerm),
-  isVariable: () => (esm.isVariable),
-  lit: () => (esm.lit),
-  literal: () => (esm.literal),
-  log: () => (esm.log),
-  namedNode: () => (esm.namedNode),
-  parse: () => (esm.parse),
-  quad: () => (esm.quad),
-  queryToSPARQL: () => (esm.queryToSPARQL),
-  serialize: () => (esm.serialize),
-  sparqlUpdateParser: () => (esm.sparqlUpdateParser),
-  st: () => (esm.st),
-  sym: () => (esm.sym),
-  term: () => (esm.term),
-  termValue: () => (esm.termValue),
-  triple: () => (esm.triple),
-  uri: () => (esm.uri),
-  variable: () => (esm.variable)
-});
-
 // EXTERNAL MODULE: ./node_modules/solid-logic/dist/index.esm.js + 60 modules
 var index_esm = __webpack_require__(8257);
-// NAMESPACE OBJECT (decoupled): ./node_modules/solid-logic/dist/index.esm.js + 60 modules
-var index_esm_namespaceObject = {};
-__webpack_require__.r(index_esm_namespaceObject);
-__webpack_require__.d(index_esm_namespaceObject, {
-  ACCESS_ROLES: () => (index_esm.ACCESS_ROLES),
-  ACL_LINK: () => (index_esm.ACL_LINK),
-  Authenticated: () => (index_esm.Authenticated),
-  CrossOriginForbiddenError: () => (index_esm.CrossOriginForbiddenError),
-  DEFAULT_DIRECTORY_CATALOG_URL: () => (index_esm.DEFAULT_DIRECTORY_CATALOG_URL),
-  DEFAULT_DIRECTORY_SOURCES: () => (index_esm.DEFAULT_DIRECTORY_SOURCES),
-  FetchError: () => (index_esm.FetchError),
-  NotEditableError: () => (index_esm.NotEditableError),
-  NotFoundError: () => (index_esm.NotFoundError),
-  PUBLIC_ACCESS_ROLES: () => (index_esm.PUBLIC_ACCESS_ROLES),
-  Public: () => (index_esm.Public),
-  ResourceUploadError: () => (index_esm.ResourceUploadError),
-  SameOriginForbiddenError: () => (index_esm.SameOriginForbiddenError),
-  UnauthorizedError: () => (index_esm.UnauthorizedError),
-  WRITE_LOCKED_OWNER_ROLE: () => (index_esm.WRITE_LOCKED_OWNER_ROLE),
-  WebOperationError: () => (index_esm.WebOperationError),
-  analyzeContainerAccessScope: () => (index_esm.analyzeContainerAccessScope),
-  appContext: () => (index_esm.appContext),
-  authSession: () => (index_esm.authSession),
-  authn: () => (index_esm.authn),
-  classifyAuthorizationScope: () => (index_esm.classifyAuthorizationScope),
-  classifyContainerAccessScope: () => (index_esm.classifyContainerAccessScope),
-  createDirectoryLogic: () => (index_esm.createDirectoryLogic),
-  createTypeIndexLogic: () => (index_esm.createTypeIndexLogic),
-  filterAuthorizationsByContainerScope: () => (index_esm.filterAuthorizationsByContainerScope),
-  getSuggestedIssuers: () => (index_esm.getSuggestedIssuers),
-  offlineTestID: () => (index_esm.offlineTestID),
-  performServerSideLogout: () => (index_esm.performServerSideLogout),
-  reloadOnIdentityReplaced: () => (index_esm.reloadOnIdentityReplaced),
-  solidLogicSingleton: () => (index_esm.solidLogicSingleton),
-  store: () => (index_esm.store)
-});
-
 // EXTERNAL MODULE: ./node_modules/solid-ui/dist/index.esm.js + 89 modules
 var dist_index_esm = __webpack_require__(6078);
-// NAMESPACE OBJECT (decoupled): ./node_modules/solid-ui/dist/index.esm.js + 89 modules
-var dist_index_esm_namespaceObject = {};
-__webpack_require__.r(dist_index_esm_namespaceObject);
-__webpack_require__.d(dist_index_esm_namespaceObject, {
-  Account: () => (dist_index_esm.Account),
-  CloseDialogEvent: () => (dist_index_esm.CloseDialogEvent),
-  CodeEditor: () => (dist_index_esm.CodeEditor),
-  DEFAULT_AUTH_CONTEXT: () => (dist_index_esm.DEFAULT_AUTH_CONTEXT),
-  DEFAULT_DIALOG_CONTEXT: () => (dist_index_esm.DEFAULT_DIALOG_CONTEXT),
-  DEFAULT_FILE_EXPLORER_CONTEXT: () => (dist_index_esm.DEFAULT_FILE_EXPLORER_CONTEXT),
-  DEFAULT_SIGNUP_URL: () => (dist_index_esm.DEFAULT_SIGNUP_URL),
-  Dialog: () => (dist_index_esm.Dialog),
-  DialogComponent: () => (dist_index_esm.DialogComponent),
-  DialogTrait: () => (dist_index_esm.DialogTrait),
-  FILE_EXPLORER_BACK_EVENT: () => (dist_index_esm.FILE_EXPLORER_BACK_EVENT),
-  FILE_EXPLORER_MANAGE_ACCESS_EVENT: () => (dist_index_esm.FILE_EXPLORER_MANAGE_ACCESS_EVENT),
-  FILE_EXPLORER_OPEN_PANE_EVENT: () => (dist_index_esm.FILE_EXPLORER_OPEN_PANE_EVENT),
-  FormControlComponent: () => (dist_index_esm.FormControlComponent),
-  FormControlTrait: () => (dist_index_esm.FormControlTrait),
-  NoopAuth: () => (dist_index_esm.NoopAuth),
-  ShowDialogEvent: () => (dist_index_esm.ShowDialogEvent),
-  SolidAuth: () => (dist_index_esm.SolidAuth),
-  WebComponent: () => (dist_index_esm.WebComponent),
-  acl: () => (dist_index_esm.acl),
-  aclControl: () => (dist_index_esm.aclControl),
-  authContext: () => (dist_index_esm.authContext),
-  composeExplorer: () => (dist_index_esm.composeExplorer),
-  create: () => (dist_index_esm.create),
-  createTypes: () => (dist_index_esm.createTypes),
-  customElement: () => (dist_index_esm.customElement),
-  dialogContext: () => (dist_index_esm.dialogContext),
-  dom: () => (dist_index_esm.dom),
-  fileExplorerContext: () => (dist_index_esm.fileExplorerContext),
-  generateId: () => (dist_index_esm.generateId),
-  getPreferredPane: () => (dist_index_esm.getPreferredPane),
-  getRelevantPanes: () => (dist_index_esm.getRelevantPanes),
-  icons: () => (dist_index_esm.icons),
-  infiniteMessageArea: () => (dist_index_esm.infiniteMessageArea),
-  initFooter: () => (dist_index_esm.initFooter),
-  initHeader: () => (dist_index_esm.initHeader),
-  isExplorerEvent: () => (dist_index_esm.isExplorerEvent),
-  language: () => (dist_index_esm.language),
-  log: () => (dist_index_esm.log),
-  login: () => (dist_index_esm.login),
-  matrix: () => (dist_index_esm.matrix),
-  media: () => (dist_index_esm.media),
-  messageArea: () => (dist_index_esm.messageArea),
-  ns: () => (dist_index_esm.ns),
-  pad: () => (dist_index_esm.pad),
-  participation: () => (dist_index_esm.participation),
-  preferences: () => (dist_index_esm.preferences),
-  preparePaneMenuItems: () => (dist_index_esm.preparePaneMenuItems),
-  showDialog: () => (dist_index_esm.showDialog),
-  style: () => (dist_index_esm.style),
-  table: () => (dist_index_esm.table),
-  tabs: () => (dist_index_esm.tabs),
-  utils: () => (dist_index_esm.utils),
-  widgets: () => (dist_index_esm.widgets)
-});
-
 ;// ./src/globals.ts
 
 
 
 const globals_w = window;
-globals_w.$rdf = esm_namespaceObject;
-globals_w.SolidLogic = index_esm_namespaceObject;
-globals_w.UI = dist_index_esm_namespaceObject;
+globals_w.$rdf = esm;
+globals_w.SolidLogic = index_esm;
+globals_w.UI = dist_index_esm;
 ;// ./node_modules/solid-panes/dist/versionInfo.esm.js
 // src/versionInfo.ts
 var versionInfo_esm_e = {
-	buildTime: "2026-11-18T18:32:49Z",
-	commit: "c0be672459262c83fb6ee0be44a6664cc71e7be9",
+	buildTime: "2026-11-23T18:00:42Z",
+	commit: "e046f00339f81623793d788575164aa9f2c1083d",
 	npmInfo: {
-		"solid-panes": "5.1.1",
+		"solid-panes": "5.1.2",
 		npm: "10.9.9",
-		node: "22.23.4",
+		node: "22.23.5",
 		acorn: "8.16.0",
 		ada: "2.9.2",
 		amaro: "1.1.8",
@@ -135668,7 +135394,7 @@ var versionInfo_esm_e = {
 		cjs_module_lexer: "2.2.0",
 		cldr: "48.0",
 		icu: "78.3",
-		llhttp: "9.4.3",
+		llhttp: "9.4.4",
 		modules: "127",
 		napi: "10",
 		nbytes: "0.1.3",
@@ -135677,7 +135403,7 @@ var versionInfo_esm_e = {
 		openssl: "3.5.9",
 		simdjson: "4.5.0",
 		simdutf: "6.4.2",
-		sqlite: "3.53.4",
+		sqlite: "3.54.1",
 		tz: "2026e",
 		undici: "6.29.1",
 		unicode: "17.0",
@@ -135726,7 +135452,7 @@ function propertyViews_esm_r(r) {
 function propertyViews_esm_i(e, t, n, r) {
 	e.properties[t] || (e.properties[t] = []), e.properties[t].push(n), r && (e.defaults[t] = n);
 }
-
+;
 
 //# sourceMappingURL=propertyViews.esm.js.map
 ;// ./node_modules/solid-panes/dist/outline/outlineIcons.esm.js
@@ -136532,7 +136258,7 @@ function userInput_esm_o(s) {
 		}
 	};
 }
-
+;
 
 //# sourceMappingURL=userInput.esm.js.map
 ;// ./node_modules/solid-panes/dist/outline/queryByExample.esm.js
@@ -136558,7 +136284,7 @@ function queryByExample_esm_e() {
 		for (t = 0; t < this.listeners.length; t++) this.listeners[t] === e && delete this.listeners[t];
 	};
 }
-
+;
 
 //# sourceMappingURL=queryByExample.esm.js.map
 ;// ./node_modules/solid-panes/dist/utils/webIdUtils.esm.js
@@ -136611,7 +136337,7 @@ function webIdUtils_esm_s(e) {
 function webIdUtils_esm_c(t, n) {
 	return t.anyValue(n, webIdUtils_esm_e.vcard("fn"), null, n.doc()) || t.anyValue(n, webIdUtils_esm_e.foaf("name"), null, n.doc()) || new URL(n.uri).host.split(".")[0];
 }
-
+;
 
 //# sourceMappingURL=webIdUtils.esm.js.map
 ;// ./node_modules/solid-panes/dist/utils/podUtils.esm.js
@@ -136656,7 +136382,7 @@ async function podUtils_esm_s(e) {
 		console.warn("Unable to load container representation for", e.uri, t);
 	}
 }
-
+;
 
 //# sourceMappingURL=podUtils.esm.js.map
 ;// ./node_modules/solid-panes/dist/navigation/chrome.esm.js
@@ -136705,7 +136431,7 @@ function chrome_esm_l(e) {
 function u(e, n, r, i = !1) {
 	return n === "folder" || n === "basicPreferences" || n === "home" || n === "dashboard" ? !1 : e && !chrome_esm_t(n);
 }
-
+;
 
 //# sourceMappingURL=chrome.esm.js.map
 ;// ./node_modules/solid-panes/dist/icons/folder.esm.js
@@ -136783,7 +136509,7 @@ async function paneUtils_esm_g(e) {
 	let t = await podUtils_esm_i(e);
 	return t.length === 0 ? [] : Promise.all(t.map((e, n) => paneUtils_esm_h(e, t.length > 1 ? `Storage ${n + 1}` : "Storage"))).then((e) => e.filter((e) => e !== null));
 }
-
+;
 
 //# sourceMappingURL=paneUtils.esm.js.map
 ;// ./node_modules/solid-panes/dist/navigation/podContext.esm.js
@@ -136845,7 +136571,7 @@ function podContext_esm_y(e, t) {
 async function podContext_esm_b(e) {
 	return podContext_esm_y(await podContext_esm_g(e), e);
 }
-
+;
 
 //# sourceMappingURL=podContext.esm.js.map
 ;// ./node_modules/solid-panes/dist/navigation/state.esm.js
@@ -136899,7 +136625,7 @@ function state_esm_l(e) {
 function state_esm_u() {
 	state_esm_s(window.history, "replaceState", state_esm_l(window.history.state), "", window.location.href);
 }
-
+;
 
 //# sourceMappingURL=state.esm.js.map
 ;// ./node_modules/solid-panes/dist/navigation/events.esm.js
@@ -136917,7 +136643,7 @@ function events_esm_r(e, n = document) {
 	let r = (t) => e(t.detail);
 	return n.addEventListener(events_esm_t, r), () => n.removeEventListener(events_esm_t, r);
 }
-
+;
 
 //# sourceMappingURL=events.esm.js.map
 ;// ./node_modules/solid-panes/dist/navigation/options.esm.js
@@ -136928,7 +136654,7 @@ function options_esm_e(e) {
 function options_esm_t(e) {
 	return typeof e == "object" && e ? e.source ?? "default" : e === void 0 || e ? "default" : "accountMenu";
 }
-
+;
 
 //# sourceMappingURL=options.esm.js.map
 ;// ./node_modules/solid-panes/dist/navigation/navbarVisibility.esm.js
@@ -136954,7 +136680,7 @@ async function navbarVisibility_esm_s(i, s = !1) {
 		inViewerPod: u
 	}));
 }
-
+;
 
 //# sourceMappingURL=navbarVisibility.esm.js.map
 ;// ./node_modules/solid-panes/dist/outline/outlineDomHelpers.esm.js
@@ -137034,7 +136760,7 @@ function outlineDomHelpers_esm_n({ dom: n, UI: r, kb: i, outlineIcons: a, expand
 		termWidget: f
 	};
 }
-
+;
 
 //# sourceMappingURL=outlineDomHelpers.esm.js.map
 ;// ./node_modules/solid-panes/dist/outline/fileExplorerHelpers.esm.js
@@ -137057,7 +136783,7 @@ async function fileExplorerHelpers_esm_i(r, i, a, o) {
 		openPane: (e, t) => o(e, t)
 	}) : [];
 }
-
+;
 
 //# sourceMappingURL=fileExplorerHelpers.esm.js.map
 // EXTERNAL MODULE: ./node_modules/solid-ui/dist/lib/components/decorators.esm.js
@@ -137512,7 +137238,7 @@ function podUtils_esm_r(n, r) {
 	}
 	return a.size;
 }
-
+;
 
 //# sourceMappingURL=podUtils.esm.js.map
 ;// ./node_modules/solid-ui/dist/components/file-explorer-header/FileExplorerHeaderSummary.esm.js
@@ -137938,7 +137664,7 @@ function getDeepestActiveElement() {
   return [...activeElements()].pop();
 }
 
-
+;
 
 ;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.EZGTRBXB.js
 /*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
@@ -138114,7 +137840,7 @@ function isTopDismissible(key) {
   return dismissibleStack.length > 0 && dismissibleStack[dismissibleStack.length - 1] === key;
 }
 
-
+;
 
 ;// ./node_modules/@awesome.me/webawesome/node_modules/nanoid/url-alphabet/index.js
 let urlAlphabet =
@@ -138198,7 +137924,7 @@ function uniqueId(prefix = "") {
   return `${prefix}${nanoid()}`;
 }
 
-
+;
 
 ;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.RPQJAXXR.js
 /*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
@@ -138219,7 +137945,7 @@ function warnDeprecatedSize(tagName, value) {
   }
 }
 
-
+;
 
 ;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.G5ZZIGWB.js
 /*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
@@ -138289,7 +138015,7 @@ function prefersReducedMotion() {
   return query.matches;
 }
 
-
+;
 
 ;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.PZAN6FPN.js
 /*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
@@ -138321,7 +138047,7 @@ function watch(propertyName, options) {
   };
 }
 
-
+;
 
 // EXTERNAL MODULE: ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.AOKMSJXD.js
 var chunk_AOKMSJXD = __webpack_require__(8479);
@@ -140541,7 +140267,7 @@ function getDefaultIconVariant() {
   return defaultIconVariant;
 }
 
-
+;
 
 ;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.HGBRCPUS.js
 /*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
@@ -140591,7 +140317,7 @@ function getKitCode() {
   return kitCode;
 }
 
-
+;
 
 ;// ./node_modules/@awesome.me/webawesome/dist/chunks/chunk.JE7SQLHI.js
 /*! Copyright 2026 Fonticons, Inc. - https://webawesome.com/license */
@@ -140953,7 +140679,7 @@ function setDefaultIconFamily(family, variant) {
   watchedIcons.forEach((icon) => icon.setIcon());
 }
 
-
+;
 
 ;// ./node_modules/lit-html/directive-helpers.js
 
@@ -143989,7 +143715,7 @@ function accessGrantDrafts_esm_g(e) {
 function accessGrantDrafts_esm_(i) {
 	return i.iri === index_esm.Authenticated.iri ? "Authenticated users" : i.iri === index_esm.Public.iri ? "Public" : (0,label_esm/* label */.P)((0,esm.sym)(i.iri)).trim() || i.iri;
 }
-
+;
 
 //# sourceMappingURL=accessGrantDrafts.esm.js.map
 ;// ./node_modules/solid-ui/dist/_virtual/~icons/lucide/book-user.esm.js
@@ -144447,7 +144173,7 @@ function helpers_esm_r(e, t) {
 function helpers_esm_i(e) {
 	return helpers_esm_r(e, (e) => e.value);
 }
-
+;
 
 //# sourceMappingURL=helpers.esm.js.map
 ;// ./node_modules/solid-ui/dist/components/access-control-modal/accessTargetResolver.esm.js
@@ -144624,7 +144350,7 @@ function applyAccessChanges_esm_i(r, i) {
 	}
 	return index_esm.solidLogicSingleton.acl.modesFromRole(i);
 }
-
+;
 
 //# sourceMappingURL=applyAccessChanges.esm.js.map
 ;// ./node_modules/solid-ui/dist/components/access-control-modal/buildAccessChanges.esm.js
@@ -144648,7 +144374,7 @@ function buildAccessChanges_esm_t({ pendingAccessGrants: t, generalAccessChanges
 		})))
 	];
 }
-
+;
 
 //# sourceMappingURL=buildAccessChanges.esm.js.map
 ;// ./node_modules/solid-ui/dist/components/access-control-modal/AccessControlModal.esm.js
@@ -145566,7 +145292,7 @@ function manager2_esm_T(T) {
 	E.outline = this, this.qs = new queryByExample_esm_e(), this.UserInput = new userInput_esm_o(this), this.clipboardAddress = "tabulator:clipboard", this.UserInput.clipboardInit(this.clipboardAddress);
 	let { outlineObjectDiv: F, outlinePredicateDiv: te, termWidget: I } = outlineDomHelpers_esm_n({
 		dom: E,
-		UI: dist_index_esm_namespaceObject,
+		UI: dist_index_esm,
 		kb: index_esm.store,
 		outlineIcons: outlineIcons_esm_t,
 		expandMouseDownListener: de,
@@ -146315,7 +146041,7 @@ function manager2_esm_T(T) {
 		E.getElementById("UserURI").value = E.URL + "?uri=" + E.getElementById("UserURI").value;
 	}, this.UserInput.setSelected = q, this.UserInput.deselectAll = J, this.UserInput.views = $, this.outlineExpand = Q, this;
 }
-
+;
 
 //# sourceMappingURL=manager2.esm.js.map
 ;// ./node_modules/solid-panes/dist/trustedApplications/trustedApplications.utils.esm.js
@@ -146335,7 +146061,7 @@ function trustedApplications_utils_esm_i(r, i, a, o, s) {
 function trustedApplications_utils_esm_a() {
 	return Math.random().toString(36).substr(2, 5);
 }
-
+;
 
 //# sourceMappingURL=trustedApplications.utils.esm.js.map
 ;// ./node_modules/solid-panes/dist/trustedApplications/trustedApplications.dom.esm.js
@@ -146443,7 +146169,7 @@ function trustedApplications_dom_esm_d({ appModes: e, formElements: t }) {
 		value: dist_index_esm.ns.acl(n).uri
 	}, {}, (e) => t.modes.push(e)), trustedApplications_dom_esm_u("span", n)]));
 }
-
+;
 
 //# sourceMappingURL=trustedApplications.dom.esm.js.map
 ;// ./node_modules/solid-panes/dist/trustedApplications/trustedApplications.view.esm.js
@@ -146484,7 +146210,7 @@ async function trustedApplications_view_esm_c(r, s, c) {
 		s.appendChild(trustedApplications_dom_esm_u("li", "They will not gain more access than you have."))
 	])), s.appendChild(trustedApplications_dom_esm_u("p", "Application URLs must be valid URL. Examples are http://localhost:3000, https://trusted.app, and https://sub.trusted.app."));
 }
-
+;
 
 //# sourceMappingURL=trustedApplications.view.esm.js.map
 ;// ./node_modules/solid-panes/dist/dashboard/homepage.esm.js
@@ -146512,7 +146238,7 @@ function homepage_esm_i(e, t) {
 	let i = document.createElement("h1");
 	return i.appendChild(n), i.appendChild(r), i;
 }
-
+;
 
 //# sourceMappingURL=homepage.esm.js.map
 ;// ./node_modules/solid-panes/dist/dashboard/dashboardPane.esm.js
@@ -146601,7 +146327,7 @@ function basicPreferences_esm_f(e, t, n) {
 	let i = r.appendChild(t.createElement("h3"));
 	return i.innerText = n, r;
 }
-
+;
 
 //# sourceMappingURL=basicPreferences.esm.js.map
 ;// ./node_modules/solid-panes/dist/pad/padPane2.esm.js
@@ -148212,7 +147938,7 @@ function socialSections_esm_o(r) {
 		refreshRequests: _
 	};
 }
-
+;
 
 //# sourceMappingURL=socialSections.esm.js.map
 ;// ./node_modules/solid-panes/dist/utils/viewerUtils.esm.js
@@ -148225,7 +147951,7 @@ function viewerUtils_esm_n(t, n = index_esm.authn.currentUser()) {
 	let { value: r, uri: i } = typeof n == "object" && n ? n : {}, a = typeof n == "string" ? n : r || i || null;
 	return a ? a === t.value ? "owner" : "authenticated" : "anonymous";
 }
-
+;
 
 //# sourceMappingURL=viewerUtils.esm.js.map
 ;// ./node_modules/solid-panes/dist/social/triage.esm.js
@@ -148269,7 +147995,7 @@ async function triage_esm_r(t, r) {
 	} catch {}
 	return triage_esm_n(i, r);
 }
-
+;
 
 //# sourceMappingURL=triage.esm.js.map
 ;// ./node_modules/solid-panes/dist/social/socialPane2.esm.js
@@ -148538,7 +148264,7 @@ async function* socialPane2_esm_(e, t, n = socialPane2_esm_te) {
 	}
 	c.length > 0 && c.length % n !== 0 && (yield [...c]);
 }
-
+;
 
 //# sourceMappingURL=socialPane2.esm.js.map
 ;// ./node_modules/marked/lib/marked.esm.js
@@ -148632,7 +148358,7 @@ Please report this to https://github.com/markedjs/marked.`,e){let r="<p>An error
 //# sourceMappingURL=marked.esm.js.map
 
 ;// ./node_modules/dompurify/dist/purify.es.mjs
-/*! @license DOMPurify 3.4.18 | (c) Cure53 and other contributors | Released under the Apache license 2.0 and Mozilla Public License 2.0 | github.com/cure53/DOMPurify/blob/3.4.18/LICENSE */
+/*! @license DOMPurify 3.5.0 | (c) Cure53 and other contributors | Released under the Apache license 2.0 and Mozilla Public License 2.0 | github.com/cure53/DOMPurify/blob/3.5.0/LICENSE */
 function _OverloadYield(e, d) {
 	this.v = e, this.k = d;
 }
@@ -148762,6 +148488,10 @@ const arrayIsArray = Array.isArray;
 const setCreate = unconstruct(Set);
 const setAdd = unapply(Set.prototype.add);
 const setHas = unapply(Set.prototype.has);
+const setDelete = unapply(Set.prototype.delete);
+const mapCreate = unconstruct(Map);
+const mapGet = unapply(Map.prototype.get);
+const mapSet = unapply(Map.prototype.set);
 const stringToLowerCase = unapply(String.prototype.toLowerCase);
 const stringToString = unapply(String.prototype.toString);
 const stringMatch = unapply(String.prototype.match);
@@ -149597,7 +149327,9 @@ const purify_es_xml = freeze([
 const MUSTACHE_EXPR = seal(/{{[\w\W]*|^[\w\W]*}}/g);
 const ERB_EXPR = seal(/<%[\w\W]*|^[\w\W]*%>/g);
 const TMPLIT_EXPR = seal(/\${[\w\W]*/g);
-const TMPL_MARKER_SERIALIZED = seal(/{{|}}|\${|<%|%>|&lt;%|%&gt;/);
+const TMPL_MARKER = seal(/{{|}}|\${|<%|%>/);
+const NON_WHITESPACE = seal(/[^\t\n\f\r ]/);
+const NUL = seal(/\u0000/g);
 const DATA_ATTR = seal(/^data-[\-\w.\u00B7-\uFFFF]+$/);
 const ARIA_ATTR = seal(/^aria-[\-\w]+$/);
 const IS_ALLOWED_URI = seal(/^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|matrix):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i);
@@ -149607,6 +149339,7 @@ const DOCTYPE_NAME = seal(/^html$/i);
 const CUSTOM_ELEMENT = seal(/^[a-z][.\w]*(-[.\w]+)+$/i);
 const ELEMENT_MARKUP_PROBE = seal(/<[/\w!]/g);
 const COMMENT_MARKUP_PROBE = seal(/<[/\w]/g);
+const COMMENT_UNSAFE = seal(/<[/\w]|^-?>|--!?>|<!-$/g);
 const FALLBACK_TAG_CLOSE = seal(/<\/no(script|embed|frames)/i);
 const SELF_CLOSING_TAG = seal(/\/>/i);
 const ATTR_VALUE_BREAKOUT = seal(/((--!?|])>)|<\/(style|script|title|xmp|textarea|noscript|iframe|noembed|noframes)/i);
@@ -149628,6 +149361,27 @@ const LITERAL_TEXT_ELEMENTS = freeze(addToSet({}, [
 	"noframes",
 	"plaintext",
 	"noscript"
+]));
+const ESCAPABLE_TEXT_ELEMENTS = freeze(addToSet({}, ["textarea", "title"]));
+const VOID_ELEMENTS = freeze(addToSet({}, [
+	"area",
+	"base",
+	"basefont",
+	"bgsound",
+	"br",
+	"col",
+	"embed",
+	"frame",
+	"hr",
+	"img",
+	"input",
+	"keygen",
+	"link",
+	"meta",
+	"param",
+	"source",
+	"track",
+	"wbr"
 ]));
 const getGlobal = function getGlobal() {
 	return typeof window === "undefined" ? null : window;
@@ -149700,7 +149454,7 @@ const _resolveObjectOption = function _resolveObjectOption(cfg, key, fallback) {
 function createDOMPurify() {
 	let window = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : getGlobal();
 	const DOMPurify = (root) => createDOMPurify(root);
-	DOMPurify.version = "3.4.18";
+	DOMPurify.version = "3.5.0";
 	DOMPurify.removed = [];
 	if (!window || !window.document || window.document.nodeType !== NODE_TYPE.document || !window.Element) {
 		DOMPurify.isSupported = false;
@@ -149713,6 +149467,7 @@ function createDOMPurify() {
 	const ElementPrototype = Element.prototype;
 	const cloneNode = lookupGetter(ElementPrototype, "cloneNode");
 	const remove = lookupGetter(ElementPrototype, "remove");
+	const removeChild = lookupGetter(ElementPrototype, "removeChild");
 	const removeAttributeNode = lookupGetter(ElementPrototype, "removeAttributeNode");
 	const getNextSibling = lookupGetter(ElementPrototype, "nextSibling");
 	const getChildNodes = lookupGetter(ElementPrototype, "childNodes");
@@ -149731,6 +149486,9 @@ function createDOMPurify() {
 	const getNamespaceURI = lookupAccessor(ElementPrototype, "namespaceURI");
 	const _readNamespaceURI = function _readNamespaceURI(element) {
 		return getNamespaceURI ? getNamespaceURI(element) : element.namespaceURI;
+	};
+	const _readAttributes = function _readAttributes(node) {
+		return _readNodeType(node) === NODE_TYPE.element ? getAttributes(node) : null;
 	};
 	if (typeof HTMLTemplateElement === "function") {
 		const template = document.createElement("template");
@@ -149837,6 +149595,7 @@ function createDOMPurify() {
 	let KEEP_CONTENT = true;
 	let IN_PLACE = false;
 	let IN_PLACE_VISITED = null;
+	let IN_PLACE_RETURNS = null;
 	let USE_PROFILES = false;
 	let FORBID_CONTENTS = null;
 	const DEFAULT_FORBID_CONTENTS = addToSet({}, [
@@ -149927,6 +149686,7 @@ function createDOMPurify() {
 	const DEFAULT_PARSER_MEDIA_TYPE = "text/html";
 	let transformCaseFunc = null;
 	let CONFIG = null;
+	let ACTIVE_CONFIG = null;
 	const formElement = document.createElement("form");
 	const isRegexOrFunction = function isRegexOrFunction(testValue) {
 		return testValue instanceof RegExp || testValue instanceof Function;
@@ -150132,6 +149892,7 @@ function createDOMPurify() {
 	*/
 	const _forceRemove = function _forceRemove(node) {
 		arrayPush(DOMPurify.removed, { element: node });
+		_unmarkVisited(node);
 		try {
 			getParentNode(node).removeChild(node);
 		} catch (_) {
@@ -150170,7 +149931,7 @@ function createDOMPurify() {
 		const childNodes = getChildNodes(root);
 		if (childNodes) arrayForEach(arraySlice(childNodes), (child) => {
 			try {
-				remove(child);
+				removeChild(root, child);
 			} catch (_) {}
 		});
 		if (_readNodeType(root) === NODE_TYPE.element) _stripAttributes(root, false);
@@ -150308,6 +150069,18 @@ function createDOMPurify() {
 		_neutralizeEscapedElements(root, before);
 		return rootRemoved;
 	};
+	/**
+	* Fail-closed teardown of an in-place tree that cannot be returned: empties
+	* the root and neutralizes everything that was under it, open shadow roots
+	* included.
+	*
+	* @param root the in-place root
+	* @param before the root's nodes, collected before the walk
+	*/
+	const _failClosed = function _failClosed(root, before) {
+		_neutralizeRoot(root);
+		_neutralizeDiscarded(root, before);
+	};
 	const MAX_UNVISITED_ROUNDS = 8;
 	/**
 	* The walk only moves forward, so a node moved to a position it already
@@ -150364,11 +150137,28 @@ function createDOMPurify() {
 	};
 	/**
 	* Records that _sanitizeElements processed `node`. No-op outside IN_PLACE.
+	* Fails closed when a node that left the tree comes back too often.
 	*
 	* @param node the node being processed
 	*/
 	const _markVisited = function _markVisited(node) {
-		if (IN_PLACE_VISITED) setAdd(IN_PLACE_VISITED, node);
+		if (!IN_PLACE_VISITED) return;
+		setAdd(IN_PLACE_VISITED, node);
+		const returns = mapGet(IN_PLACE_RETURNS, node);
+		if (returns === void 0) return;
+		if (returns >= MAX_UNVISITED_ROUNDS) throw typeErrorCreate("the tree kept changing during in-place sanitization; refusing to return it");
+		mapSet(IN_PLACE_RETURNS, node, returns + 1);
+	};
+	/**
+	* Forgets that `node` was processed: it was removed or detached. If a hook
+	* or custom element puts it back, _sanitizeUnvisitedNodes handles it again.
+	*
+	* @param node the node that left the tree
+	*/
+	const _unmarkVisited = function _unmarkVisited(node) {
+		if (!IN_PLACE_VISITED) return;
+		setDelete(IN_PLACE_VISITED, node);
+		if (mapGet(IN_PLACE_RETURNS, node) === void 0) mapSet(IN_PLACE_RETURNS, node, 0);
 	};
 	/**
 	* Patch-linkage attributes (declarative partial updates): `patchsrc`
@@ -150491,6 +150281,47 @@ function createDOMPurify() {
 			if (_isDocumentFragment(tmpl.content)) _scrubTemplateExpressions2(tmpl.content);
 		});
 	};
+	const TABLE_STRUCTURE = "table,tbody,thead,tfoot,tr,colgroup";
+	const TABLE_CONTENT = addToSet({}, [
+		"caption",
+		"colgroup",
+		"col",
+		"thead",
+		"tbody",
+		"tfoot",
+		"tr",
+		"td",
+		"th",
+		"style",
+		"script",
+		"template"
+	]);
+	/**
+	* Moves content the HTML parser would foster-parent to where it would put
+	* it: in front of the table. Only a tree the parser did not build, or one
+	* changed after the parse, holds such content. Without this, a reparse
+	* reorders the text and can join fragments that were not neighbours.
+	*
+	* @param root The root whose tables should be checked.
+	*/
+	const _fosterTableContent = function _fosterTableContent(root) {
+		var _root$querySelectorAl;
+		if (PARSER_MEDIA_TYPE === "application/xhtml+xml") return;
+		const structures = (_root$querySelectorAl = root.querySelectorAll) === null || _root$querySelectorAl === void 0 ? void 0 : _root$querySelectorAl.call(root, TABLE_STRUCTURE);
+		if (!structures || structures.length === 0) return;
+		arrayForEach(structures, (structure) => {
+			arrayForEach(arraySlice(getChildNodes(structure)), (child) => {
+				const nodeType = _readNodeType(child);
+				if (!(nodeType === NODE_TYPE.text ? regExpTest(NON_WHITESPACE, child.data) : nodeType === NODE_TYPE.element && !TABLE_CONTENT[stringToLowerCase(_readNodeName(child))])) return;
+				let table = structure;
+				while (table && stringToLowerCase(_readNodeName(table)) !== "table") table = table === root ? null : getParentNode(table);
+				const tableParent = table && table !== root ? getParentNode(table) : null;
+				if (tableParent) try {
+					tableParent.insertBefore(child, table);
+				} catch (_) {}
+			});
+		});
+	};
 	/**
 	* Normalizes `node` and strips template expressions from its own character
 	* data. Template contents and shadow roots are not entered, their own
@@ -150499,11 +150330,29 @@ function createDOMPurify() {
 	* @param node The root whose own character data should be scrubbed.
 	*/
 	const _scrubOwnCharacterData = function _scrubOwnCharacterData(node) {
+		_fosterTableContent(node);
 		node.normalize();
 		const walker = _createNodeIterator(node, true);
+		let previousText = null;
 		let currentNode = walker.nextNode();
 		while (currentNode) {
-			currentNode.data = _stripTemplateExpressions(currentNode.data);
+			let data = currentNode.data;
+			if (regExpTest(NUL, data)) {
+				data = stringReplace(data, NUL, "");
+				currentNode.data = data;
+			}
+			if (regExpTest(TMPL_MARKER, data)) {
+				data = _stripTemplateExpressions(data);
+				currentNode.data = data;
+			}
+			if (data && _readNodeType(currentNode) === NODE_TYPE.text) {
+				if (previousText) {
+					const tail = previousText.data;
+					const boundary = tail[tail.length - 1] + data[0];
+					if (regExpTest(TMPL_MARKER, boundary)) previousText.data = _stripTemplateExpressions(tail + data[0]);
+				}
+				previousText = currentNode;
+			}
 			currentNode = walker.nextNode();
 		}
 	};
@@ -150550,6 +150399,27 @@ function createDOMPurify() {
 		});
 	}
 	/**
+	* Elements in a state the HTML parser never produces: a void element with
+	* children, a text-only element with an element child or, for literal-text
+	* elements, with markup-like text. See VOID_ELEMENTS, LITERAL_TEXT_ELEMENTS
+	* and ESCAPABLE_TEXT_ELEMENTS. Reads textContent, as an XML document
+	* escapes innerHTML. Elements only: a processing instruction's nodeName is
+	* its target and can collide with these names.
+	*
+	* @param currentNode the element to inspect
+	* @param tagName the element's transformCaseFunc'd tag name
+	* @return true if the element must be removed
+	*/
+	const _isMalformedElement = function _isMalformedElement(currentNode, tagName) {
+		const isVoid = Boolean(VOID_ELEMENTS[tagName]);
+		const literal = Boolean(LITERAL_TEXT_ELEMENTS[tagName]);
+		if (!isVoid && !literal && !ESCAPABLE_TEXT_ELEMENTS[tagName]) return false;
+		if (_readNamespaceURI(currentNode) !== HTML_NAMESPACE) return false;
+		if (isVoid) return currentNode.hasChildNodes();
+		if (_isNode(currentNode.firstElementChild)) return true;
+		return literal && typeof currentNode.textContent === "string" && regExpTest(ELEMENT_MARKUP_PROBE, currentNode.textContent);
+	};
+	/**
 	* Structural-threat checks that condemn a node regardless of the
 	* allowlists: mXSS via namespace confusion, risky CSS construction,
 	* processing instructions, markup-bearing comments. Pure predicate;
@@ -150562,9 +150432,9 @@ function createDOMPurify() {
 	*/
 	const _isUnsafeNode = function _isUnsafeNode(currentNode, tagName, nodeType) {
 		if (SAFE_FOR_XML && nodeType === NODE_TYPE.element && currentNode.hasChildNodes() && !_isNode(currentNode.firstElementChild) && regExpTest(ELEMENT_MARKUP_PROBE, currentNode.textContent) && regExpTest(ELEMENT_MARKUP_PROBE, currentNode.innerHTML)) return true;
-		if (SAFE_FOR_XML && LITERAL_TEXT_ELEMENTS[tagName] && nodeType === NODE_TYPE.element && _readNamespaceURI(currentNode) === HTML_NAMESPACE && (_isNode(currentNode.firstElementChild) || typeof currentNode.textContent === "string" && regExpTest(ELEMENT_MARKUP_PROBE, currentNode.textContent))) return true;
+		if (SAFE_FOR_XML && nodeType === NODE_TYPE.element && _isMalformedElement(currentNode, tagName)) return true;
 		if (nodeType === NODE_TYPE.processingInstruction) return true;
-		if (SAFE_FOR_XML && nodeType === NODE_TYPE.comment && regExpTest(COMMENT_MARKUP_PROBE, currentNode.data)) return true;
+		if (SAFE_FOR_XML && nodeType === NODE_TYPE.comment && regExpTest(COMMENT_UNSAFE, currentNode.data)) return true;
 		return false;
 	};
 	/**
@@ -150640,6 +150510,7 @@ function createDOMPurify() {
 	const _handleHookDetachedNode = function _handleHookDetachedNode(currentNode, root) {
 		if (currentNode === root || getParentNode(currentNode) !== null) return false;
 		if (IN_PLACE) _neutralizeSubtree(currentNode);
+		_unmarkVisited(currentNode);
 		return true;
 	};
 	/**
@@ -150671,14 +150542,7 @@ function createDOMPurify() {
 			_forceRemove(currentNode);
 			return true;
 		}
-		if (FORBID_TAGS[tagName] || !(EXTRA_ELEMENT_HANDLING.tagCheck instanceof Function && EXTRA_ELEMENT_HANDLING.tagCheck(tagName)) && !ALLOWED_TAGS[tagName]) {
-			const removed = _sanitizeDisallowedNode(currentNode, tagName, root);
-			if (removed === false) {
-				_executeHooks(hooks.afterSanitizeElements, currentNode, null);
-				if (_handleHookDetachedNode(currentNode, root)) return true;
-			}
-			return removed;
-		}
+		if ((FORBID_TAGS[tagName] || !(EXTRA_ELEMENT_HANDLING.tagCheck instanceof Function && EXTRA_ELEMENT_HANDLING.tagCheck(tagName)) && !ALLOWED_TAGS[tagName]) && _sanitizeDisallowedNode(currentNode, tagName, root)) return true;
 		if (nodeType === NODE_TYPE.element && !_checkValidNamespace(currentNode)) {
 			_forceRemove(currentNode);
 			return true;
@@ -150812,7 +150676,7 @@ function createDOMPurify() {
 	const _sanitizeAttributes = function _sanitizeAttributes(currentNode, root) {
 		_executeHooks(hooks.beforeSanitizeAttributes, currentNode, null);
 		if (_handleHookDetachedNode(currentNode, root)) return;
-		const attributes = currentNode.attributes;
+		const attributes = _readAttributes(currentNode);
 		if (!attributes || _isClobbered(currentNode)) return;
 		ALLOWED_ATTR = _forkSharedAllowlist(hooks.uponSanitizeAttribute, ALLOWED_ATTR, DEFAULT_ALLOWED_ATTR, SET_CONFIG_ALLOWED_ATTR);
 		const hookEvent = {
@@ -150826,6 +150690,7 @@ function createDOMPurify() {
 		const lcTag = transformCaseFunc(_readNodeName(currentNode));
 		while (l--) {
 			const attr = attributes[l];
+			if (!attr) continue;
 			const name = attr.name, namespaceURI = attr.namespaceURI, attrValue = attr.value;
 			const lcName = transformCaseFunc(name);
 			const initValue = attrValue;
@@ -150950,7 +150815,7 @@ function createDOMPurify() {
 			}
 		}
 	};
-	DOMPurify.sanitize = function(dirty) {
+	const _sanitize = function _sanitize(dirty) {
 		let cfg = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
 		let body = null;
 		let importedNode = null;
@@ -150967,26 +150832,29 @@ function createDOMPurify() {
 			ALLOWED_TAGS = SET_CONFIG_ALLOWED_TAGS;
 			ALLOWED_ATTR = SET_CONFIG_ALLOWED_ATTR;
 		} else _parseConfig(cfg);
+		ACTIVE_CONFIG = CONFIG;
 		DOMPurify.removed = [];
 		const inPlace = IN_PLACE && typeof dirty !== "string" && _isNode(dirty);
 		let inPlaceNodes = [];
 		const outerVisited = IN_PLACE_VISITED;
+		const outerReturns = IN_PLACE_RETURNS;
 		if (inPlace) {
 			_neutralizePatchLinkage(dirty);
+			inPlaceNodes = _collectLiveNodes(dirty);
 			const nn = _readNodeName(dirty);
 			if (typeof nn === "string") {
 				const tagName = transformCaseFunc(nn);
 				if (!ALLOWED_TAGS[tagName] || FORBID_TAGS[tagName]) {
-					_neutralizeRoot(dirty);
+					_failClosed(dirty, inPlaceNodes);
 					throw typeErrorCreate("root node is forbidden and cannot be sanitized in-place");
 				}
 			}
 			if (_isClobbered(dirty)) {
-				_neutralizeRoot(dirty);
+				_failClosed(dirty, inPlaceNodes);
 				throw typeErrorCreate("root node is clobbered and cannot be sanitized in-place");
 			}
-			inPlaceNodes = _collectLiveNodes(dirty);
 			IN_PLACE_VISITED = setCreate();
+			IN_PLACE_RETURNS = mapCreate();
 		} else if (_isNode(dirty)) {
 			body = _initDocument("<!---->");
 			importedNode = body.ownerDocument.importNode(dirty, true);
@@ -151007,13 +150875,11 @@ function createDOMPurify() {
 			while (currentNode = nodeIterator.nextNode()) _sanitizeNode(currentNode, walkRoot);
 			if (inPlace) _sanitizeUnvisitedNodes(dirty, inPlaceNodes);
 		} catch (error) {
-			if (inPlace) {
-				_neutralizeRoot(dirty);
-				_neutralizeDiscarded(dirty, inPlaceNodes);
-			}
+			if (inPlace) _failClosed(dirty, inPlaceNodes);
 			throw error;
 		} finally {
 			IN_PLACE_VISITED = outerVisited;
+			IN_PLACE_RETURNS = outerReturns;
 		}
 		if (inPlace) {
 			if (_neutralizeDiscarded(dirty, inPlaceNodes)) throw typeErrorCreate("a node selected for removal could not be safely returned; refusing to sanitize in place");
@@ -151029,14 +150895,29 @@ function createDOMPurify() {
 			if (ALLOWED_ATTR.shadowroot || ALLOWED_ATTR.shadowrootmode) returnNode = importNode.call(originalDocument, returnNode, true);
 			return returnNode;
 		}
-		const serialize = () => WHOLE_DOCUMENT ? body.outerHTML : body.innerHTML;
-		let serializedHTML = serialize();
-		if (SAFE_FOR_TEMPLATES && regExpTest(TMPL_MARKER_SERIALIZED, serializedHTML)) {
-			_scrubOwnCharacterData(body);
-			serializedHTML = serialize();
-		}
+		if (SAFE_FOR_TEMPLATES) _scrubOwnCharacterData(body);
+		let serializedHTML = WHOLE_DOCUMENT ? body.outerHTML : body.innerHTML;
 		if (WHOLE_DOCUMENT && ALLOWED_TAGS["!doctype"] && body.ownerDocument && body.ownerDocument.doctype && body.ownerDocument.doctype.name && regExpTest(DOCTYPE_NAME, body.ownerDocument.doctype.name)) serializedHTML = "<!DOCTYPE " + body.ownerDocument.doctype.name + ">\n" + serializedHTML;
 		return _signOutput(serializedHTML);
+	};
+	DOMPurify.sanitize = function(dirty) {
+		let cfg = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
+		const outerConfig = ACTIVE_CONFIG;
+		const outerTags = ALLOWED_TAGS;
+		const outerAttr = ALLOWED_ATTR;
+		const outerRemoved = DOMPurify.removed;
+		ACTIVE_CONFIG = null;
+		try {
+			return _sanitize(dirty, cfg);
+		} finally {
+			ACTIVE_CONFIG = outerConfig;
+			if (outerConfig) {
+				if (!SET_CONFIG) _parseConfig(outerConfig);
+				ALLOWED_TAGS = outerTags;
+				ALLOWED_ATTR = outerAttr;
+				DOMPurify.removed = outerRemoved;
+			}
+		}
 	};
 	DOMPurify.setConfig = function() {
 		let cfg = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
@@ -152932,7 +152813,7 @@ function internalPane2_esm_l(e) {
 	let t = e.site().uri;
 	return e.uri === t || e.uri === t + "profile/" || e.uri === t + "profile/card" || e.uri === t + "settings/" || e.uri === t + "settings/prefs.ttl" || e.uri === t + "settings/privateTypeIndex.ttl" || e.uri === t + "settings/publicTypeIndex.ttl" || e.uri === t + "settings/serverSide.ttl";
 }
-
+;
 
 //# sourceMappingURL=internalPane2.esm.js.map
 ;// ./node_modules/solid-panes/dist/home/homePane.esm.js
@@ -152994,7 +152875,7 @@ function rdfList_esm_t(t, n) {
 	}
 	return i(n);
 }
-
+;
 
 //# sourceMappingURL=rdfList.esm.js.map
 ;// ./node_modules/profile-pane/dist/ontology/socialMedia.esm.js
@@ -153177,7 +153058,7 @@ function rdfFormsHelper_esm_r(r, i, a, o) {
 	let s = o || rdfFormsHelper_esm_n + a, c = (0,esm.sym)(s);
 	r.holds(void 0, void 0, void 0, c) || (0,esm.parse)(i, r, s, "text/turtle", () => null);
 }
-
+;
 
 //# sourceMappingURL=rdfFormsHelper.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/social/constants.esm.js
@@ -153530,7 +153411,7 @@ function helpers_esm_U(e, t) {
 	}
 	return e.anyJS(t, dist_index_esm.ns.foaf("homepage"), null, t.doc()) || "";
 }
-
+;
 
 //# sourceMappingURL=helpers.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/social/selectors.esm.js
@@ -153555,7 +153436,7 @@ function selectors_esm_o(o, s) {
 	}
 	return d.length ? { accounts: d } : { accounts: [] };
 }
-
+;
 
 //# sourceMappingURL=selectors.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/skills/selectors.esm.js
@@ -153583,7 +153464,7 @@ function selectors_esm_r(t, r) {
 		};
 	}).filter((e) => e.name !== "");
 }
-
+;
 
 //# sourceMappingURL=selectors.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/languages/selectors.esm.js
@@ -153665,7 +153546,7 @@ function selectors_esm_h(n, r) {
 		l.has(t) || l.set(t, e);
 	}), Array.from(l.values());
 }
-
+;
 
 //# sourceMappingURL=selectors.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/resume/selectors.esm.js
@@ -153743,7 +153624,7 @@ function resume_selectors_esm_u(e) {
 function resume_selectors_esm_d(e, t) {
 	return resume_selectors_esm_u(resume_selectors_esm_l(t, e));
 }
-
+;
 
 //# sourceMappingURL=selectors.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/contactInfo/selectors.esm.js
@@ -153818,7 +153699,7 @@ function contactInfo_selectors_esm_c(e, t) {
 		addresses: contactInfo_selectors_esm_s(e, t)
 	};
 }
-
+;
 
 //# sourceMappingURL=selectors.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/education/selectors.esm.js
@@ -153868,7 +153749,7 @@ function education_selectors_esm_i(e) {
 function education_selectors_esm_a(e, t) {
 	return education_selectors_esm_i(education_selectors_esm_r(t, e));
 }
-
+;
 
 //# sourceMappingURL=selectors.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/shared/projectCommunityNodes.esm.js
@@ -153914,7 +153795,7 @@ function projectCommunityNodes_esm_a(e, r) {
 function projectCommunityNodes_esm_o(e, t) {
 	return projectCommunityNodes_esm_a(e, t)?.value || e.value || "";
 }
-
+;
 
 //# sourceMappingURL=projectCommunityNodes.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/projects/selectors.esm.js
@@ -153991,7 +153872,7 @@ async function projects_selectors_esm_f(e, a) {
 		});
 	}).filter((e) => !!e);
 }
-
+;
 
 //# sourceMappingURL=selectors.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/bio/selectors.esm.js
@@ -154027,7 +153908,7 @@ async function ProfileViewModelPresenter_esm_c(c, l) {
 		cvDetails: resume_selectors_esm_d(c, l)
 	};
 }
-
+;
 
 //# sourceMappingURL=ProfileViewModelPresenter.esm.js.map
 ;// ./node_modules/profile-pane/dist/ui/spinner.esm.js
@@ -154039,7 +153920,7 @@ function spinner_esm_t() {
     <span class="sr-only">Saving...</span>
   `;
 }
-
+;
 
 //# sourceMappingURL=spinner.esm.js.map
 ;// ./node_modules/profile-pane/dist/utils/errorDisplay.esm.js
@@ -154057,7 +153938,7 @@ function errorDisplay_esm_e(e) {
 function errorDisplay_esm_t(t, n) {
 	return (n || errorDisplay_esm_e(t) || "Something went wrong.").trim();
 }
-
+;
 
 //# sourceMappingURL=errorDisplay.esm.js.map
 ;// ./node_modules/profile-pane/dist/ui/dialog2.esm.js
@@ -154321,7 +154202,7 @@ function dialog2_esm_I(e) {
 		i.buttons.hidden = !1, dialog2_esm_F(r, t, !1), e.form.removeEventListener("submit", l), !a && o.isConnected && o.remove();
 	});
 }
-
+;
 
 //# sourceMappingURL=dialog2.esm.js.map
 ;// ./node_modules/profile-pane/dist/texts/messageTexts.esm.js
@@ -154537,7 +154418,7 @@ function rdfMutationHelpers_esm_k(e, t) {
 	let n = rdfMutationHelpers_esm_a(t);
 	return e.find((e) => rdfMutationHelpers_esm_a(e.value) === n || e.value === t);
 }
-
+;
 
 //# sourceMappingURL=rdfMutationHelpers.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/shared/idNodeFactory.esm.js
@@ -154548,7 +154429,7 @@ function idNodeFactory_esm_n(n) {
 	let r = Date.now(), i = r > idNodeFactory_esm_t ? r : idNodeFactory_esm_t + 1;
 	return idNodeFactory_esm_t = i, (0,esm.sym)(`${n.uri}#id${i}`);
 }
-
+;
 
 //# sourceMappingURL=idNodeFactory.esm.js.map
 ;// ./node_modules/profile-pane/dist/utils/debug.esm.js
@@ -154559,7 +154440,7 @@ function debug_esm_e(...e) {
 function debug_esm_t(...e) {
 	console.error(...e);
 }
-
+;
 
 //# sourceMappingURL=debug.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/contactInfo/mutations.esm.js
@@ -154674,7 +154555,7 @@ async function mutations_esm_b(e, t, n) {
 		throw debug_esm_t(messageTexts_esm_u, t), Error(messageTexts_esm_t, { cause: t });
 	}
 }
-
+;
 
 //# sourceMappingURL=mutations.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/shared/phoneCountries.esm.js
@@ -155965,7 +155846,7 @@ function phoneCountries_esm_c(e, t) {
 	let n = t.trim();
 	return n ? n.startsWith("+") ? n : e ? `${e}${n}` : n : "";
 }
-
+;
 
 //# sourceMappingURL=phoneCountries.esm.js.map
 ;// ./node_modules/profile-pane/dist/textUtils.esm.js
@@ -155999,7 +155880,7 @@ function textUtils_esm_r(e) {
 function textUtils_esm_i(e) {
 	return !!(e && e.trim() !== "");
 }
-
+;
 
 //# sourceMappingURL=textUtils.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/shared/contactTypeUtils.esm.js
@@ -156021,7 +155902,7 @@ function contactTypeUtils_esm_i(t) {
 	let n = textUtils_esm_n(t).trim().toLowerCase();
 	return n ? n === "personal" || n === "home" ? "Home" : n === "office" || n === "work" ? "Office" : "" : "";
 }
-
+;
 
 //# sourceMappingURL=contactTypeUtils.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/shared/rowState.esm.js
@@ -156043,7 +155924,7 @@ function rowState_esm_n(e, t) {
 function rowState_esm_r(e, t, n, r) {
 	e[t] = n, e.status = r(e) ? e.entryNode ? e.status === "existing" || e.status === "deleted" ? "modified" : e.status : "new" : e.entryNode ? "deleted" : "new";
 }
-
+;
 
 //# sourceMappingURL=rowState.esm.js.map
 ;// ./node_modules/profile-pane/dist/texts/dialogTexts.esm.js
@@ -156064,7 +155945,7 @@ function sanitizeUtils_esm_n(t) {
 function sanitizeUtils_esm_r(t) {
 	return textUtils_esm_r(t);
 }
-
+;
 
 //# sourceMappingURL=sanitizeUtils.esm.js.map
 ;// ./node_modules/profile-pane/dist/_virtual/~icons/lucide/phone.esm.js
@@ -156647,7 +156528,7 @@ async function ContactInfoEditDialog2_esm_G(n, r, i, a, o, s) {
 		formatSaveError: (e) => e instanceof Error ? e.message : "Unable to save your contact information."
 	}) && s && await s();
 }
-
+;
 
 //# sourceMappingURL=ContactInfoEditDialog2.esm.js.map
 ;// ./node_modules/profile-pane/dist/texts/profileTexts.esm.js
@@ -156758,7 +156639,7 @@ function sectionCardHelpers_esm_u(e) {
 	let t = sectionCardHelpers_esm_a(e);
 	if (t) return t.slice(0, 7);
 }
-
+;
 
 //# sourceMappingURL=sectionCardHelpers.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/shared/collapsibleSection.esm.js
@@ -156774,7 +156655,7 @@ function collapsibleSection_esm_t(t) {
 		});
 	});
 }
-
+;
 
 //# sourceMappingURL=collapsibleSection.esm.js.map
 ;// ./node_modules/profile-pane/dist/ui/responsiveActionButton.esm.js
@@ -156798,7 +156679,7 @@ function responsiveActionButton_esm_n({ layout: n = "desktop", className: r, ari
     </solid-ui-button>
   `;
 }
-
+;
 
 //# sourceMappingURL=responsiveActionButton.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/contactInfo/ContactInfoSection2.esm.js
@@ -157008,7 +156889,7 @@ function ContactInfoSection2_esm_A(e, t, n, r, i, a) {
     ${c ? ContactInfoSection2_esm_k(e, t, s, r, o, a) : ContactInfoSection2_esm_D(e, t, s, r, o, a)}
   `;
 }
-
+;
 
 //# sourceMappingURL=ContactInfoSection2.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/languages/mutations.esm.js
@@ -157144,7 +157025,7 @@ async function mutations_esm_T(e, t, n, a) {
 		throw debug_esm_t(messageTexts_esm_d, t), Error(messageTexts_esm_n, { cause: t });
 	}
 }
-
+;
 
 //# sourceMappingURL=mutations.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/languages/LanguageEditDialog.esm.js
@@ -157473,7 +157354,7 @@ async function LanguageEditDialog_esm_R(e, n, r, i, o, s) {
 		formatSaveError: (e) => e instanceof Error ? e.message : "Unable to save your languages."
 	}) && s && await s();
 }
-
+;
 
 //# sourceMappingURL=LanguageEditDialog.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/languages/LanguageSection2.esm.js
@@ -157595,7 +157476,7 @@ function LanguageSection2_esm_g(e, t, n, r, i, a) {
     ${l ? LanguageSection2_esm_h(e, t, s, r, o, a) : LanguageSection2_esm_p(e, t, s, r, o, a)}
       `;
 }
-
+;
 
 //# sourceMappingURL=LanguageSection2.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/skills/mutations.esm.js
@@ -157668,7 +157549,7 @@ async function skills_mutations_esm_S(e, t, n) {
 		throw debug_esm_t(messageTexts_esm_m, t), Error(messageTexts_esm_r, { cause: t });
 	}
 }
-
+;
 
 //# sourceMappingURL=mutations.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/skills/SkillsEditDialog.esm.js
@@ -157890,7 +157771,7 @@ async function SkillsEditDialog_esm_F(e, n, r, a, o, s) {
 		formatSaveError: (e) => e instanceof Error ? e.message : "Unable to save your skills."
 	}) && s && await s();
 }
-
+;
 
 //# sourceMappingURL=SkillsEditDialog.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/skills/SkillsSection2.esm.js
@@ -158062,7 +157943,7 @@ function SkillsSection2_esm_b(e, t, n, r, i, a) {
     ${c ? SkillsSection2_esm_y(e, t, s, r, o, a) : SkillsSection2_esm_(e, t, s, r, o, a)}
   `;
 }
-
+;
 
 //# sourceMappingURL=SkillsSection2.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/resume/mutations.esm.js
@@ -158166,7 +158047,7 @@ async function resume_mutations_esm_S(e, t, n) {
 		throw debug_esm_t(messageTexts_esm_p, t), Error(messageTexts_esm_i, { cause: t });
 	}
 }
-
+;
 
 //# sourceMappingURL=mutations.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/resume/ResumeEditDialog.esm.js
@@ -158852,7 +158733,7 @@ async function ResumeEditDialog_esm_$(r, i, a, s, c, l) {
 		formatSaveError: (e) => e instanceof Error ? e.message : "Unable to save your resume."
 	}) && (l ? await l() : await dialog2_esm_P("Resume updates saved. Refresh to see latest values.", "Saved", u));
 }
-
+;
 
 //# sourceMappingURL=ResumeEditDialog.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/resume/ResumeSection2.esm.js
@@ -159008,7 +158889,7 @@ function ResumeSection2_esm_y(e, t, n, r, i, a) {
     ${c ? ResumeSection2_esm_v(e, t, s, r, a) : ResumeSection2_esm_g(e, t, s, r, o, a)}
   `;
 }
-
+;
 
 //# sourceMappingURL=ResumeSection2.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/projects/mutations.esm.js
@@ -159118,7 +158999,7 @@ async function projects_mutations_esm_h(e, t, n) {
 		throw debug_esm_t(messageTexts_esm_f, t), Error(messageTexts_esm_a, { cause: t });
 	}
 }
-
+;
 
 //# sourceMappingURL=mutations.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/projects/ProjectEditDialog.esm.js
@@ -159243,7 +159124,7 @@ async function ProjectEditDialog_esm_S(e, n, a, s, l, d) {
 	}), _ = null;
 	_ = await g, _ && d && await d();
 }
-
+;
 
 //# sourceMappingURL=ProjectEditDialog.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/projects/ProjectSection2.esm.js
@@ -159482,7 +159363,7 @@ function ProjectSection2_esm_T(e, t, n, r, i, a) {
     ${s ? ProjectSection2_esm_S(e, t, n, r, a) : ProjectSection2_esm_w(e, t, n, r, o, a)}
   `;
 }
-
+;
 
 //# sourceMappingURL=ProjectSection2.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/bio/mutations.esm.js
@@ -159518,7 +159399,7 @@ async function bio_mutations_esm_u(e, t, n) {
 		throw debug_esm_t(messageTexts_esm_l, t), Error(messageTexts_esm_c, { cause: t });
 	}
 }
-
+;
 
 //# sourceMappingURL=mutations.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/bio/BioEditDialog.esm.js
@@ -159609,7 +159490,7 @@ async function BioEditDialog_esm_h(n, i, a, o, s, c) {
 		formatSaveError: (e) => e instanceof Error ? e.message : "Unable to save your bio."
 	}) && c && await c();
 }
-
+;
 
 //# sourceMappingURL=BioEditDialog.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/bio/BioSection2.esm.js
@@ -159726,7 +159607,7 @@ function BioSection2_esm_h(t, n, r, i, a, s) {
     ${u ? BioSection2_esm_m(t, n, r, i, s) : BioSection2_esm_f(t, n, r, i, c, s)}
   `;
 }
-
+;
 
 //# sourceMappingURL=BioSection2.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/social/mutations.esm.js
@@ -159858,7 +159739,7 @@ async function mutations_esm_k(e, t, n, r) {
 		throw debug_esm_t(messageTexts_esm_h, t), Error(messageTexts_esm_s, { cause: t });
 	}
 }
-
+;
 
 //# sourceMappingURL=mutations.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/social/SocialEditDialog.esm.js
@@ -160157,7 +160038,7 @@ async function SocialEditDialog_esm_A(t, n, i, a, o, c) {
 		formatSaveError: (e) => e instanceof Error ? e.message : "Unable to save your social accounts."
 	}) && c && await c();
 }
-
+;
 
 //# sourceMappingURL=SocialEditDialog.esm.js.map
 ;// ./node_modules/profile-pane/dist/sections/social/SocialSection2.esm.js
@@ -160331,7 +160212,7 @@ function SocialSection2_esm_v(e, t, n, r, i, a) {
     ${l ? SocialSection2_esm_(e, t, s, r, o, a) : SocialSection2_esm_h(e, t, s, r, o, a)}
   `;
 }
-
+;
 
 //# sourceMappingURL=SocialSection2.esm.js.map
 ;// ./node_modules/profile-pane/dist/texts/qrCodeTexts.esm.js
@@ -160488,7 +160369,7 @@ function QRCodeSection2_esm_n(n, r) {
       </section>
   `;
 }
-
+;
 
 //# sourceMappingURL=QRCodeSection2.esm.js.map
 ;// ./node_modules/profile-pane/dist/viewerMode.esm.js
@@ -160507,7 +160388,7 @@ async function viewerMode_esm_r(r) {
 	}
 	return i ? "owner" : "anonymous";
 }
-
+;
 
 //# sourceMappingURL=viewerMode.esm.js.map
 ;// ./node_modules/profile-pane/dist/ProfileView2.esm.js
@@ -160590,7 +160471,7 @@ async function ProfileView2_esm_f(f, p, m, h) {
     </div>
   `;
 }
-
+;
 
 //# sourceMappingURL=ProfileView2.esm.js.map
 ;// ./node_modules/profile-pane/dist/utils/resize.esm.js
@@ -160610,7 +160491,7 @@ function resize_esm_e(e, t) {
 		n !== 0 && window.cancelAnimationFrame(n), i.disconnect();
 	};
 }
-
+;
 
 //# sourceMappingURL=resize.esm.js.map
 ;// ./node_modules/profile-pane/dist/selectors.esm.js
@@ -160837,7 +160718,7 @@ function dist_debug_esm_t(...e) {
 function debug_esm_n(...e) {
 	console.error(...e);
 }
-
+;
 
 //# sourceMappingURL=debug.esm.js.map
 ;// ./node_modules/contacts-pane/dist/components/alert-modal/AlertModal.styles.esm.js
@@ -161479,7 +161360,7 @@ function localUtils_esm_S(e, t = 900) {
 	}
 	a();
 }
-
+;
 
 //# sourceMappingURL=localUtils.esm.js.map
 ;// ./node_modules/contacts-pane/dist/mintNewAddressBook.esm.js
@@ -161557,7 +161438,7 @@ function mintNewAddressBook_esm_c(a, c) {
 		});
 	});
 }
-
+;
 
 //# sourceMappingURL=mintNewAddressBook.esm.js.map
 ;// ./node_modules/contacts-pane/dist/mugshotGallery.esm.js
@@ -161715,7 +161596,7 @@ function mugshotGallery_esm_m(c, l) {
 	let E = mugshotGallery_esm_p.updater.editable(l.doc().uri, mugshotGallery_esm_p), D = c.createElement("div"), O = D.appendChild(c.createElement("div")), k = b();
 	return dist_index_esm.widgets.setImage(k, l), x(), O.refresh = x, E && D.appendChild(T()), D;
 }
-
+;
 
 //# sourceMappingURL=mugshotGallery.esm.js.map
 ;// ./node_modules/contacts-pane/dist/contactLogic.esm.js
@@ -161854,7 +161735,7 @@ async function contactLogic_esm_b(e) {
 		ins: n
 	};
 }
-
+;
 
 //# sourceMappingURL=contactLogic.esm.js.map
 ;// ./node_modules/contacts-pane/dist/webidControl.esm.js
@@ -162028,7 +161909,7 @@ async function webidControl_esm_T(e, n, i) {
 	let w = b.appendChild(v.createElement("div"));
 	return await f(), b;
 }
-
+;
 
 //# sourceMappingURL=webidControl.esm.js.map
 ;// ./node_modules/contacts-pane/dist/components/delete-button/DeleteButton.styles.esm.js
@@ -162300,7 +162181,7 @@ function DeleteButton_esm_V(e, t, n, r, i = {}) {
 	let a = e.createElement("contacts-pane-delete-button");
 	return a.noun = n, a.deleteAction = r, a.confirm = i.confirm ?? !0, i.message && (a.message = i.message), t.classList.add("hoverControl"), t.appendChild(a), a;
 }
-
+;
 
 //# sourceMappingURL=DeleteButton.esm.js.map
 ;// ./node_modules/contacts-pane/dist/components/delete-button/index.esm.js
@@ -162445,7 +162326,7 @@ async function addressBookPresenter_esm_F(e, n) {
 		}
 	}
 }
-
+;
 
 //# sourceMappingURL=addressBookPresenter.esm.js.map
 ;// ./node_modules/contacts-pane/dist/groupMembershipControl.esm.js
@@ -162521,7 +162402,7 @@ async function groupMembershipControl_esm_p(r, l, d) {
 	let { dom: v } = l, y = l.session.store, b = v.createElement("div");
 	return b.classList.add("group-membership-container"), await _(), b.refresh = g, g(), b;
 }
-
+;
 
 //# sourceMappingURL=groupMembershipControl.esm.js.map
 ;// ./node_modules/contacts-pane/dist/ontology/individualAndOrganizationForm.esm.js
@@ -162551,7 +162432,7 @@ function rdfFormsHelper_esm_o(e, t, a, o) {
 	let s = o || rdfFormsHelper_esm_i + a, c = (0,esm.sym)(s);
 	e.holds(void 0, void 0, void 0, c) || (0,esm.parse)(t, e, s, "text/turtle", () => null);
 }
-
+;
 
 //# sourceMappingURL=rdfFormsHelper.esm.js.map
 ;// ./node_modules/contacts-pane/dist/individual.esm.js
@@ -162588,7 +162469,7 @@ async function individual_esm_v(v, y, b, x) {
 	}
 	C ? y.appendChild(await webidControl_esm_w(b, x)) : localUtils_esm_x(b) || y.appendChild(await webidControl_esm_C(b, x));
 }
-
+;
 
 //# sourceMappingURL=individual.esm.js.map
 ;// ./node_modules/contacts-pane/dist/components/new-group-modal/NewGroupModal.styles.esm.js
@@ -163613,7 +163494,7 @@ async function toolsLogic_esm_A(e, t, n) {
 function toolsLogic_esm_j(e, t) {
 	return t("Saving ALL GROUPS"), Promise.all(e.groupObjects.map((n) => toolsLogic_esm_A(e, t, n)));
 }
-
+;
 
 //# sourceMappingURL=toolsLogic.esm.js.map
 ;// ./node_modules/contacts-pane/dist/components/tools/Tools.styles.esm.js
@@ -165440,7 +165321,7 @@ const repeat_u=(e,s,t)=>{const r=new Map;for(let l=s;l<=t;l++)r.set(e[l],l);retu
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
- */const async_directive_s=(i,t)=>{const e=i._$AN;if(void 0===e)return!1;for(const i of e)i._$AO?.(t,!1),async_directive_s(i,t);return!0},async_directive_o=i=>{let t,e;do{if(void 0===(t=i._$AM))break;e=t._$AN,e.delete(i),i=t}while(0===e?.size)},async_directive_r=i=>{for(let t;t=i._$AM;i=t){let e=t._$AN;if(void 0===e)t._$AN=e=new Set;else if(e.has(i))break;e.add(i),async_directive_c(t)}};function async_directive_h(i){void 0!==this._$AN?(async_directive_o(this),this._$AM=i,async_directive_r(this)):this._$AM=i}function async_directive_n(i,t=!1,e=0){const r=this._$AH,h=this._$AN;if(void 0!==h&&0!==h.size)if(t)if(Array.isArray(r))for(let i=e;i<r.length;i++)async_directive_s(r[i],!1),async_directive_o(r[i]);else null!=r&&(async_directive_s(r,!1),async_directive_o(r));else async_directive_s(this,i)}const async_directive_c=i=>{i.type==directive/* PartType */.OA.CHILD&&(i._$AP??=async_directive_n,i._$AQ??=async_directive_h)};class async_directive_f extends directive/* Directive */.WL{constructor(){super(...arguments),this._$AN=void 0}_$AT(i,t,e){super._$AT(i,t,e),async_directive_r(this),this.isConnected=i._$AU}_$AO(i,t=!0){i!==this.isConnected&&(this.isConnected=i,i?this.reconnected?.():this.disconnected?.()),t&&(async_directive_s(this,i),async_directive_o(this))}setValue(t){if(directive_helpers_r(this._$Ct))this._$Ct._$AI(t,this);else{const i=[...this._$Ct._$AH];i[this._$Ci]=t,this._$Ct._$AI(i,this,0)}}disconnected(){}reconnected(){}}
+ */const async_directive_s=(i,t)=>{const e=i._$AN;if(void 0===e)return!1;for(const i of e)i._$AO?.(t,!1),async_directive_s(i,t);return!0},async_directive_o=i=>{let t,e;do{if(void 0===(t=i._$AM))break;e=t._$AN,e.delete(i),i=t}while(0===e?.size)},async_directive_r=i=>{for(let t;t=i._$AM;i=t){let e=t._$AN;if(void 0===e)t._$AN=e=new Set;else if(e.has(i))break;e.add(i),async_directive_c(t)}};function async_directive_h(i){void 0!==this._$AN?(async_directive_o(this),this._$AM=i,async_directive_r(this)):this._$AM=i}function async_directive_n(i,t=!1,e=0){const r=this._$AH,h=this._$AN;if(void 0!==h&&0!==h.size)if(t)if(Array.isArray(r))for(let i=e;i<r.length;i++)async_directive_s(r[i],!1),async_directive_o(r[i]);else null!=r&&(async_directive_s(r,!1),async_directive_o(r));else async_directive_s(this,i)}const async_directive_c=i=>{i.type==directive/* PartType */.OA.CHILD&&(i._$AP??=async_directive_n,i._$AQ??=async_directive_h)};class async_directive_f extends directive/* Directive */.WL{constructor(){super(...arguments),this._$AN=void 0}_$AT(i,t,e){super._$AT(i,t,e),async_directive_r(this),this.isConnected=i._$AU}_$AO(i,t=!0){i!==this.isConnected&&(this.isConnected=i,i?this.reconnected?.():this.disconnected?.()),t&&(async_directive_s(this,i),async_directive_o(this))}setValue(t){if(directive_helpers_r(this._$Ct))this._$Ct._$AI(t,this);else{const i=[...this._$Ct._$AH];i[this._$Ci]=t,this._$Ct._$AI(i,this,0)}}disconnected(){}reconnected(){}};
 //# sourceMappingURL=async-directive.js.map
 
 ;// ./node_modules/lit-html/directives/ref.js
@@ -167269,7 +167150,7 @@ function _objectWithoutPropertiesLoose(r, e) {
   }
   return t;
 }
-
+;
 ;// ./node_modules/hoist-non-react-statics/dist/hoist-non-react-statics.cjs.js
 hoist_non_react_statics_cjs_namespaceFn();
 
@@ -167501,26 +167382,26 @@ function _createClass(e, r, t) {
     writable: !1
   }), e;
 }
-
+;
 ;// ./node_modules/@babel/runtime/helpers/esm/setPrototypeOf.js
 function _setPrototypeOf(t, e) {
   return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) {
     return t.__proto__ = e, t;
   }, _setPrototypeOf(t, e);
 }
-
+;
 ;// ./node_modules/@babel/runtime/helpers/esm/inheritsLoose.js
 
 function inheritsLoose_inheritsLoose(t, o) {
   t.prototype = Object.create(o.prototype), t.prototype.constructor = t, _setPrototypeOf(t, o);
 }
-
+;
 ;// ./node_modules/@babel/runtime/helpers/esm/assertThisInitialized.js
 function assertThisInitialized_assertThisInitialized(e) {
   if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
   return e;
 }
-
+;
 ;// ./node_modules/jss/dist/jss.esm.js
 
 
@@ -171215,18 +171096,18 @@ function arrayLikeToArray_arrayLikeToArray(r, a) {
   for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e];
   return n;
 }
-
+;
 ;// ./node_modules/@babel/runtime/helpers/esm/arrayWithoutHoles.js
 
 function _arrayWithoutHoles(r) {
   if (Array.isArray(r)) return arrayLikeToArray_arrayLikeToArray(r);
 }
-
+;
 ;// ./node_modules/@babel/runtime/helpers/esm/iterableToArray.js
 function _iterableToArray(r) {
   if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r);
 }
-
+;
 ;// ./node_modules/@babel/runtime/helpers/esm/unsupportedIterableToArray.js
 
 function unsupportedIterableToArray_unsupportedIterableToArray(r, a) {
@@ -171236,12 +171117,12 @@ function unsupportedIterableToArray_unsupportedIterableToArray(r, a) {
     return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? arrayLikeToArray_arrayLikeToArray(r, a) : void 0;
   }
 }
-
+;
 ;// ./node_modules/@babel/runtime/helpers/esm/nonIterableSpread.js
 function _nonIterableSpread() {
   throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
 }
-
+;
 ;// ./node_modules/@babel/runtime/helpers/esm/toConsumableArray.js
 
 
@@ -171250,7 +171131,7 @@ function _nonIterableSpread() {
 function _toConsumableArray(r) {
   return _arrayWithoutHoles(r) || _iterableToArray(r) || unsupportedIterableToArray_unsupportedIterableToArray(r) || _nonIterableSpread();
 }
-
+;
 ;// ./node_modules/css-vendor/dist/css-vendor.esm.js
 
 
@@ -171824,7 +171705,7 @@ function supportedValue(property, value) {
   return cache$1[cacheKey];
 }
 
-
+;
 
 ;// ./node_modules/jss-plugin-vendor-prefixer/dist/jss-plugin-vendor-prefixer.esm.js
 
@@ -171994,7 +171875,7 @@ function shallowEqualArrays(arrA, arrB) {
   return true;
 }
 
-
+;
 
 ;// ./node_modules/@emotion/memoize/dist/memoize.browser.esm.js
 function memoize_browser_esm_memoize(fn) {
@@ -173251,7 +173132,7 @@ var shortChatPane_esm_r = dist_index_esm.ns, shortChatPane_esm_i = {
 function chat_pane_dist_debug_esm_e(...e) {
 	console.log(...e);
 }
-
+;
 
 //# sourceMappingURL=debug.esm.js.map
 ;// ./node_modules/chat-pane/dist/longChatPane.esm.js
@@ -173559,7 +173440,7 @@ async function create_esm_h(n, r = !0) {
 	}
 	throw Error("Chat does not exist and createIfMissing is false");
 }
-
+;
 
 //# sourceMappingURL=create.esm.js.map
 ;// ./node_modules/chat-pane/dist/index.esm.js
@@ -173680,7 +173561,7 @@ function helpers_esm_h(t, n) {
 		isContainer: helpers_esm_d(e, n)
 	}]));
 }
-
+;
 
 //# sourceMappingURL=helpers.esm.js.map
 ;// ./node_modules/folder-pane/dist/debug.esm.js
@@ -173691,7 +173572,7 @@ function folder_pane_dist_debug_esm_e(...e) {
 function folder_pane_dist_debug_esm_t(...e) {
 	console.error(...e);
 }
-
+;
 
 //# sourceMappingURL=debug.esm.js.map
 ;// ./node_modules/folder-pane/dist/resourceActionItems.esm.js
@@ -173734,7 +173615,7 @@ async function resourceActionItems_esm_a(a) {
 	})))).flat();
 	return c() ? y : void 0;
 }
-
+;
 
 //# sourceMappingURL=resourceActionItems.esm.js.map
 ;// ./node_modules/folder-pane/dist/requestQueue.esm.js
@@ -173812,7 +173693,7 @@ function requestQueue_esm_c({ concurrency: t = 4, maxRetries: n = 2, defaultRetr
 		}
 	};
 }
-
+;
 
 //# sourceMappingURL=requestQueue.esm.js.map
 ;// ./node_modules/folder-pane/dist/_virtual/~icons/lucide/file.esm.js
@@ -176080,7 +175961,7 @@ function renderRequest_esm_e(e) {
 function renderRequest_esm_t(e, t, n, r) {
 	return e.generation === t && e.subjectUri === n && e.context === r;
 }
-
+;
 
 //# sourceMappingURL=renderRequest.esm.js.map
 ;// ./node_modules/folder-pane/dist/creationSafety.esm.js
@@ -176098,7 +175979,7 @@ function creationSafety_esm_n(e) {
 		return !1;
 	}
 }
-
+;
 
 //# sourceMappingURL=creationSafety.esm.js.map
 ;// ./node_modules/folder-pane/dist/components/folder-pane-storage-header/FolderPaneCreateDialog.styles.esm.js
@@ -176512,7 +176393,7 @@ async function mintPaneInstance_esm_c({ context: o, container: c, pane: l, name:
 		containedResource: mintPaneInstance_esm_a(c, y, S.newInstance, (e) => o.session.store.sym(e))
 	};
 }
-
+;
 
 //# sourceMappingURL=mintPaneInstance.esm.js.map
 ;// ./node_modules/folder-pane/dist/components/folder-pane-view/resourceLoad.esm.js
@@ -176520,7 +176401,7 @@ async function mintPaneInstance_esm_c({ context: o, container: c, pane: l, name:
 function resourceLoad_esm_e(e, t) {
 	return e.getState(t.value) === "failed" && (e.unload(t), !0);
 }
-
+;
 
 //# sourceMappingURL=resourceLoad.esm.js.map
 ;// ./node_modules/folder-pane/dist/components/folder-pane-view/FolderPaneView.esm.js
@@ -177088,7 +176969,7 @@ FolderPaneView_esm_ze = (FolderPaneView_esm_ae = (0,decorators/* property */.MZ)
 	openCreatedResource(e, t) {
 		this.searchQuery = "";
 		let n = t?.name ? this.browserContext?.session.paneRegistry.byName(t.name) ?? t : t;
-		this.showSubject(e, typeof n?.render == "function" ? n : void 0);
+		this.showSubject(e, typeof n?.render == "function" ? n : void 0, !0);
 	}
 	getActiveContainer() {
 		let e = this.selectedResource, t = e ? helpers_esm_p(e) : void 0;
@@ -178902,7 +178783,7 @@ function registerPanes_esm_I(I) {
 	let L = index_esm_.editor;
 	L ? I(L) : console.log("@@@ editProfileView", "profilePane is not providing an editor pane"), I(trustedApplications_view_esm_s), I(basicPreferences_esm_s), I((issue_pane_default())), I(contactsPane_esm_c), I(lib), I(padPane2_esm_f), I(pane_esm_r), I(period_esm_n), I((meeting_pane_default())), I(tabbedPane_esm_i), I(longChatPane_esm_), I(shortChatPane_esm_i), I(schedulePane2_esm_s), I(tripPane_esm_r), I(imagePane2_esm_n), I(playlistPane_esm_r), I(videoPane_esm_n), I(audioPane_esm_r), I(dokieliPane_esm_i), I(folderPane_esm_a), I(slideshowPane_esm_o), I(classInstancePane_esm_r), I(socialPane2_esm_p), I(humanReadablePane2_esm_M), I(dataContentPane2_esm_l), I(dist_index_esm_c), I(n3Pane2_esm_r), I(RDFXMLPane2_esm_r), I(pane_esm_s), I(tableViewPane_esm_t), I(defaultPane2_esm_r), I(ui_pane_esm_r), I(sharingPane_esm_r), I(internalPane2_esm_c), I(homePane_esm_a);
 }
-
+;
 
 //# sourceMappingURL=registerPanes.esm.js.map
 ;// ./node_modules/solid-panes/dist/outline/context.esm.js
@@ -178920,7 +178801,7 @@ function outline_context_esm_t(t, n, r, i, a) {
 		environment: a
 	};
 }
-
+;
 
 //# sourceMappingURL=context.esm.js.map
 ;// ./node_modules/solid-panes/dist/_virtual/~icons/lucide/user.esm.js
@@ -180746,7 +180627,7 @@ async function header_esm_i(i) {
 	if (!f) throw Error("Failed to create header");
 	return c && c.parentNode ? c.parentNode.insertBefore(f, c) : document.body.prepend(f), f;
 }
-
+;
 
 //# sourceMappingURL=header.esm.js.map
 ;// ./node_modules/solid-panes/dist/components/navbar/Navbar.styles.esm.js
@@ -181089,7 +180970,7 @@ async function navbar_esm_(m) {
 	});
 	return w;
 }
-
+;
 
 //# sourceMappingURL=navbar.esm.js.map
 ;// ./node_modules/solid-panes/dist/navigation/controller.esm.js
@@ -181155,7 +181036,7 @@ function controller_esm_l(l) {
 		}
 	} };
 }
-
+;
 
 //# sourceMappingURL=controller.esm.js.map
 ;// ./node_modules/solid-panes/dist/components/profile-heading/profileHeadingData.esm.js
@@ -181236,7 +181117,7 @@ function profileHeadingData_esm_d(e) {
 	let t = e.trim().toLowerCase();
 	return t === "work" || t.endsWith("#work") || t.endsWith("/work");
 }
-
+;
 
 //# sourceMappingURL=profileHeadingData.esm.js.map
 ;// ./node_modules/solid-panes/dist/components/profile-heading/editor/ui/spinner.esm.js
@@ -181248,7 +181129,7 @@ function ui_spinner_esm_t() {
     <span class="sr-only">Saving...</span>
   `;
 }
-
+;
 
 //# sourceMappingURL=spinner.esm.js.map
 ;// ./node_modules/solid-panes/dist/components/profile-heading/editor/utils/errorDisplay.esm.js
@@ -181266,7 +181147,7 @@ function utils_errorDisplay_esm_e(e) {
 function utils_errorDisplay_esm_t(t, n) {
 	return (n || utils_errorDisplay_esm_e(t) || "Something went wrong.").trim();
 }
-
+;
 
 //# sourceMappingURL=errorDisplay.esm.js.map
 ;// ./node_modules/solid-panes/dist/components/profile-heading/editor/ui/dialog2.esm.js
@@ -181515,7 +181396,7 @@ function ui_dialog2_esm_F(e) {
 		i.buttons.hidden = !1, ui_dialog2_esm_P(r, t, !1), e.form.removeEventListener("submit", o);
 	});
 }
-
+;
 
 //# sourceMappingURL=dialog2.esm.js.map
 ;// ./node_modules/solid-panes/dist/_virtual/~icons/lucide/circle-user-round.esm.js
@@ -181771,7 +181652,7 @@ function shared_rdfMutationHelpers_esm_k(e, t) {
 	let n = shared_rdfMutationHelpers_esm_a(t);
 	return e.find((e) => shared_rdfMutationHelpers_esm_a(e.value) === n || e.value === t);
 }
-
+;
 
 //# sourceMappingURL=rdfMutationHelpers.esm.js.map
 ;// ./node_modules/solid-panes/dist/components/profile-heading/editor/sections/shared/idNodeFactory.esm.js
@@ -181782,7 +181663,7 @@ function shared_idNodeFactory_esm_n(n) {
 	let r = Date.now(), i = r > shared_idNodeFactory_esm_t ? r : shared_idNodeFactory_esm_t + 1;
 	return shared_idNodeFactory_esm_t = i, (0,esm.sym)(`${n.uri}#id${i}`);
 }
-
+;
 
 //# sourceMappingURL=idNodeFactory.esm.js.map
 ;// ./node_modules/solid-panes/dist/components/profile-heading/editor/sections/heading/mutations.esm.js
@@ -181933,7 +181814,7 @@ async function heading_mutations_esm_w(e, t, n) {
 		throw Object.defineProperty(n, "cause", { value: t }), n;
 	}
 }
-
+;
 
 //# sourceMappingURL=mutations.esm.js.map
 ;// ./node_modules/solid-panes/dist/components/profile-heading/editor/sections/shared/phoneCountries.esm.js
@@ -183224,7 +183105,7 @@ function shared_phoneCountries_esm_c(e, t) {
 	let n = t.trim();
 	return n ? n.startsWith("+") ? n : e ? `${e}${n}` : n : "";
 }
-
+;
 
 //# sourceMappingURL=phoneCountries.esm.js.map
 ;// ./node_modules/solid-panes/dist/components/profile-heading/editor/textUtils.esm.js
@@ -183250,7 +183131,7 @@ function editor_textUtils_esm_n(e) {
 function editor_textUtils_esm_r(e) {
 	return !!(e && e.trim() !== "");
 }
-
+;
 
 //# sourceMappingURL=textUtils.esm.js.map
 ;// ./node_modules/solid-panes/dist/components/profile-heading/editor/sections/shared/contactTypeUtils.esm.js
@@ -183270,7 +183151,7 @@ function shared_contactTypeUtils_esm_r(e) {
 function shared_contactTypeUtils_esm_i(e) {
 	return e === "Mobile" ? "Cell" : e || "";
 }
-
+;
 
 //# sourceMappingURL=contactTypeUtils.esm.js.map
 ;// ./node_modules/solid-panes/dist/components/profile-heading/editor/sections/shared/rowState.esm.js
@@ -183288,7 +183169,7 @@ function shared_rowState_esm_t(e, t) {
 function shared_rowState_esm_n(e, t, n, r) {
 	e[t] = n, e.status = r(e) ? e.entryNode ? e.status === "existing" || e.status === "deleted" ? "modified" : e.status : "new" : e.entryNode ? "deleted" : "new";
 }
-
+;
 
 //# sourceMappingURL=rowState.esm.js.map
 ;// ./node_modules/solid-panes/dist/components/profile-heading/editor/texts/dialogTexts.esm.js
@@ -183323,7 +183204,7 @@ function shared_sanitizeUtils_esm_r(t) {
 function sanitizeUtils_esm_i(t) {
 	return editor_textUtils_esm_n(t);
 }
-
+;
 
 //# sourceMappingURL=sanitizeUtils.esm.js.map
 ;// ./node_modules/solid-panes/dist/components/profile-heading/editor/sections/heading/dateHelpers.esm.js
@@ -183339,7 +183220,7 @@ function dateHelpers_esm_e(e) {
 	}
 	return "";
 }
-
+;
 
 //# sourceMappingURL=dateHelpers.esm.js.map
 ;// ./node_modules/solid-panes/dist/components/profile-heading/editor/sections/heading/imageHelpers.esm.js
@@ -183415,7 +183296,7 @@ async function imageHelpers_esm_d(i, a, o) {
 	}
 	return p;
 }
-
+;
 
 //# sourceMappingURL=imageHelpers.esm.js.map
 // EXTERNAL MODULE: ./node_modules/solid-ui/dist/lib/dialogs/helpers.esm.js
@@ -185044,7 +184925,7 @@ async function HeadingEditDialog_esm_$(t, r, i, a, o, s) {
 		formatSaveError: (e) => e instanceof Error ? e.message : "Unable to save your heading information."
 	}) && s && await s();
 }
-
+;
 
 //# sourceMappingURL=HeadingEditDialog.esm.js.map
 ;// ./node_modules/solid-panes/dist/components/profile-heading/friendActions.esm.js
@@ -185076,7 +184957,7 @@ async function friendActions_esm_l(r, l) {
 		throw utils_errorDisplay_esm_t(e).includes("Unauthenticated") ? Error(friendActions_esm_o.loginRequired) : e;
 	}
 }
-
+;
 
 //# sourceMappingURL=friendActions.esm.js.map
 ;// ./node_modules/solid-panes/dist/_virtual/~icons/lucide/cake.esm.js
@@ -185645,7 +185526,7 @@ function ProfileHeading_esm_le(e) {
 	}
 	return t;
 }
-
+;
 
 //# sourceMappingURL=ProfileHeading.esm.js.map
 ;// ./node_modules/solid-panes/dist/components/profile-heading/index.esm.js
@@ -185806,7 +185687,7 @@ function profileHeading2_esm_j(e = () => window.location.href) {
 		console.error("Failed to refresh profile heading.", e);
 	}), t;
 }
-
+;
 
 //# sourceMappingURL=profileHeading2.esm.js.map
 ;// ./node_modules/solid-panes/dist/mainPage/navigation.esm.js
@@ -185832,7 +185713,7 @@ function navigation_esm_a(a, o) {
 	}
 	return s;
 }
-
+;
 
 //# sourceMappingURL=navigation.esm.js.map
 ;// ./node_modules/solid-panes/dist/navigation/browserEvents.esm.js
@@ -185864,7 +185745,7 @@ function browserEvents_esm_o(i) {
 		o();
 	});
 }
-
+;
 
 //# sourceMappingURL=browserEvents.esm.js.map
 ;// ./node_modules/solid-panes/dist/mainPage/index.esm.js
@@ -185931,7 +185812,7 @@ async function mainPage_index_esm_h(e) {
 		}
 	} else a && t && typeof e?.GotoSubject == "function" && (await navigation_esm_a(e, t).show({ kind: "restore" }), e[mainPage_index_esm_u] = n);
 }
-
+;
 
 //# sourceMappingURL=index.esm.js.map
 ;// ./node_modules/solid-panes/dist/index.esm.js
@@ -186088,12 +185969,12 @@ const theme = {
 };
 ;// ./src/versionInfo.ts
 /* harmony default export */ const versionInfo = ({
-  buildTime: '2026-11-18T19:14:38Z',
-  commit: '12ab83fe6fff7344e2f57e72c42bf197753c141a',
+  buildTime: '2026-11-23T18:12:37Z',
+  commit: '73206d7200d529fcb79a4bf635651ad0ee0b5082',
   npmInfo: {
-    'mashlib': '3.1.1',
+    'mashlib': '3.1.2',
     'npm': '10.9.9',
-    'node': '22.23.4',
+    'node': '22.23.5',
     'acorn': '8.16.0',
     'ada': '2.9.2',
     'amaro': '1.1.8',
@@ -186102,7 +185983,7 @@ const theme = {
     'cjs_module_lexer': '2.2.0',
     'cldr': '48.0',
     'icu': '78.3',
-    'llhttp': '9.4.3',
+    'llhttp': '9.4.4',
     'modules': '127',
     'napi': '10',
     'nbytes': '0.1.3',
@@ -186111,7 +185992,7 @@ const theme = {
     'openssl': '3.5.9',
     'simdjson': '4.5.0',
     'simdutf': '6.4.2',
-    'sqlite': '3.53.4',
+    'sqlite': '3.54.1',
     'tz': '2026e',
     'undici': '6.29.1',
     'unicode': '17.0',
@@ -186368,7 +186249,7 @@ var provider_index_esm_t = (/* unused pure expression or super */ null && (provi
 
 
 const src_global = window;
-src_global.panes = solid_panes_dist_index_esm_namespaceObject;
+src_global.panes = index_esm_namespaceObject;
 src_global.mashlib = {
   versionInfo: versionInfo
 };

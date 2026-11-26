@@ -30,6 +30,7 @@ const packageAliases = {
   'pane-registry': path.resolve('./node_modules/pane-registry'),
   '$rdf': path.resolve('./node_modules/rdflib'),
   'SolidLogic': path.resolve('./node_modules/solid-logic'),
+  'buffer$': path.resolve('./node_modules/buffer/index.js'),
   // Force a single copy of @awesome.me/webawesome to avoid duplicate
   // custom-element registrations (wa-popup, etc.) from the hoisted install.
   '@awesome.me/webawesome': path.resolve('./node_modules/@awesome.me/webawesome'),
@@ -42,6 +43,7 @@ const workspaceAliases = {
   // See packageAliases: no prefix alias for 'solid-ui/components' — the
   // shim files would shadow the correctly-externalized leaf entries.
   'UI$': path.resolve('../solid-ui/dist/index.cjs.js'),
+  'buffer$': path.resolve('./node_modules/buffer/index.js'),
   '@awesome.me/webawesome': path.resolve('../solid-ui/node_modules/@awesome.me/webawesome'),
 }
 
@@ -97,6 +99,10 @@ function createCommonConfig (resolutionMode) {
           type: 'asset/source', // Load the file's content as a string
         },
         {
+          test: /pdf\.worker\.min\.mjs$/,
+          type: 'asset/resource',
+        },
+        {
           test: /\.(mjs|js|ts)$/,
           exclude: (modulePath) => {
             if (/node_modules[/\\]solid-panes[/\\]src/.test(modulePath)) return false
@@ -145,7 +151,9 @@ function createCommonConfig (resolutionMode) {
       new MiniCssExtractPlugin({
         filename: 'mash.css'
       }),
-      new NodePolyfillPlugin(),
+      new NodePolyfillPlugin({
+        excludeAliases: ['buffer', 'Buffer']
+      }),
       new CopyPlugin({
         patterns: [
           { from: 'static', to: '.' }

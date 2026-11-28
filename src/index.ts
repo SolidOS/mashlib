@@ -57,8 +57,6 @@ window.addEventListener('mashlib:layoutchange', syncEnvironmentToContext)
 window.addEventListener('mashlib:themechange', syncEnvironmentToContext)
 
 global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
-  mainPageStarted = true
-
   // Set up cross-site proxy
   const fetcher: any = $rdf.Fetcher
   fetcher.crossSiteProxyTemplate = window.origin + '/xss/?uri={uri}'
@@ -81,10 +79,13 @@ global.panes.runDataBrowser = function (uri?:string|$rdf.NamedNode|null) {
       buildRenderEnvironment()
     ))
     .then(() => {
+      mainPageStarted = true
       // Re-sync in case layout/theme changed between snapshot and outliner init
-      syncEnvironmentToContext('initMainPage')
+      return syncEnvironmentToContext('initMainPage')
     })
-    .catch(() => undefined)
+    .catch((error: unknown) => {
+      console.error('Failed to initialize the data browser.', error)
+    })
 
 }
 
